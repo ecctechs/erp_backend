@@ -69,7 +69,18 @@ class ProductController {
       } else {
         // Upload image to Cloudinary
         if (req.file && req.file.size > 5 * 1024 * 1024) {
-          res.status(400).json({ error: "File size exceeds 5 MB limit" });
+          // res.status(400).json({ error: "File size exceeds 5 MB limit" });
+          await ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "File size exceeds 5 MB limit")
+        } else if(!req.file){
+          await ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Please choose product image file")
         } else {
           const result = await cloudinary.uploader.upload(req.file.path);
 
@@ -155,7 +166,7 @@ static async EditProduct(req, res) {
                     amount: req.body.amount,
                     price: req.body.price,
                     productcost: req.body.productcost,
-                    categoryName: req.body.categoryName,
+                    categoryID: req.body.categoryID,
                 };
 
                 if (req.file) {
@@ -380,8 +391,14 @@ static async EditProduct(req, res) {
             req,
             res,
             400,
-            "transactionType not correct"
+            "Please select transaction type"
           );
+          // await ResponseManager.ErrorResponse(
+          //   req,
+          //   res,
+          //   400,
+          //   "transactionType not correct"
+          // );
         }
       } else {
         await ResponseManager.ErrorResponse(req, res, 400, "Product Not found");

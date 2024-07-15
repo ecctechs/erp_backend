@@ -42,6 +42,8 @@ const Business = sequelize.define( 'businesses', {
 const Bank = sequelize.define( 'banks', {
     bank_id: {
         type: DataTypes.INTEGER, 
+        autoIncrement: true,
+        primaryKey: true  
     },
     bank_name: {
         type: DataTypes.STRING(40), 

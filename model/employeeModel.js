@@ -32,11 +32,11 @@ const Employee = sequelize.define('employees', {
         allowNull: false 
     },
     NID_num: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.STRING, 
         allowNull: false 
     },
     Phone_num: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.STRING, 
         allowNull: false 
     },
     Email: {
@@ -60,7 +60,7 @@ const Employee = sequelize.define('employees', {
         allowNull: false 
     },
     bankAccountID: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.STRING, 
         allowNull: false 
     },
     PositionID: {
@@ -132,5 +132,8 @@ const Department = sequelize.define( 'departments', {
 },{
     timestamps: false
 });
+
+
+
 
 module.exports = {Employee,Position,Salary_pay,Department};

@@ -38,58 +38,73 @@ class QuotationSaleController {
     static async addBusiness(req, res) {
         try {
     
-          const addBusiness = await Business.findOne({
+          const checkBusiness = await Business.findOne({
             where: {
-                bus_name: req.body.bus_name,
+                bus_id: 1,
+                // bus_name: req.body.bus_name,
             },
           });
-          if (addBusiness) {
-            await ResponseManager.ErrorResponse(
-              req,res,400,"Business already exists"
-            );
-          } else {
-            // Upload image to Cloudinary
+          if (!checkBusiness) {
+
             if (req.file && req.file.size > 5 * 1024 * 1024) {
               res.status(400).json({ error: "File size exceeds 5 MB limit" });
             } else {
               const result = await cloudinary.uploader.upload(req.file.path);
-    
-              const insert_Business = await Business.create({
-                // productID: req.body.productID,
-                bus_name: req.body.bus_name,
-                bus_address: req.body.bus_address,
-                bus_website: req.body.bus_website,
-                bus_tel: req.body.bus_tel,
-                bus_tax: req.body.bus_tax,
-                bus_logo: result.secure_url,
+              
+              const createbank = await Bank.create({
+                bank_name:req.body.bank_name,
+                bank_account:req.body.bank_account,
+                bank_number: req.body.bank_number,
               });
-
-              if(insert_Business){
-                // console.log(insert_Business.bus_id)
-                 await Business.update(
-                    {
-                        bank_id: insert_Business.bus_id,
-                    },
-                    {
-                        where: {
-                            bus_id: insert_Business.bus_id,
-                        },
-                    }               
-                )
-
-                await Bank.create({
-                    bank_id:insert_Business.bus_id,
-                    bank_name:req.body.bank_name,
-                    bank_account:req.body.bank_account,
-                    bank_number: req.body.bank_number,
-                  });
-
-                  const business = await Business.findAll({});
-          
-              }
-    
-              await ResponseManager.SuccessResponse(req, res, 200, insert_Business);
+              if(createbank) {
+                await Business.create({
+                  // productID: req.body.productID,
+                  bus_name: req.body.bus_name,
+                  bus_address: req.body.bus_address,
+                  bus_website: req.body.bus_website,
+                  bus_tel: req.body.bus_tel,
+                  bus_tax: req.body.bus_tax,
+                  bus_logo: result.secure_url,
+                  bank_id: createbank.bank_id
+                });
+              }    
+              await ResponseManager.SuccessResponse(req, res, 200, 'Success');
             }
+
+          } else {
+            let productUpdateData = {
+              bus_name: req.body.bus_name,
+              bus_address: req.body.bus_address,
+              bus_website: req.body.bus_website,
+              bus_tax: req.body.bus_tax,
+              bus_tel: req.body.bus_tel,
+              bank_name: req.body.bank_name,
+              bank_account: req.body.bank_account,
+              bank_number: req.body.bank_number,
+            };
+
+            if (req.file) {
+                const result = await cloudinary.uploader.upload(req.file.path);
+                productUpdateData.bus_logo = result.secure_url; // Save Cloudinary image path
+            }
+
+            await Business.update(
+                productUpdateData,
+                {
+                    where: {
+                      bus_id: 1,
+                    },
+                }
+            );
+            await Bank.update(
+              productUpdateData,
+              {
+                  where: {
+                    bank_id: 1,
+                  },
+              }
+            );
+            await ResponseManager.SuccessResponse(req, res, 200, 'Success');
           }
         } catch (err) {
           await ResponseManager.CatchResponse(req, res, err.message);

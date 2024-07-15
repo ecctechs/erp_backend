@@ -117,8 +117,8 @@ const Role = sequelize.define('roles', {
 const UserActivity = sequelize.define('UserActivities', {
     id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true,
     },
     userId: {
       type: DataTypes.STRING,

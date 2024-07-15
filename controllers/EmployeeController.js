@@ -1,4 +1,8 @@
+const { where } = require("sequelize");
 const ResponseManager = require("../middleware/ResponseManager");
+const TokenManager = require('../middleware/tokenManager');
+const { DataTypes, Op } = require('sequelize');
+const sequelize = require('../database');
 const {
   Employee,
   Position,
@@ -270,20 +274,120 @@ class EmployeeController {
   static async getPayment(req, res) {
     try {
       // กำหนดความสัมพันธ์ระหว่าง Table1 และ Table2
-      Salary_pay.hasMany(Employee, { foreignKey: "employeeID" });
-      Employee.belongsTo(Salary_pay, { foreignKey: "employeeID" });
-
+      Employee.hasMany(Salary_pay, { foreignKey: "employeeID" });
+      Salary_pay.belongsTo(Employee, { foreignKey: "employeeID" });
+  
       // กำหนดความสัมพันธ์ระหว่าง Table2 และ Table3
       Employee.hasMany(Position, { foreignKey: "PositionID" });
       Position.belongsTo(Employee, { foreignKey: "PositionID" });
-
-      // ดึงข้อมูลจาก Table1 พร้อมทั้ง Table2 และ Table3
-      const result = await Salary_pay.findAll({
-        include: [
-          { model: Employee, include: [Position] }, // เชื่อมโยง Table2 และ Table3
-        ],
+  
+      // กำหนดความสัมพันธ์ระหว่าง Table3 และ Table4
+      Department.hasMany(Employee, { foreignKey: "departmentID" });
+      Employee.belongsTo(Department, { foreignKey: "departmentID" });
+  
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail } = tokenData;
+      console.log("-----------------------------", RoleName);
+      
+      let result = [];
+      let paymentslist = [];
+  
+      if (RoleName === 'superuser') {
+        paymentslist = await Salary_pay.findAll({
+          include: [
+            { model: Employee, include: [Position, Department] }, // เชื่อมโยง Table2 และ Table3 และ Table4
+          ],
+        });
+        paymentslist.forEach(log => {
+          result.push({
+            payment_id: log.payment_id,
+            date: log.Date,
+            round: log.round,
+            month: log.month,
+            year: log.year,
+            employeeName: log.employee.F_name + " " + log.employee.L_name
+          });
+        });
+      } else if(RoleName === 'employee') {
+        paymentslist = await Salary_pay.findAll({
+          include: [
+            { 
+              model: Employee,
+              where: {
+                Email: userEmail
+              }, 
+              include: [Position, Department] }
+          ],
+        });
+        paymentslist.forEach(log => {
+          result.push({
+            payment_id: log.payment_id,
+            date: log.Date,
+            round: log.round,
+            month: log.month,
+            year: log.year,
+            employeeName: log.employee.F_name + " " + log.employee.L_name
+          });
+        });
+      } else if (RoleName === 'manager') {
+        const userData = await Employee.findOne({
+          where: {
+            Email: userEmail
+          },
+          include: [
+            {
+              model: Department
+            }
+          ]
+        });
+  
+        if (!userData || !userData.department) {
+          return await ResponseManager.ErrorResponse(req, res, 404, "Manager department data not found");
+        }
+  
+        console.log("Department Name:", userData.department.departmentName);
+        const userdepart = userData.department.departmentID;
+  
+        paymentslist = await Salary_pay.findAll({
+          include: [
+            { 
+              model: Employee,
+              where: {
+                departmentID: userdepart,
+                Email: {
+                  [Op.ne]: userEmail
+                }
+              },
+              include: [
+                {
+                  model: Position
+                },
+                {
+                  model: Department,
+                  where: {
+                    departmentID: userdepart
+                  }
+                }
+              ]
+            }
+          ]
+        });
+      }
+      paymentslist.forEach(log => {
+        result.push({
+          payment_id: log.payment_id,
+          date: log.Date,
+          round: log.round,
+          month: log.month,
+          year: log.year,
+          employeeName: log.employee.F_name + " " + log.employee.L_name
+        });
       });
-
+  
       await ResponseManager.SuccessResponse(req, res, 200, result);
     } catch (err) {
       await ResponseManager.CatchResponse(req, res, err.message);
@@ -420,7 +524,6 @@ class EmployeeController {
       await ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-
   static async AddPayment2(req, res) {
     try {
         // ตรวจสอบว่ามีข้อมูลใน req.body.payments หรือไม่
@@ -459,11 +562,10 @@ class EmployeeController {
         // รอให้การสร้างรายการเสร็จสมบูรณ์ทั้งหมด
         const createdPayments = await Promise.all(paymentCreationPromises);
         res.status(200).json(createdPayments);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-}
-
+      } catch (err) {
+          res.status(500).json({ error: err.message });
+      }
+  }
 }
 
 module.exports = EmployeeController;

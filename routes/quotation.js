@@ -15,7 +15,7 @@ Route.post(RouteName+'/addBusiness', type, QuotationSaleController.addBusiness)
 Route.post(RouteName+'/addQuotationSale', QuotationSaleController.addQuotationSale)
 Route.get(RouteName+'/getQuotation',QuotationSaleController.getQuotation)
 Route.delete(RouteName+'/deleteQuotation/:id',QuotationSaleController.deleteQuotation)
-Route.post(RouteName+'/getBusinessByID/:id',QuotationSaleController.getBusinessByID)
+Route.get(RouteName+'/getBusinessByID/:id',QuotationSaleController.getBusinessByID)
 Route.put(RouteName+'/editBusiness/:id', type ,QuotationSaleController.editBusiness)
 
 module.exports = Route
