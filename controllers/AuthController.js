@@ -1,23 +1,3 @@
-// const bcrypt = require('bcrypt');
-var bcrypt = require('bcryptjs');
-const TokenManager = require('../middleware/tokenManager');
-const ResponseManager = require("../middleware/ResponseManager");
-const {User, Role } = require('../model/userModel'); // call model
-const logUserActivity = require('../middleware/UserActivity');
-
-
-
-
-
-// const { Pool } = require('pg');
-// const pool = new Pool({
-//     user: 'postgres',
-//     host: 'localhost',
-//     database: 'Test_VueJS_Project',
-//     password: '123456',
-//     port: 5432,
-//   });
-  // const bcrypt = require('bcrypt');
 var bcrypt = require('bcryptjs');
 const TokenManager = require('../middleware/tokenManager');
 const ResponseManager = require("../middleware/ResponseManager");
