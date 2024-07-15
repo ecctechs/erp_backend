@@ -34,90 +34,87 @@ class AuthController {
         }
     }
 
-    static async login(req,res, next){
+    static async login(req, res, next) {
+        try {
+            User.belongsTo(Role, { foreignKey: "RoleID" });
+            Role.hasMany(User, { foreignKey: "RoleID" });
 
-        try{
+            const timestamp = Date.now();
+            const dateObject = new Date(timestamp);
 
-        User.belongsTo(Role, { foreignKey: "RoleID" });
-        Role.hasMany(User, { foreignKey: "RoleID" });
+            // กำหนด locale เป็น 'th' และใช้ toLocaleDateString() และ toLocaleTimeString() ในการแสดงวันที่และเวลา
+            const thaiDateString = dateObject.toLocaleDateString('th') + ' ' + dateObject.toLocaleTimeString('th');
 
-        const timestamp = Date.now();
-        const dateObject = new Date(timestamp);
-
-        // กำหนด locale เป็น 'th' และใช้ toLocaleDateString() และ toLocaleTimeString() ในการแสดงวันที่และเวลา
-        const thaiDateString = dateObject.toLocaleDateString('th') + ' ' + dateObject.toLocaleTimeString('th');
-
-
-        var users = await User.findAll({
-            include: [{
-              model: Role,
-              where: {
-                // เพิ่มเงื่อนไขที่ต้องการใน Role
-                // ตัวอย่าง: หา RoleID เท่ากับ 1
-              },
-            }],
-            where: {
-              userEmail: req.body.useremail,
-            },
-          });
-
-
-          if (users.length > 0) {  
-            // ถ้ามีผู้ใช้
-            const storedHashedPassword = users[0].userPassword;
-          
-            // เปรียบเทียบรหัสผ่านที่ผู้ใช้ป้อนกับ hashed password ที่เก็บไว้ในฐานข้อมูล
-            const isPasswordMatch = await bcrypt.compare(req.body.password, storedHashedPassword);
-          
-            if (isPasswordMatch) {
-
-                const payload = {
-                    userID: users[0].userID,
-                    userF_name: users[0].userF_name,
-                    userEmail: users[0].userEmail,
-                    userRole:users[0].role.RoleName
-                };
-                
-             const token = TokenManager.getGenerateAccessToken(payload);
-
-            await User.update(
-                {
-                    accessToken: token,
-                    TokenCreate: thaiDateString
-                },
-                {
-                    where: {
-                        userID: users[0].userID,
-                    },
-                }               
-            )
-            const bodyString = JSON.stringify(req.body);
-
-            await logUserActivity(users[0].userID, `Read/login/${users[0].role.RoleName}`,'Login',bodyString);
-            // console.log(token)
-
-            res.json({ 
-                token, 
-                userID: users[0].userID,
-                userF_name: users[0].userF_name,
-                userEmail: users[0].userEmail,
-                RoleID:users[0].RoleID,
-                RoleName:users[0].role.RoleName,
-            });      
-         
-            } else {
-              // รหัสผ่านไม่ถูกต้อง
-              await ResponseManager.ErrorResponse(req, res, 401, 'Incorrect password');
+            // ตรวจสอบค่าที่รับจาก req.body
+            const { userEmail, userPassword } = req.body;
+            if (!userEmail || !userPassword) {
+                return ResponseManager.ErrorResponse(req, res, 400, 'userEmail and userPassword are required');
             }
-          } else {
-            // ไม่พบผู้ใช้
-            await ResponseManager.ErrorResponse(req, res, 404, 'Incorrect usernsme');
-          }
-        }catch(err){
-            await ResponseManager.CatchResponse(req,res,err.message)
+
+            const users = await User.findAll({
+                include: [{
+                    model: Role,
+                    where: {
+                        // เพิ่มเงื่อนไขที่ต้องการใน Role
+                        // ตัวอย่าง: หา RoleID เท่ากับ 1
+                    },
+                }],
+                where: {
+                    userEmail: userEmail,
+                },
+            });
+
+            if (users.length > 0) {
+                // ถ้ามีผู้ใช้
+                const storedPassword = users[0].userPassword;
+
+                // เปรียบเทียบรหัสผ่านที่ผู้ใช้ป้อนกับรหัสผ่านที่เก็บไว้ในฐานข้อมูล
+                if (userPassword === storedPassword) {
+                    const payload = {
+                        userID: users[0].userID,
+                        userF_name: users[0].userF_name,
+                        userEmail: users[0].userEmail,
+                        userRole: users[0].role.RoleName
+                    };
+
+                    const token = TokenManager.getGenerateAccessToken(payload);
+
+                    await User.update(
+                        {
+                            accessToken: token,
+                            TokenCreate: thaiDateString
+                        },
+                        {
+                            where: {
+                                userID: users[0].userID,
+                            },
+                        }
+                    );
+                    const bodyString = JSON.stringify(req.body);
+
+                    await logUserActivity(users[0].userID, `Read/login/${users[0].role.RoleName}`, 'Login', bodyString);
+
+                    res.json({
+                        token,
+                        userID: users[0].userID,
+                        userF_name: users[0].userF_name,
+                        userEmail: users[0].userEmail,
+                        RoleID: users[0].RoleID,
+                        RoleName: users[0].role.RoleName,
+                    });
+
+                } else {
+                    // รหัสผ่านไม่ถูกต้อง
+                    await ResponseManager.ErrorResponse(req, res, 401, 'Incorrect password');
+                }
+            } else {
+                // ไม่พบผู้ใช้
+                await ResponseManager.ErrorResponse(req, res, 404, 'Incorrect username');
+            }
+        } catch (err) {
+            await ResponseManager.CatchResponse(req, res, err.message);
         }
     }
-
 
 
     // static async login(req,res, next){
