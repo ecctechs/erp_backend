@@ -105,11 +105,11 @@ class AuthController {
 
                 } else {
                     // รหัสผ่านไม่ถูกต้อง
-                    await ResponseManager.ErrorResponse(req, res, 401, 'Incorrect password');
+                    await ResponseManager.ErrorResponse(req, res, 401, 'Incorrect username or password');
                 }
             } else {
                 // ไม่พบผู้ใช้
-                await ResponseManager.ErrorResponse(req, res, 404, 'Incorrect username');
+                await ResponseManager.ErrorResponse(req, res, 404, 'Incorrect username or password');
             }
         } catch (err) {
             await ResponseManager.CatchResponse(req, res, err.message);
@@ -241,7 +241,7 @@ class AuthController {
             await ResponseManager.CatchResponse(req, res, err.message)
         }
     }
-    static async EditUsers (req, res) { //add category
+    static async EditUsers (req, res) {
         try {   
             const editemp = await User.findOne({
                 where: {
@@ -419,7 +419,99 @@ class AuthController {
             await ResponseManager.CatchResponse(req, res, err.message)
         }
     }
+    static async forgetPassword (req, res) { 
+        try {   
+            const editemp = await User.findAll({
+                where: {
+                    userEmail: req.body.userEmail,
+                  },
+            })      
 
+            if(editemp){
+
+                const editpassword = await User.findAll({
+                    where: {
+                        userPassword: req.body.userPassword,
+                    },
+                })   
+
+                if(editpassword) {
+                    await ResponseManager.SuccessResponse(req,res,400,"Password already exists") 
+                } else {
+                    await User.update(
+                        {
+                            userPassword: req.body.userPassword,
+                        },
+                        {
+                            where: {
+                                userEmail: req.body.userEmail,
+                            },
+                        }               
+                    )
+                await ResponseManager.SuccessResponse(req,res,200,"Password Updated") 
+            }
+        } else {
+            await ResponseManager.ErrorResponse(req,res,400,`Email not found`)
+        }             
+        }catch (err) {
+            await ResponseManager.CatchResponse(req, res, err.message)
+        }
+    }
+    static async checkEmail (req, res) { 
+        try {   
+            const editemp = await User.findOne({
+                where: {
+                    userEmail: req.body.userEmail,
+                  },
+            })      
+
+            if(editemp){
+                await ResponseManager.SuccessResponse(req,res,200,"correct email") 
+            } else {
+                await ResponseManager.ErrorResponse(req,res,400,`Email not found`)
+            }             
+        }catch (err) {
+            await ResponseManager.CatchResponse(req, res, err.message)
+        }
+    }
+    static async forgetPassword (req, res) { 
+        try {   
+            const editemp = await User.findOne({
+                where: {
+                    userEmail: req.body.userEmail,
+                  },
+            })      
+            const user_email = editemp.userEmail 
+            if(editemp){
+
+            const editpassword = await User.findOne({
+                where: {
+                    userPassword: req.body.userPassword,
+                  },
+            })   
+
+            if(editpassword) {
+                await ResponseManager.SuccessResponse(req,res,400,"Password already exists") 
+            } else {
+                await User.update(
+                    {
+                        userPassword: req.body.userPassword,
+                    },
+                    {
+                        where: {
+                            userEmail: req.body.userEmail,
+                        },
+                    }               
+                )
+            await ResponseManager.SuccessResponse(req,res,200,"Password Updated") 
+            }
+        } else {
+            await ResponseManager.ErrorResponse(req,res,400,`Email ${user_email} not found`)
+        }             
+        }catch (err) {
+            await ResponseManager.CatchResponse(req, res, err.message)
+        }
+    }
     static async deleteUser (req, res) { //add category
         try {   
             const deletecate = await User.findOne({

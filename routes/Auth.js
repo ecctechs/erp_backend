@@ -21,6 +21,8 @@ Route.delete(RouteName+'/DeleteRole/:id',AuthController.DeleteRole);
 
 Route.get(RouteName+'/getUser',AuthController.getUser);
 Route.put(RouteName+'/editUser/:id',AuthController.editUser);
+Route.put(RouteName+'/forgetPassword',AuthController.forgetPassword);
+Route.post(RouteName+'/checkEmail',AuthController.checkEmail);
 Route.delete(RouteName+'/deleteUser/:id',AuthController.deleteUser);
 
 
