@@ -1,7 +1,7 @@
 const fs = require('fs');
 const unzipper = require('unzipper');
 const csv = require('csv-parser');
-const { Sequelize } = require('sequelize');
+const { Sequelize, Op } = require('sequelize');
 
 
 

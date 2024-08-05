@@ -6,6 +6,7 @@ const {
   Transaction,
 } = require("../model/productModel"); // call model
 const { cloudinary } = require("../utils/cloudinary");
+const { Op } = require('sequelize');
 
 class ProductController {
   static async getProduct(req, res) {
@@ -158,7 +159,21 @@ static async EditProduct(req, res) {
         if (editproduct) {
             if (req.file && req.file.size > 5 * 1024 * 1024) {
                 res.status(400).json({ error: "File size exceeds 5 MB limit" });
-            } else {
+            } 
+
+
+            const existingProduct = await Product.findOne({
+                where: {
+                    productname: req.body.productname,
+                    productID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+                },
+            });
+
+            if (existingProduct) {
+                await ResponseManager.ErrorResponse(req, res, 400, "Product already exists");
+                return;
+            }
+
                 let productUpdateData = {
                     productTypeID: req.body.productTypeID,
                     productname: req.body.productname,
@@ -182,7 +197,7 @@ static async EditProduct(req, res) {
                         },
                     }
                 );
-            }
+            
 
             await ResponseManager.SuccessResponse(req, res, 200, "Product Updated");
         } else {
@@ -227,7 +242,7 @@ static async EditProduct(req, res) {
       if (addcate) {
         res.json({
           status: false,
-          message: "Category already exis",
+          message: "Category already exist",
         });
       } else {
         const insert_cate = await productCategory.create({
@@ -250,6 +265,20 @@ static async EditProduct(req, res) {
         },
       });
       if (delcate) {
+
+
+        const existingCate = await productCategory.findOne({
+            where: {
+                categoryName: req.body.categoryName,
+                categoryID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+            },
+        });
+
+        if (existingCate) {
+            await ResponseManager.ErrorResponse(req, res, 400, "Category already exists");
+            return;
+        }
+
         await productCategory.update(
           {
             categoryName: req.body.categoryName,

@@ -81,6 +81,32 @@ class EmployeeController {
         },
       });
       if (editemp) {
+
+        const existingEmail = await Employee.findOne({
+            where: {
+                Email: req.body.Email,
+                employeeID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+            },
+        });
+
+        if (existingEmail) {
+            await ResponseManager.ErrorResponse(req, res, 400, "Employee's email already exists");
+            return;
+        }
+        
+        const existingNID = await Employee.findOne({
+            where: {
+                NID_num: req.body.NID_num,
+                employeeID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+            },
+        });
+
+        if (existingNID) {
+            await ResponseManager.ErrorResponse(req, res, 400, "National ID already exists");
+            return;
+        }
+
+
         await Employee.update(
           {
             title: req.body.title,
@@ -183,6 +209,21 @@ class EmployeeController {
         },
       });
       if (editemp) {
+
+        const existingDepart = await Department.findOne({
+            where: {
+                departmentName: req.body.departmentName,
+                departmentID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+            },
+        });
+
+        if (existingDepart) {
+            await ResponseManager.ErrorResponse(req, res, 400, "Department already exists");
+            return;
+        }
+
+
+
         await Department.update(
           {
             departmentName: req.body.departmentName,
@@ -430,6 +471,20 @@ class EmployeeController {
         },
       });
       if (editemp) {
+
+        const existingPosition = await Position.findOne({
+            where: {
+                Position: req.body.Position,
+                PositionID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+            },
+        });
+
+        if (existingPosition) {
+            await ResponseManager.ErrorResponse(req, res, 400, "Position already exists");
+            return;
+        }
+
+
         await Position.update(
           {
             Position: req.body.Position,
