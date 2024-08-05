@@ -99,17 +99,6 @@ class EmployeeController {
       });
       if (editemp) {
 
-        const existingEmail = await Employee.findOne({
-            where: {
-                Email: req.body.Email,
-                employeeID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
-            },
-        });
-
-        if (existingEmail) {
-            await ResponseManager.ErrorResponse(req, res, 400, "Employee's email already exists");
-            return;
-        }
         
         const existingNID = await Employee.findOne({
             where: {
@@ -122,7 +111,17 @@ class EmployeeController {
             await ResponseManager.ErrorResponse(req, res, 400, "National ID already exists");
             return;
         }
+        const existingEmail = await Employee.findOne({
+          where: {
+              Email: req.body.Email,
+              employeeID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+          },
+      });
 
+      if (existingEmail) {
+          await ResponseManager.ErrorResponse(req, res, 400, "Employee's email already exists");
+          return;
+      }
 
         await Employee.update(
           {
@@ -407,7 +406,7 @@ class EmployeeController {
           return await ResponseManager.ErrorResponse(req, res, 404, "Manager department data not found");
         }
   
-        console.log("Department Name:", userData.department.departmentName);
+        // console.log("Department Name:", userData.department.departmentName);
         const userdepart = userData.department.departmentID;
   
         paymentslist = await Salary_pay.findAll({
@@ -451,7 +450,109 @@ class EmployeeController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+  static async getEmployeeSalary(req, res) {
+    try {
+      // กำหนดความสัมพันธ์ระหว่าง Employee และ Position
+      Employee.belongsTo(Position, { foreignKey: "PositionID" });
+      Position.hasMany(Employee, { foreignKey: "PositionID" });
 
+      // กำหนดความสัมพันธ์ระหว่าง Employee และ Department
+      Employee.belongsTo(Department, { foreignKey: "departmentID" });
+      Department.hasMany(Employee, { foreignKey: "departmentID" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail } = tokenData;
+      let result = [];  
+      let employeeslist = [];
+      
+      if (RoleName === 'superuser') {
+        employeeslist = await Employee.findAll({
+          include: [{ model: Position }, { model: Department }],
+        });
+        employeeslist.forEach(log => {
+          result.push({
+            employeeID: log.payment_id,
+            name: log.F_name+" "+log.L_name,
+            phone: log.Phone_num,
+            email: log.Email,
+            department: log.department.departmentName,
+            position: log.position.Position,
+            salary: log.Salary
+          });
+        });
+      } else if(RoleName === 'employee') {
+        employeeslist = await Employee.findAll({
+          include: [{ model: Position }, { model: Department }],
+          where: {
+            Email: userEmail
+          }
+        });
+        employeeslist.forEach(log => {
+          result.push({
+            employeeID: log.payment_id,
+            name: log.F_name+" "+log.L_name,
+            phone: log.Phone_num,
+            email: log.Email,
+            department: log.department.departmentName,
+            position: log.position.Position,
+            salary: log.Salary
+          });
+        });
+      } else if (RoleName === 'manager') {
+
+        const userData = await Employee.findOne({
+          where: {
+            Email: userEmail
+          },
+          include: [
+            {
+              model: Department
+            }
+          ]
+        });
+
+        if (!userData || !userData.department) {
+          return await ResponseManager.ErrorResponse(req, res, 404, "Manager department data not found");
+        }
+  
+        // console.log("Department Name:", userData.department.departmentName);
+        const userdepart = userData.department.departmentID;
+
+        employeeslist = await Employee.findAll({
+          include: [{ model: Position }, { model: Department }],
+          where: {
+            departmentID: userdepart,
+            Email: {
+              [Op.ne]: userEmail
+            }
+          }
+        });
+        employeeslist.forEach(log => {
+          result.push({
+            employeeID: log.payment_id,
+            name: log.F_name+" "+log.L_name,
+            phone: log.Phone_num,
+            email: log.Email,
+            department: log.department.departmentName,
+            position: log.position.Position,
+            salary: log.Salary
+          });
+        });
+      }
+
+      // var employees = await Employee.findAll({
+      //   include: [{ model: Position }, { model: Department }],
+      // });
+
+      return ResponseManager.SuccessResponse(req, res, 200, result);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
   static async AddPosition(req, res) {
     //add category
     try {
