@@ -47,14 +47,8 @@ class QuotationSaleController {
           if (!checkBusiness) {
 
             if (req.file && req.file.size > 5 * 1024 * 1024) {
-              await ResponseManager.ErrorResponse(req, res, 400, "File size exceeds 5 MB limit");
-            } 
-
-            if (req.file && !req.file.mimetype.startsWith('image/')) {
-              await ResponseManager.ErrorResponse(req, res, 400, "Company logo must be image file type");
-              return;
-          }
-
+              res.status(400).json({ error: "File size exceeds 5 MB limit" });
+            } else {
               const result = await cloudinary.uploader.upload(req.file.path);
               
               const createbank = await Bank.create({
@@ -75,7 +69,7 @@ class QuotationSaleController {
                 });
               }    
               await ResponseManager.SuccessResponse(req, res, 200, 'Success');
-            
+            }
 
           } else {
             let productUpdateData = {

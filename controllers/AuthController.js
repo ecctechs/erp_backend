@@ -4,7 +4,6 @@ const TokenManager = require('../middleware/tokenManager');
 const ResponseManager = require("../middleware/ResponseManager");
 const {User, Role } = require('../model/userModel'); // call model
 const logUserActivity = require('../middleware/UserActivity');
-const { Op } = require('sequelize');
 
 
 // const { Pool } = require('pg');
@@ -399,22 +398,6 @@ class AuthController {
                   },
             })       
             if(editemp){
-
-                const existingUser = await User.findOne({
-                    where: {
-                        userEmail: req.body.userEmail,
-                        userID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
-                    },
-                });
-    
-                if (existingUser) {
-                    await ResponseManager.ErrorResponse(req, res, 400, "User email already exists");
-                    return;m
-                }
-
-
-
-
                 await User.update(
                 {
                     userF_name: req.body.userF_name,
@@ -597,22 +580,6 @@ class AuthController {
                   },
             })       
             if(editemp){
-
-                const existingRole = await Role.findOne({
-                    where: {
-                        RoleName: req.body.RoleName,
-                        RoleID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
-                    },
-                });
-    
-                if (existingRole) {
-                    await ResponseManager.ErrorResponse(req, res, 400, "Role name already exists");
-                    return;
-                }
-
-
-
-
                 await Role.update(
                 {
                     RoleName: req.body.RoleName,
