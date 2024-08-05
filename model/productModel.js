@@ -78,7 +78,7 @@ const Transaction = sequelize.define( 'product_transactions', {
         primaryKey: true       
     },
     productID: {
-        type: DataTypes.STRING, 
+        type: DataTypes.INTEGER, 
         allowNull: false       
     },
     transactionType: {

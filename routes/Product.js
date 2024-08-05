@@ -25,6 +25,7 @@ Route.post(RouteName+'/AddTransaction',ProductController.AddTransaction)
 Route.post(RouteName+'/AddProductType',ProductController.AddProductType)
 Route.delete(RouteName+'/DeleteProductType/:id',ProductController.DeleteProductType)
 Route.get(RouteName+'/getCategory',ProductController.getCategory)
+Route.get(RouteName+'/getTransaction',ProductController.getTransaction)
 
 
 module.exports = Route

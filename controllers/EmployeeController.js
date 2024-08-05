@@ -475,13 +475,17 @@ class EmployeeController {
         });
         employeeslist.forEach(log => {
           result.push({
-            employeeID: log.payment_id,
+            employeeID: log.employeeID,
             name: log.F_name+" "+log.L_name,
+            employeeType: log.employeeType,
             phone: log.Phone_num,
             email: log.Email,
             department: log.department.departmentName,
             position: log.position.Position,
-            salary: log.Salary
+            bankName: log.bankName,
+            bankAccountID: log.bankAccountID,
+            salary: log.Salary,
+
           });
         });
       } else if(RoleName === 'employee') {
@@ -493,13 +497,16 @@ class EmployeeController {
         });
         employeeslist.forEach(log => {
           result.push({
-            employeeID: log.payment_id,
+            employeeID: log.employeeID,
             name: log.F_name+" "+log.L_name,
+            employeeType: log.employeeType,
             phone: log.Phone_num,
             email: log.Email,
             department: log.department.departmentName,
             position: log.position.Position,
-            salary: log.Salary
+            bankName: log.bankName,
+            bankAccountID: log.bankAccountID,
+            salary: log.Salary,
           });
         });
       } else if (RoleName === 'manager') {
@@ -533,13 +540,16 @@ class EmployeeController {
         });
         employeeslist.forEach(log => {
           result.push({
-            employeeID: log.payment_id,
+            employeeID: log.employeeID,
             name: log.F_name+" "+log.L_name,
+            employeeType: log.employeeType,
             phone: log.Phone_num,
             email: log.Email,
             department: log.department.departmentName,
             position: log.position.Position,
-            salary: log.Salary
+            bankName: log.bankName,
+            bankAccountID: log.bankAccountID,
+            salary: log.Salary,
           });
         });
       }
@@ -719,7 +729,8 @@ class EmployeeController {
             });
 
             if (existingPayment) {
-                return res.status(400).json({ error: 'Duplicate payment entry.' });
+              return ResponseManager.ErrorResponse(req, res, 400, "Duplicate payment entry.");
+                // return res.status(400).json({ error: 'Duplicate payment entry.' });
             } else {
                 // ไม่พบรายการที่ซ้ำ ดังนั้นเพิ่มรายการเงินเดือนใหม่
                 paymentCreationPromises.push(Salary_pay.create({
@@ -734,9 +745,10 @@ class EmployeeController {
 
         // รอให้การสร้างรายการเสร็จสมบูรณ์ทั้งหมด
         const createdPayments = await Promise.all(paymentCreationPromises);
-        res.status(200).json(createdPayments);
+        return ResponseManager.ErrorResponse(req, res, 200, createdPayments);
+        // res.status(200).json(createdPayments);
       } catch (err) {
-          res.status(500).json({ error: err.message });
+        return ResponseManager.CatchResponse(req, res, err.message);
       }
   }
 }

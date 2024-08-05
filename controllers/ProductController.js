@@ -437,6 +437,39 @@ static async EditProduct(req, res) {
     }
   }
 
+  static async getTransaction(req,res) {
+    try {
+
+      Transaction.belongsTo(Product, { foreignKey: "productID" });
+      Product.hasMany(Transaction, { foreignKey: "productID" });
+
+      let result = [];  
+      let transaction_list = [];
+
+      transaction_list = await Transaction.findAll({
+        include: [
+          {
+            model: Product
+          }
+        ]
+      });
+
+      transaction_list.forEach(log => {
+        result.push({
+          Date: log.transaction_date,
+          Product: log.product.productname,
+          Transaction: log.transactionType,
+          Detail: log.transactionDetail,
+          Quantity: log.quantity_added === 0 ? log.quantity_removed : log.quantity_added
+        });
+      });
+
+      return ResponseManager.SuccessResponse(req, res, 200, result);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
   static async AddProductType(req, res) {
     //add category
     try {
