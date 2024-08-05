@@ -17,18 +17,18 @@ class ProductController {
 
       var products = await Product.findAll({ include: [productCategory] });
 
-      await ResponseManager.SuccessResponse(req, res, 200, products);
+      return ResponseManager.SuccessResponse(req, res, 200, products);
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
   static async getProductType(req, res) {
     //get all product type
     try {
       const productTypes = await productType.findAll();
-      await ResponseManager.SuccessResponse(req, res, 200, productTypes);
+      return ResponseManager.SuccessResponse(req, res, 200, productTypes);
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
   static async getProductByProductType(req, res) {
@@ -39,14 +39,14 @@ class ProductController {
           productTypeID: req.params.id,
         },
       });
-      await ResponseManager.SuccessResponse(
+      return ResponseManager.SuccessResponse(
         req,
         res,
         200,
         ProductByProductType
       );
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -61,7 +61,7 @@ class ProductController {
         },
       });
       if (addproduct) {
-        await ResponseManager.ErrorResponse(
+        return ResponseManager.ErrorResponse(
           req,
           res,
           400,
@@ -71,13 +71,13 @@ class ProductController {
         // Upload image to Cloudinary
         if (req.file && req.file.size > 5 * 1024 * 1024) {
           // res.status(400).json({ error: "File size exceeds 5 MB limit" });
-          await ResponseManager.ErrorResponse(
+          return ResponseManager.ErrorResponse(
             req,
             res,
             400,
             "File size exceeds 5 MB limit")
         } else if(!req.file){
-          await ResponseManager.ErrorResponse(
+          return ResponseManager.ErrorResponse(
             req,
             res,
             400,
@@ -97,11 +97,11 @@ class ProductController {
             productImg: result.secure_url, // Save Cloudinary image path
           });
 
-          await ResponseManager.SuccessResponse(req, res, 200, insert_product);
+          return ResponseManager.SuccessResponse(req, res, 200, insert_product);
         }
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -170,7 +170,7 @@ static async EditProduct(req, res) {
             });
 
             if (existingProduct) {
-                await ResponseManager.ErrorResponse(req, res, 400, "Product already exists");
+                return ResponseManager.ErrorResponse(req, res, 400, "Product already exists");
                 return;
             }
 
@@ -199,12 +199,12 @@ static async EditProduct(req, res) {
                 );
             
 
-            await ResponseManager.SuccessResponse(req, res, 200, "Product Updated");
+                return ResponseManager.SuccessResponse(req, res, 200, "Product Updated");
         } else {
-            await ResponseManager.ErrorResponse(req, res, 400, "No product found");
+          return ResponseManager.ErrorResponse(req, res, 400, "No product found");
         }
     } catch (err) {
-        await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
 }
 
@@ -222,12 +222,12 @@ static async EditProduct(req, res) {
             productID: req.params.id,
           },
         });
-        await ResponseManager.SuccessResponse(req, res, 200, "Product Deleted");
+        return ResponseManager.SuccessResponse(req, res, 200, "Product Deleted");
       } else {
-        await ResponseManager.ErrorResponse(req, res, 400, "No product found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No product found");
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -249,10 +249,10 @@ static async EditProduct(req, res) {
           categoryName: req.body.categoryName,
         });
         console.log(req.body);
-        await ResponseManager.SuccessResponse(req, res, 200, insert_cate);
+        return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -289,17 +289,17 @@ static async EditProduct(req, res) {
             },
           }
         );
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "Category Updated"
         );
       } else {
-        await ResponseManager.ErrorResponse(req, res, 400, "No Category found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No Category found");
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -317,17 +317,17 @@ static async EditProduct(req, res) {
             categoryID: req.params.id,
           },
         });
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "Category Deleted"
         );
       } else {
-        await ResponseManager.ErrorResponse(req, res, 400, "No Category found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No Category found");
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -373,7 +373,7 @@ static async EditProduct(req, res) {
             }
           );
 
-          await ResponseManager.SuccessResponse(
+          return ResponseManager.SuccessResponse(
             req,
             res,
             200,
@@ -381,7 +381,7 @@ static async EditProduct(req, res) {
           );
         } else if (transactionType == "issue") {
           if (getProductByid.dataValues.amount < req.body.quantity) {
-            await ResponseManager.ErrorResponse(
+            return ResponseManager.ErrorResponse(
               req,
               res,
               400,
@@ -408,7 +408,7 @@ static async EditProduct(req, res) {
               }
             );
 
-            await ResponseManager.SuccessResponse(
+            return ResponseManager.SuccessResponse(
               req,
               res,
               200,
@@ -416,7 +416,7 @@ static async EditProduct(req, res) {
             );
           }
         } else {
-          await ResponseManager.ErrorResponse(
+          return ResponseManager.ErrorResponse(
             req,
             res,
             400,
@@ -430,10 +430,10 @@ static async EditProduct(req, res) {
           // );
         }
       } else {
-        await ResponseManager.ErrorResponse(req, res, 400, "Product Not found");
+        return ResponseManager.ErrorResponse(req, res, 400, "Product Not found");
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -455,10 +455,10 @@ static async EditProduct(req, res) {
           productTypeName: req.body.productTypeName,
         });
         console.log(req.body);
-        await ResponseManager.SuccessResponse(req, res, 200, insert_cate);
+        return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -476,14 +476,14 @@ static async EditProduct(req, res) {
             productTypeID: req.params.id,
           },
         });
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "ProductType Deleted"
         );
       } else {
-        await ResponseManager.ErrorResponse(
+        return ResponseManager.ErrorResponse(
           req,
           res,
           400,
@@ -491,7 +491,7 @@ static async EditProduct(req, res) {
         );
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -499,9 +499,9 @@ static async EditProduct(req, res) {
     //get all product type
     try {
       const category_list = await productCategory.findAll();
-      await ResponseManager.SuccessResponse(req, res, 200, category_list);
+      return ResponseManager.SuccessResponse(req, res, 200, category_list);
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 }

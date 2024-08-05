@@ -18,9 +18,9 @@ class QuotationSaleController {
                 ]
             })
       
-            await ResponseManager.SuccessResponse(req, res, 200, business);
+            return ResponseManager.SuccessResponse(req, res, 200, business);
           } catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message);
+            return ResponseManager.CatchResponse(req, res, err.message);
           }
     }
 
@@ -29,9 +29,9 @@ class QuotationSaleController {
 
             const customer = await Customer.findAll();
             
-            await ResponseManager.SuccessResponse(req, res, 200, customer);
+            return ResponseManager.SuccessResponse(req, res, 200, customer);
           } catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message);
+            return ResponseManager.CatchResponse(req, res, err.message);
           }
     }
 
@@ -68,7 +68,7 @@ class QuotationSaleController {
                   bank_id: createbank.bank_id
                 });
               }    
-              await ResponseManager.SuccessResponse(req, res, 200, 'Success');
+              return ResponseManager.SuccessResponse(req, res, 200, 'Success');
             }
 
           } else {
@@ -104,10 +104,10 @@ class QuotationSaleController {
                   },
               }
             );
-            await ResponseManager.SuccessResponse(req, res, 200, 'Success');
+            return ResponseManager.SuccessResponse(req, res, 200, 'Success');
           }
         } catch (err) {
-          await ResponseManager.CatchResponse(req, res, err.message);
+          return ResponseManager.CatchResponse(req, res, err.message);
         }
 
     }
@@ -128,7 +128,7 @@ class QuotationSaleController {
                   });
 
                 if(sale_chk){
-                    await ResponseManager.ErrorResponse( req,res,400,"Quotation already exists");
+                  return ResponseManager.ErrorResponse( req,res,400,"Quotation already exists");
                 }else{
 
                 const insert_Quo = await Quotation_sale.create({
@@ -151,7 +151,7 @@ class QuotationSaleController {
                           // ใช้ Sequelize's bulkCreate เพื่อบันทึกข้อมูลทั้งหมดในกรณีที่มีข้อผิดพลาด
                         await Quotation_sale_detail.bulkCreate(products);
 
-                        await ResponseManager.SuccessResponse(req, res, 200, 'Success');
+                        return ResponseManager.SuccessResponse(req, res, 200, 'Success');
                 }
                           
               } else {
@@ -163,7 +163,7 @@ class QuotationSaleController {
                   });
 
                 if(sale_chk){
-                    await ResponseManager.ErrorResponse( req,res,400,"Quotation already exists");
+                  return ResponseManager.ErrorResponse( req,res,400,"Quotation already exists");
                 }else{
 
                 const insert_Customer = await Customer.create({
@@ -197,12 +197,12 @@ class QuotationSaleController {
                     // ใช้ Sequelize's bulkCreate เพื่อบันทึกข้อมูลทั้งหมดในกรณีที่มีข้อผิดพลาด
                     await Quotation_sale_detail.bulkCreate(products);
 
-                    await ResponseManager.SuccessResponse(req, res, 200, 'Success');
+                    return ResponseManager.SuccessResponse(req, res, 200, 'Success');
                     }
                 }
               }
           } catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message);
+            return ResponseManager.CatchResponse(req, res, err.message);
           }
     }
     static async getQuotation(req,res){
@@ -235,9 +235,9 @@ class QuotationSaleController {
         });
 
         
-        await ResponseManager.SuccessResponse(req, res, 200, Quotation);
+        return ResponseManager.SuccessResponse(req, res, 200, Quotation);
       } catch (err) {
-        await ResponseManager.CatchResponse(req, res, err.message);
+        return ResponseManager.CatchResponse(req, res, err.message);
       }
     }
 
@@ -260,18 +260,18 @@ class QuotationSaleController {
               sale_id: req.params.id,
             },
           });
-          await ResponseManager.SuccessResponse(
+          return ResponseManager.SuccessResponse(
             req,
             res,
             200,
             "Quotation Deleted"
           );
         } else {
-          await ResponseManager.ErrorResponse(req, res, 400, "No Quotation found");
+          return ResponseManager.ErrorResponse(req, res, 400, "No Quotation found");
         }
       
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -291,9 +291,9 @@ class QuotationSaleController {
         },
     })
 
-    await ResponseManager.SuccessResponse(req, res, 200, business);
+    return ResponseManager.SuccessResponse(req, res, 200, business);
   } catch (err) {
-    await ResponseManager.CatchResponse(req, res, err.message);
+    return ResponseManager.CatchResponse(req, res, err.message);
   }
 
   }
@@ -345,12 +345,12 @@ class QuotationSaleController {
             );
           }
 
-          await ResponseManager.SuccessResponse(req, res, 200, "Business Updated");
+          return ResponseManager.SuccessResponse(req, res, 200, "Business Updated");
       } else {
-          await ResponseManager.ErrorResponse(req, res, 400, "No Business found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No Business found");
       }
   } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+    return ResponseManager.CatchResponse(req, res, err.message);
   }
     
   }

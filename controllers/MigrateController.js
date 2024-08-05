@@ -93,7 +93,7 @@ class MigrateController {
       const tableNames = results.map((row) => row.table_name);
       res.json({ tableNames });
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 

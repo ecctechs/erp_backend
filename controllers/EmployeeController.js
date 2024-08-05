@@ -25,28 +25,45 @@ class EmployeeController {
         include: [{ model: Position }, { model: Department }],
       });
 
-      await ResponseManager.SuccessResponse(req, res, 200, employees);
+      return ResponseManager.SuccessResponse(req, res, 200, employees);
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
   static async AddEmployee(req, res) {
     //add category
     try {
-      const addemp = await Employee.findOne({
+      const esistingempNID = await Employee.findOne({
         where: {
           NID_num: req.body.NID_num,
         },
       });
-      if (addemp) {
-        await ResponseManager.SuccessResponse(
+      if (esistingempNID) {
+        return ResponseManager.SuccessResponse(
           req,
           res,
           400,
-          "Employee already exit"
+          "National ID is already exist"
         );
-      } else {
+      }
+
+      const esistingempEmail = await Employee.findOne({
+        where: {
+          Email: req.body.Email,
+        },
+      });
+
+      if (esistingempEmail) {
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          400,
+          "Email is already exist"
+        );
+      }
+
+
         const insert_emp = await Employee.create({
           title: req.body.title,
           F_name: req.body.F_name,
@@ -65,10 +82,10 @@ class EmployeeController {
           departmentID: req.body.departmentID,
         });
         console.log(req.body);
-        await ResponseManager.SuccessResponse(req, res, 200, insert_emp);
-      }
+        return ResponseManager.SuccessResponse(req, res, 200, insert_emp);
+      
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -131,17 +148,17 @@ class EmployeeController {
             },
           }
         );
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "Employee Updated"
         );
       } else {
-        await ResponseManager.ErrorResponse(req, res, 400, "No Employee found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No Employee found");
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -159,17 +176,17 @@ class EmployeeController {
             employeeID: req.params.id,
           },
         });
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "Employee Deleted"
         );
       } else {
-        await ResponseManager.ErrorResponse(req, res, 400, "No Employee found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No Employee found");
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -182,7 +199,7 @@ class EmployeeController {
         },
       });
       if (adddepart) {
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           400,
@@ -193,10 +210,10 @@ class EmployeeController {
           departmentName: req.body.departmentName,
         });
         console.log(req.body);
-        await ResponseManager.SuccessResponse(req, res, 200, insert_depart);
+        return ResponseManager.SuccessResponse(req, res, 200, insert_depart);
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -234,14 +251,14 @@ class EmployeeController {
             },
           }
         );
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "Department Updated"
         );
       } else {
-        await ResponseManager.ErrorResponse(
+        return ResponseManager.ErrorResponse(
           req,
           res,
           400,
@@ -249,7 +266,7 @@ class EmployeeController {
         );
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -267,14 +284,14 @@ class EmployeeController {
             departmentID: req.params.id,
           },
         });
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "Department Deleted"
         );
       } else {
-        await ResponseManager.ErrorResponse(
+        return ResponseManager.ErrorResponse(
           req,
           res,
           400,
@@ -282,7 +299,7 @@ class EmployeeController {
         );
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -306,9 +323,9 @@ class EmployeeController {
         data.sumEmployee = employee.length;
         datalist.push(data);
       }
-      await ResponseManager.SuccessResponse(req, res, 200, datalist);
+      return ResponseManager.SuccessResponse(req, res, 200, datalist);
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -429,9 +446,9 @@ class EmployeeController {
         });
       });
   
-      await ResponseManager.SuccessResponse(req, res, 200, result);
+      return ResponseManager.SuccessResponse(req, res, 200, result);
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -444,7 +461,7 @@ class EmployeeController {
         },
       });
       if (adddepart) {
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           400,
@@ -455,10 +472,10 @@ class EmployeeController {
           Position: req.body.Position,
         });
         console.log(req.body);
-        await ResponseManager.SuccessResponse(req, res, 200, insert_depart);
+        return ResponseManager.SuccessResponse(req, res, 200, insert_depart);
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -495,17 +512,17 @@ class EmployeeController {
             },
           }
         );
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "Position Updated"
         );
       } else {
-        await ResponseManager.ErrorResponse(req, res, 400, "No Position found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No Position found");
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -523,26 +540,26 @@ class EmployeeController {
             PositionID: req.params.id,
           },
         });
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           200,
           "Position Deleted"
         );
       } else {
-        await ResponseManager.ErrorResponse(req, res, 400, "No Position found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No Position found");
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
   static async getPosition(req, res) {
     try {
       const Positions = await Position.findAll();
-      await ResponseManager.SuccessResponse(req, res, 200, Positions);
+      return ResponseManager.SuccessResponse(req, res, 200, Positions);
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
@@ -558,7 +575,7 @@ class EmployeeController {
         },
       });
       if (data) {
-        await ResponseManager.SuccessResponse(
+        return ResponseManager.SuccessResponse(
           req,
           res,
           400,
@@ -573,10 +590,10 @@ class EmployeeController {
           year: req.body.year,
         });
         console.log(req.body);
-        await ResponseManager.SuccessResponse(req, res, 200, data_payment);
+        return ResponseManager.SuccessResponse(req, res, 200, data_payment);
       }
     } catch (err) {
-      await ResponseManager.CatchResponse(req, res, err.message);
+      return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
   static async AddPayment2(req, res) {

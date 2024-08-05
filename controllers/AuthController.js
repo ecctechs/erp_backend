@@ -106,14 +106,14 @@ class AuthController {
 
                 } else {
                     // รหัสผ่านไม่ถูกต้อง
-                    await ResponseManager.ErrorResponse(req, res, 401, 'Incorrect username or password');
+                    return ResponseManager.ErrorResponse(req, res, 401, 'Incorrect username or password');
                 }
             } else {
                 // ไม่พบผู้ใช้
-                await ResponseManager.ErrorResponse(req, res, 404, 'Incorrect username or password');
+                return ResponseManager.ErrorResponse(req, res, 404, 'Incorrect username or password');
             }
         } catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message);
+            return ResponseManager.CatchResponse(req, res, err.message);
         }
     }
 
@@ -224,7 +224,7 @@ class AuthController {
                   },
             })         
                 if(addcate){
-                    await ResponseManager.SuccessResponse(req,res,400,"User already exists") 
+                    return ResponseManager.SuccessResponse(req,res,400,"User already exists") 
                 }else{
                     //const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
                     const insert_cate = await User.create({
@@ -236,10 +236,10 @@ class AuthController {
                         RoleID:req.body.RoleID,     
                     })
                     console.log(req.body)
-                    await ResponseManager.SuccessResponse(req,res,200,(insert_cate))   
+                    return ResponseManager.SuccessResponse(req,res,200,(insert_cate))   
                 }          
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
     static async EditUsers (req, res) {
@@ -260,7 +260,7 @@ class AuthController {
                 });
         
                 if (existingUser) {
-                    await ResponseManager.ErrorResponse(req, res, 400, "User already exists");
+                    return ResponseManager.ErrorResponse(req, res, 400, "User already exists");
                     return;
                 }
 
@@ -280,12 +280,12 @@ class AuthController {
                     },
                 }               
             )
-            await ResponseManager.SuccessResponse(req,res,200,"User Updated")  
+            return ResponseManager.SuccessResponse(req,res,200,"User Updated")  
         }else{
-            await ResponseManager.ErrorResponse(req,res,400,"No User found")  
+            return ResponseManager.ErrorResponse(req,res,400,"No User found")  
         }
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
 
@@ -330,10 +330,10 @@ class AuthController {
             //     datalist.push(data);  
             // }
  
-            await ResponseManager.SuccessResponse(req,res,200,(Users_join))
+            return ResponseManager.SuccessResponse(req,res,200,(Users_join))
              
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
 
@@ -350,12 +350,12 @@ class AuthController {
                             userID: req.params.id,
                         }
                     })                                    
-                    await ResponseManager.SuccessResponse(req,res,200,"User Deleted")             
+                    return ResponseManager.SuccessResponse(req,res,200,"User Deleted")             
                 }else{                
-                    await ResponseManager.ErrorResponse(req,res,400,"No User found")  
+                    return ResponseManager.ErrorResponse(req,res,400,"No User found")  
                 }                  
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
 
@@ -399,10 +399,10 @@ class AuthController {
                 ]
             }); 
 
-            await ResponseManager.SuccessResponse(req,res,200,(Users))
+            return ResponseManager.SuccessResponse(req,res,200,(Users))
              
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
 
@@ -424,7 +424,7 @@ class AuthController {
                 });
         
                 if (existingUser) {
-                    await ResponseManager.ErrorResponse(req, res, 400, "User already exists");
+                    return ResponseManager.ErrorResponse(req, res, 400, "User already exists");
                     return;
                 }
 
@@ -444,10 +444,10 @@ class AuthController {
                     },
                 }               
             )
-            await ResponseManager.SuccessResponse(req,res,200,"User Updated") 
+            return ResponseManager.SuccessResponse(req,res,200,"User Updated") 
         }             
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
     static async forgetPassword (req, res) { 
@@ -467,7 +467,7 @@ class AuthController {
                 })   
 
                 if(editpassword) {
-                    await ResponseManager.SuccessResponse(req,res,400,"Password already exists") 
+                    return ResponseManager.SuccessResponse(req,res,400,"Password already exists") 
                 } else {
                     await User.update(
                         {
@@ -479,13 +479,13 @@ class AuthController {
                             },
                         }               
                     )
-                await ResponseManager.SuccessResponse(req,res,200,"Password Updated") 
+                    return ResponseManager.SuccessResponse(req,res,200,"Password Updated") 
             }
         } else {
-            await ResponseManager.ErrorResponse(req,res,400,`Email not found`)
+            return ResponseManager.ErrorResponse(req,res,400,`Email not found`)
         }             
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
     static async checkEmail (req, res) { 
@@ -497,12 +497,12 @@ class AuthController {
             })      
 
             if(editemp){
-                await ResponseManager.SuccessResponse(req,res,200,"correct email") 
+                return ResponseManager.SuccessResponse(req,res,200,"correct email") 
             } else {
-                await ResponseManager.ErrorResponse(req,res,400,`Email not found`)
+                return ResponseManager.ErrorResponse(req,res,400,`Email not found`)
             }             
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
     static async forgetPassword (req, res) { 
@@ -522,7 +522,7 @@ class AuthController {
             })   
 
             if(editpassword) {
-                await ResponseManager.SuccessResponse(req,res,400,"Password already exists") 
+                return ResponseManager.SuccessResponse(req,res,400,"Password already exists") 
             } else {
                 await User.update(
                     {
@@ -534,13 +534,13 @@ class AuthController {
                         },
                     }               
                 )
-            await ResponseManager.SuccessResponse(req,res,200,"Password Updated") 
+                return ResponseManager.SuccessResponse(req,res,200,"Password Updated") 
             }
         } else {
-            await ResponseManager.ErrorResponse(req,res,400,`Email ${user_email} not found`)
+            return ResponseManager.ErrorResponse(req,res,400,`Email ${user_email} not found`)
         }             
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
     static async deleteUser (req, res) { //add category
@@ -556,12 +556,12 @@ class AuthController {
                             userID: req.params.id,
                         }
                     })                                    
-                    await ResponseManager.SuccessResponse(req,res,200,"User Deleted")             
+                    return ResponseManager.SuccessResponse(req,res,200,"User Deleted")             
                 }else{                
-                    await ResponseManager.ErrorResponse(req,res,400,"No User found")  
+                    return ResponseManager.ErrorResponse(req,res,400,"No User found")  
                 }    
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
 
@@ -573,10 +573,10 @@ class AuthController {
 
             const Roles = await Role.findAll(); 
 
-            await ResponseManager.SuccessResponse(req,res,200,(Roles))
+            return ResponseManager.SuccessResponse(req,res,200,(Roles))
              
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
 
@@ -589,17 +589,17 @@ class AuthController {
                   },
             })         
                 if(addcate){
-                    await ResponseManager.SuccessResponse(req,res,400,"Role already exists") 
+                    return ResponseManager.SuccessResponse(req,res,400,"Role already exists") 
                 }else{
                     const insert_cate = await Role.create({
                         RoleName:req.body.RoleName,  
                     })
                     console.log(req.body)
-                    await ResponseManager.SuccessResponse(req,res,200,(insert_cate))   
+                    return ResponseManager.SuccessResponse(req,res,200,(insert_cate))   
                 }   
              
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
 
@@ -636,10 +636,10 @@ class AuthController {
                     },
                 }               
             )
-            await ResponseManager.SuccessResponse(req,res,200,"Role Updated") 
+            return ResponseManager.SuccessResponse(req,res,200,"Role Updated") 
         }             
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
 
@@ -656,12 +656,12 @@ class AuthController {
                             RoleID: req.params.id,
                         }
                     })                                    
-                    await ResponseManager.SuccessResponse(req,res,200,"Role Deleted")             
+                    return ResponseManager.SuccessResponse(req,res,200,"Role Deleted")             
                 }else{                
-                    await ResponseManager.ErrorResponse(req,res,400,"No Role found")  
+                    return ResponseManager.ErrorResponse(req,res,400,"No Role found")  
                 }    
         }catch (err) {
-            await ResponseManager.CatchResponse(req, res, err.message)
+            return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
   }
