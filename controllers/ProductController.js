@@ -7,6 +7,7 @@ const {
 } = require("../model/productModel"); // call model
 const { cloudinary } = require("../utils/cloudinary");
 const { Op } = require('sequelize');
+const moment = require('moment');
 
 class ProductController {
   static async getProduct(req, res) {
@@ -455,7 +456,7 @@ static async EditProduct(req, res) {
       });
 
       transaction_list.forEach(log => {
-        const dateOnly = log.transaction_date.toISOString().split('T')[0];
+        const dateOnly = moment(log.transaction_date).format('DD/MM/YYYY');
         result.push({
           Date: dateOnly,
           Product: log.product.productname,
