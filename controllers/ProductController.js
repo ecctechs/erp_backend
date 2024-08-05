@@ -455,8 +455,9 @@ static async EditProduct(req, res) {
       });
 
       transaction_list.forEach(log => {
+        const dateOnly = log.transaction_date.toISOString().split('T')[0];
         result.push({
-          Date: log.transaction_date,
+          Date: dateOnly,
           Product: log.product.productname,
           Transaction: log.transactionType,
           Detail: log.transactionDetail,
