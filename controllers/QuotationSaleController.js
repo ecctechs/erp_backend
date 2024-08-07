@@ -46,9 +46,15 @@ class QuotationSaleController {
           });
           if (!checkBusiness) {
 
+            const allowedMimeTypes = ['image/jpeg', 'image/png'];
+
+            if (req.file && !allowedMimeTypes.includes(req.file.mimetype)) {
+                return ResponseManager.ErrorResponse(req, res, 400, "Only JPEG and PNG image files are allowed");
+            }
+
             if (req.file && req.file.size > 5 * 1024 * 1024) {
               res.status(400).json({ error: "File size exceeds 5 MB limit" });
-            } else {
+            } 
               const result = await cloudinary.uploader.upload(req.file.path);
               
               const createbank = await Bank.create({
@@ -69,7 +75,7 @@ class QuotationSaleController {
                 });
               }    
               return ResponseManager.SuccessResponse(req, res, 200, 'Success');
-            }
+            
 
           } else {
             let productUpdateData = {
@@ -223,9 +229,10 @@ class QuotationSaleController {
       Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
       Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
 
+      let result = [];  
+      let quotationslist = [];
 
-
-        const Quotation = await Quotation_sale.findAll({
+      quotationslist = await Quotation_sale.findAll({
           include: [
           { model: Quotation_sale_detail}, 
           { model: Employee}, 
@@ -233,7 +240,15 @@ class QuotationSaleController {
           { model: Business , include: [Bank]}, 
           ],
         });
-
+        quotationslist.forEach(log => {
+          result.push({
+            sale_id: log.sale_id,
+            quotation_num: log.sale_number,
+            quotation_start_date: log.sale_date,
+            credit_date: log.credit_date_number,
+            quotation_expired_date: log.credit_expired_date
+          });
+        });
         
         return ResponseManager.SuccessResponse(req, res, 200, Quotation);
       } catch (err) {

@@ -133,6 +133,10 @@ const Quotation_sale = sequelize.define( 'quotation_sales', {
         type: DataTypes.INTEGER,  
         allowNull: false       
     },
+    status: {
+        type: DataTypes.STRING(10),
+        allowNull: false
+    }
 },{
     timestamps: false
 });

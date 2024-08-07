@@ -261,7 +261,7 @@ class AuthController {
         
                 if (existingUser) {
                     return ResponseManager.ErrorResponse(req, res, 400, "User already exists");
-                    return;
+      
                 }
 
 
@@ -272,7 +272,7 @@ class AuthController {
                     userPhone: req.body.userPhone,
                     userEmail: req.body.userEmail,
                     userPassword: req.body.userPassword,
-                    RoleID: req.body.RoleID,
+                    RoleID: req.body.RoleID
                 },
                 {
                     where: {
@@ -280,10 +280,8 @@ class AuthController {
                     },
                 }               
             )
-            return ResponseManager.SuccessResponse(req,res,200,"User Updated")  
-        }else{
-            return ResponseManager.ErrorResponse(req,res,400,"No User found")  
-        }
+            return ResponseManager.SuccessResponse(req,res,200,"User Updated") 
+        }             
         }catch (err) {
             return ResponseManager.CatchResponse(req, res, err.message)
         }
@@ -291,46 +289,31 @@ class AuthController {
 
 
     static async GetUsers (req, res) { //add category
-        try {   
-            let datalist = [];
-            const Users = await User.findAll();   
-            User.belongsTo(Role, { foreignKey: "RoleID" });
-            Role.hasMany(User, { foreignKey: "RoleID" });
+        // try {   
+        //     let datalist = [];
+        //     const Users = await User.findAll();   
+        //     User.belongsTo(Role, { foreignKey: "RoleID" });
+        //     Role.hasMany(User, { foreignKey: "RoleID" });
 
-            var Users_join = await User.findAll({ include: [Role] });
-
-            // for (const property in Users) {
-
-            //     const data = {};
-            //     data.userID = Users[property].userID;
-            //     data.userF_name = Users[property].userF_name;
-            //     data.userL_name = Users[property].userL_name;
-            //     data.userPhone = Users[property].userPhone;
-            //     data.userEmail = Users[property].userEmail;
-            //     data.userPassword = Users[property].userPassword;
-
-            //     const Roles = await Role.findAll({
-            //         where:{
-            //             RoleID: Users[property].RoleID.toString(),
-            //         }
-            //       }); 
-
-            //       console.log(Roles.length)
-
-            //     if(Roles.length > 0){
-
-            //     data.RoleID = Roles[property].RoleID;
-            //     data.RoleName = Roles[property].RoleName;
-
-            //     }else{
-            //         data.RoleID = Users[property].RoleID;
-            //         data.RoleName = "null";
-            //     }
-
-            //     datalist.push(data);  
-            // }
+        //     var Users_join = await User.findAll({ include: [Role] });
  
-            return ResponseManager.SuccessResponse(req,res,200,(Users_join))
+        //     return ResponseManager.SuccessResponse(req,res,200,(Users_join))
+             
+        // }catch (err) {
+        //     return ResponseManager.CatchResponse(req, res, err.message)
+        // }
+        User.belongsTo(Role, { foreignKey: "RoleID" });
+        try {   
+
+            const Users = await User.findAll({
+                include: [
+                    {
+                        model: Role
+                    }
+                ]
+            }); 
+
+            return ResponseManager.SuccessResponse(req,res,200,(Users))
              
         }catch (err) {
             return ResponseManager.CatchResponse(req, res, err.message)
@@ -387,69 +370,69 @@ class AuthController {
     //         await ResponseManager.CatchResponse(req, res, err.message)
     //     }
     // }
-    static async getUser (req, res) { //add category
-        User.belongsTo(Role, { foreignKey: "RoleID" });
-        try {   
+    // static async getUser (req, res) { //add category
+    //     User.belongsTo(Role, { foreignKey: "RoleID" });
+    //     try {   
 
-            const Users = await User.findAll({
-                include: [
-                    {
-                        model: Role
-                    }
-                ]
-            }); 
+    //         const Users = await User.findAll({
+    //             include: [
+    //                 {
+    //                     model: Role
+    //                 }
+    //             ]
+    //         }); 
 
-            return ResponseManager.SuccessResponse(req,res,200,(Users))
+    //         return ResponseManager.SuccessResponse(req,res,200,(Users))
              
-        }catch (err) {
-            return ResponseManager.CatchResponse(req, res, err.message)
-        }
-    }
+    //     }catch (err) {
+    //         return ResponseManager.CatchResponse(req, res, err.message)
+    //     }
+    // }
 
-    static async editUser (req, res) { 
-        try {   
-            const editemp = await User.findOne({
-                where: {
-                    userID: req.params.id,
-                  },
-            })       
-            if(editemp){
+    // static async editUser (req, res) { 
+    //     try {   
+    //         const editemp = await User.findOne({
+    //             where: {
+    //                 userID: req.params.id,
+    //               },
+    //         })       
+    //         if(editemp){
 
 
-                const existingUser = await User.findOne({
-                    where: {
-                        userEmail: req.body.userEmail,
-                        userID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
-                    },
-                });
+    //             const existingUser = await User.findOne({
+    //                 where: {
+    //                     userEmail: req.body.userEmail,
+    //                     userID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+    //                 },
+    //             });
         
-                if (existingUser) {
-                    return ResponseManager.ErrorResponse(req, res, 400, "User already exists");
-                    return;
-                }
+    //             if (existingUser) {
+    //                 return ResponseManager.ErrorResponse(req, res, 400, "User already exists");
+      
+    //             }
 
 
-                await User.update(
-                {
-                    userF_name: req.body.userF_name,
-                    userL_name: req.body.userL_name,
-                    userPhone: req.body.userPhone,
-                    userEmail: req.body.userEmail,
-                    userPassword: req.body.userPassword,
-                    RoleID: req.body.RoleID
-                },
-                {
-                    where: {
-                        userID: req.params.id,
-                    },
-                }               
-            )
-            return ResponseManager.SuccessResponse(req,res,200,"User Updated") 
-        }             
-        }catch (err) {
-            return ResponseManager.CatchResponse(req, res, err.message)
-        }
-    }
+    //             await User.update(
+    //             {
+    //                 userF_name: req.body.userF_name,
+    //                 userL_name: req.body.userL_name,
+    //                 userPhone: req.body.userPhone,
+    //                 userEmail: req.body.userEmail,
+    //                 userPassword: req.body.userPassword,
+    //                 RoleID: req.body.RoleID
+    //             },
+    //             {
+    //                 where: {
+    //                     userID: req.params.id,
+    //                 },
+    //             }               
+    //         )
+    //         return ResponseManager.SuccessResponse(req,res,200,"User Updated") 
+    //     }             
+    //     }catch (err) {
+    //         return ResponseManager.CatchResponse(req, res, err.message)
+    //     }
+    // }
     static async forgetPassword (req, res) { 
         try {   
             const editemp = await User.findAll({
@@ -543,27 +526,27 @@ class AuthController {
             return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
-    static async deleteUser (req, res) { //add category
-        try {   
-            const deletecate = await User.findOne({
-                where: {
-                    userID: req.params.id,
-                  },
-            })         
-                if(deletecate){
-                    await User.destroy({
-                        where:{
-                            userID: req.params.id,
-                        }
-                    })                                    
-                    return ResponseManager.SuccessResponse(req,res,200,"User Deleted")             
-                }else{                
-                    return ResponseManager.ErrorResponse(req,res,400,"No User found")  
-                }    
-        }catch (err) {
-            return ResponseManager.CatchResponse(req, res, err.message)
-        }
-    }
+    // static async deleteUser (req, res) { //add category
+    //     try {   
+    //         const deletecate = await User.findOne({
+    //             where: {
+    //                 userID: req.params.id,
+    //               },
+    //         })         
+    //             if(deletecate){
+    //                 await User.destroy({
+    //                     where:{
+    //                         userID: req.params.id,
+    //                     }
+    //                 })                                    
+    //                 return ResponseManager.SuccessResponse(req,res,200,"User Deleted")             
+    //             }else{                
+    //                 return ResponseManager.ErrorResponse(req,res,400,"No User found")  
+    //             }    
+    //     }catch (err) {
+    //         return ResponseManager.CatchResponse(req, res, err.message)
+    //     }
+    // }
 
 
 
