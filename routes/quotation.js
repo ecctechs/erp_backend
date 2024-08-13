@@ -11,6 +11,9 @@ var type = upload.single('bus_logo');
 
 Route.get(RouteName+'/getBusiness',QuotationSaleController.getBusiness)
 Route.get(RouteName+'/getCustomer',QuotationSaleController.getCustomer)
+Route.post(RouteName+'/addCustomer',QuotationSaleController.addCustomer)
+Route.put(RouteName+'/editCustomer/:id',QuotationSaleController.editCustomer)
+Route.delete(RouteName+'/deleteCustomer/:id',QuotationSaleController.deleteCustomer)
 Route.post(RouteName+'/addBusiness', type, QuotationSaleController.addBusiness)
 Route.post(RouteName+'/addQuotationSale', QuotationSaleController.addQuotationSale)
 Route.get(RouteName+'/getQuotation',QuotationSaleController.getQuotation)
