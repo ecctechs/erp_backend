@@ -353,7 +353,7 @@ class EmployeeController {
       let result = [];
       let paymentslist = [];
   
-      if (RoleName === 'superuser') {
+      if (RoleName === 'SUPERUSER') {
         paymentslist = await Salary_pay.findAll({
           include: [
             { model: Employee, include: [Position, Department] }, // เชื่อมโยง Table2 และ Table3 และ Table4
@@ -369,7 +369,7 @@ class EmployeeController {
             employeeName: log.employee.F_name + " " + log.employee.L_name
           });
         });
-      } else if(RoleName === 'employee') {
+      } else if(RoleName === 'SALE') {
         paymentslist = await Salary_pay.findAll({
           include: [
             { 
@@ -390,7 +390,7 @@ class EmployeeController {
             employeeName: log.employee.F_name + " " + log.employee.L_name
           });
         });
-      } else if (RoleName === 'manager') {
+      } else if (RoleName === 'MANAGER') {
         const userData = await Employee.findOne({
           where: {
             Email: userEmail
@@ -469,7 +469,7 @@ class EmployeeController {
       let result = [];  
       let employeeslist = [];
       
-      if (RoleName === 'superuser') {
+      if (RoleName === 'SUPERUSER') {
         employeeslist = await Employee.findAll({
           include: [{ model: Position }, { model: Department }],
         });
@@ -488,7 +488,7 @@ class EmployeeController {
 
           });
         });
-      } else if(RoleName === 'employee') {
+      } else if(RoleName === 'SALE') {
         employeeslist = await Employee.findAll({
           include: [{ model: Position }, { model: Department }],
           where: {
@@ -509,7 +509,7 @@ class EmployeeController {
             salary: log.Salary,
           });
         });
-      } else if (RoleName === 'manager') {
+      } else if (RoleName === 'MANAGER') {
 
         const userData = await Employee.findOne({
           where: {

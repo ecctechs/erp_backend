@@ -26,7 +26,7 @@ Route.post(RouteName+'/checkEmail',AuthController.checkEmail);
 // Route.delete(RouteName+'/deleteUser/:id',AuthController.deleteUser);
 
 
-Route.get('/protected-route', verifyTokenWithRole('superuser'), (req, res) => {
+Route.get('/protected-route', verifyTokenWithRole('SUPERUSER'), (req, res) => {
     // Access token is valid, and user data is available in req.user
     res.json({ message: 'Access granted', user: req.user });
   });
