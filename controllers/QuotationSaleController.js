@@ -2,6 +2,7 @@ const ResponseManager = require("../middleware/ResponseManager");
 const {Business,Bank,Customer,Quotation_sale,Quotation_sale_detail} = require('../model/quotationModel'); // call model
 const {Employee,Position,Salary_pay,Department,} = require("../model/employeeModel"); // call model
 const { cloudinary } = require("../utils/cloudinary");
+const { Op } = require('sequelize'); // Import Op from sequelize
 
 class QuotationSaleController {
 
@@ -34,6 +35,95 @@ class QuotationSaleController {
             return ResponseManager.CatchResponse(req, res, err.message);
           }
     }
+    static async addCustomer(req, res) {
+      try {   
+        const addCustomer = await Customer.findOne({
+            where: {
+                cus_name: req.body.cus_name,
+              },
+        })         
+            if(addCustomer){
+                return ResponseManager.SuccessResponse(req,res,400,"Customer already exists") 
+            }else{
+                const insert_cate = await Customer.create({
+                  cus_name:req.body.cus_name,  
+                  cus_address:req.body.cus_address,  
+                  cus_tel:req.body.cus_tel, 
+                  cus_email:req.body.cus_email, 
+                  cus_tax:req.body.cus_tax, 
+                  cus_purchase:req.body.cus_purchase, 
+                })
+                console.log(req.body)
+                return ResponseManager.SuccessResponse(req,res,200,(insert_cate))   
+            }   
+         
+    }catch (err) {
+        return ResponseManager.CatchResponse(req, res, err.message)
+    }
+  }
+
+  static async editCustomer(req, res) {
+    try {   
+      const editemp = await Customer.findOne({
+          where: {
+            cus_id: req.params.id,
+            },
+      })       
+      if(editemp){
+          const existingUser = await Customer.findOne({
+              where: {
+                cus_name: req.body.cus_name,
+                  cus_id: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+              },
+          });
+  
+          if (existingUser) {
+              await ResponseManager.ErrorResponse(req, res, 400, "Customer already exists");
+              return;
+          }
+          await Customer.update(
+          {
+              cus_name: req.body.cus_name,
+              cus_address:req.body.cus_address,  
+              cus_tel:req.body.cus_tel, 
+              cus_email:req.body.cus_email, 
+              cus_tax:req.body.cus_tax, 
+              cus_purchase:req.body.cus_purchase, 
+          },
+          {
+              where: {
+                  cus_id: req.params.id,
+              },
+          }               
+      )
+      return ResponseManager.SuccessResponse(req,res,200,"Customer Updated") 
+  }             
+  }catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message)
+  }
+}
+static async deleteCustomer(req, res) {
+  //delete product
+  try {
+    const deleteproduct = await Customer.findOne({
+      where: {
+        cus_id: req.params.id,
+      },
+    });
+    if (deleteproduct) {
+      await Customer.destroy({
+        where: {
+          cus_id: req.params.id,
+        },
+      });
+      return ResponseManager.SuccessResponse(req, res, 200, "Customer Deleted");
+    } else {
+      return ResponseManager.ErrorResponse(req, res, 400, "No Customer found");
+    }
+  } catch (err) {
+    return ResponseManager.CatchResponse(req, res, err.message);
+  }
+}
 
     static async addBusiness(req, res) {
         try {
