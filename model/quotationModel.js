@@ -137,13 +137,9 @@ const Quotation_sale = sequelize.define( 'quotation_sales', {
         type: DataTypes.STRING(10),
         allowNull: false
     },
-    pdfname: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    file: {
-        type: DataTypes.BLOB('long'),
-        allowNull: false
+    remark: {
+        type: DataTypes.STRING(255),
+        allowNull: true
     },
 },{
     timestamps: false

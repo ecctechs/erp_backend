@@ -310,7 +310,7 @@ class AuthController {
                     {
                         model: Role
                     }
-                ]
+                ],
             }); 
 
             return ResponseManager.SuccessResponse(req,res,200,(Users))
@@ -319,7 +319,40 @@ class AuthController {
             return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
+    static async GetUserByID (req, res) { //add category
+        // try {   
+        //     let datalist = [];
+        //     const Users = await User.findAll();   
+        //     User.belongsTo(Role, { foreignKey: "RoleID" });
+        //     Role.hasMany(User, { foreignKey: "RoleID" });
 
+        //     var Users_join = await User.findAll({ include: [Role] });
+ 
+        //     return ResponseManager.SuccessResponse(req,res,200,(Users_join))
+             
+        // }catch (err) {
+        //     return ResponseManager.CatchResponse(req, res, err.message)
+        // }
+        User.belongsTo(Role, { foreignKey: "RoleID" });
+        try {   
+
+            const Users = await User.findOne({
+                include: [
+                    {
+                        model: Role
+                    }
+                ],
+                where: {
+                    userID: req.params.id,
+                },
+            }); 
+
+            return ResponseManager.SuccessResponse(req,res,200,(Users))
+             
+        }catch (err) {
+            return ResponseManager.CatchResponse(req, res, err.message)
+        }
+    }
     static async DeleteUsers (req, res) { //add category
         try {   
             const deletecate = await User.findOne({

@@ -563,6 +563,116 @@ class EmployeeController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+  static async getEmployeeQuotation(req, res) {
+    try {
+      // กำหนดความสัมพันธ์ระหว่าง Employee และ Position
+      Employee.belongsTo(Position, { foreignKey: "PositionID" });
+      Position.hasMany(Employee, { foreignKey: "PositionID" });
+
+      // กำหนดความสัมพันธ์ระหว่าง Employee และ Department
+      Employee.belongsTo(Department, { foreignKey: "departmentID" });
+      Department.hasMany(Employee, { foreignKey: "departmentID" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail } = tokenData;
+      let result = [];  
+      let employeeslist = [];
+      
+      if (RoleName === 'SUPERUSER') {
+        employeeslist = await Employee.findAll({
+          include: [{ model: Position }, { model: Department }],
+        });
+        employeeslist.forEach(log => {
+          result.push({
+            employeeID: log.employeeID,
+            name: log.F_name+" "+log.L_name,
+            employeeType: log.employeeType,
+            phone: log.Phone_num,
+            email: log.Email,
+            department: log.department.departmentName,
+            position: log.position.Position,
+            bankName: log.bankName,
+            bankAccountID: log.bankAccountID,
+            salary: log.Salary,
+
+          });
+        });
+      } else if(RoleName === 'SALE') {
+        employeeslist = await Employee.findAll({
+          include: [{ model: Position }, { model: Department }],
+          where: {
+            Email: userEmail
+          }
+        });
+        employeeslist.forEach(log => {
+          result.push({
+            employeeID: log.employeeID,
+            name: log.F_name+" "+log.L_name,
+            employeeType: log.employeeType,
+            phone: log.Phone_num,
+            email: log.Email,
+            department: log.department.departmentName,
+            position: log.position.Position,
+            bankName: log.bankName,
+            bankAccountID: log.bankAccountID,
+            salary: log.Salary,
+          });
+        });
+      } else if (RoleName === 'MANAGER') {
+
+        const userData = await Employee.findOne({
+          where: {
+            Email: userEmail
+          },
+          include: [
+            {
+              model: Department
+            }
+          ]
+        });
+
+        if (!userData || !userData.department) {
+          return await ResponseManager.ErrorResponse(req, res, 404, "Manager department data not found");
+        }
+  
+        // console.log("Department Name:", userData.department.departmentName);
+        const userdepart = userData.department.departmentID;
+
+        employeeslist = await Employee.findAll({
+          include: [{ model: Position }, { model: Department }],
+          where: {
+            departmentID: userdepart
+          }
+        });
+        employeeslist.forEach(log => {
+          result.push({
+            employeeID: log.employeeID,
+            name: log.F_name+" "+log.L_name,
+            employeeType: log.employeeType,
+            phone: log.Phone_num,
+            email: log.Email,
+            department: log.department.departmentName,
+            position: log.position.Position,
+            bankName: log.bankName,
+            bankAccountID: log.bankAccountID,
+            salary: log.Salary,
+          });
+        });
+      }
+
+      // var employees = await Employee.findAll({
+      //   include: [{ model: Position }, { model: Department }],
+      // });
+
+      return ResponseManager.SuccessResponse(req, res, 200, result);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
   static async AddPosition(req, res) {
     //add category
     try {

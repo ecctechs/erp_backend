@@ -18,6 +18,7 @@ Route.delete(RouteName+'/DeleteDepartment/:id',EmployeeController.DeleteDepartme
 Route.get(RouteName+'/getDepartment',EmployeeController.getDepartment)
 Route.get(RouteName+'/getPayment', verifyTokenWithRole(['SUPERUSER','MANAGER','SALE']),EmployeeController.getPayment)
 Route.get(RouteName+'/getEmployeeSalary', verifyTokenWithRole(['SUPERUSER','MANAGER','SALE']),EmployeeController.getEmployeeSalary)
+Route.get(RouteName+'/getEmployeeQuotation', verifyTokenWithRole(['SUPERUSER','MANAGER','SALE']),EmployeeController.getEmployeeQuotation)
 //Route.get(RouteName+'/getPayment', verifyTokenWithRole(['superuser','superman']),logUserActivity('Read/getPayment','getPayment'),EmployeeController.getPayment)
 Route.post(RouteName+'/AddPosition',EmployeeController.AddPosition)
 Route.put(RouteName+'/EditPosition/:id',EmployeeController.EditPosition)

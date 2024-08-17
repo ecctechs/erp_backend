@@ -172,7 +172,7 @@ static async EditProduct(req, res) {
 
             if (existingProduct) {
                 return ResponseManager.ErrorResponse(req, res, 400, "Product already exists");
-                return;
+         
             }
 
                 let productUpdateData = {

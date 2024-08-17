@@ -20,6 +20,7 @@ Route.put(RouteName+'/EditRole/:id',AuthController.EditRole);
 Route.delete(RouteName+'/DeleteRole/:id',AuthController.DeleteRole);
 
 Route.get(RouteName+'/GetUsers',AuthController.GetUsers);
+Route.get(RouteName+'/GetUserByID/:id',AuthController.GetUserByID);
 // Route.put(RouteName+'/editUser/:id',AuthController.editUser);
 Route.put(RouteName+'/forgetPassword',AuthController.forgetPassword);
 Route.post(RouteName+'/checkEmail',AuthController.checkEmail);
