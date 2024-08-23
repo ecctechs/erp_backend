@@ -52,59 +52,74 @@ class ProductController {
   }
 
   static async AddProduct(req, res) {
-    //add product
     try {
-        console.log(req.body.productname)
+        console.log(req.body.productname);
 
-      const addproduct = await Product.findOne({
-        where: {
-          productname: req.body.productname,
-        },
-      });
-      if (addproduct) {
-        return ResponseManager.ErrorResponse(
-          req,
-          res,
-          400,
-          "Product already exists"
-        );
-      } else {
-        // Upload image to Cloudinary
-        if (req.file && req.file.size > 5 * 1024 * 1024) {
-          // res.status(400).json({ error: "File size exceeds 5 MB limit" });
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "File size exceeds 5 MB limit")
-        } else if(!req.file){
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Please choose product image file")
+        const addproduct = await Product.findOne({
+            where: {
+                productname: req.body.productname,
+            },
+        });
+
+        if (addproduct) {
+            return ResponseManager.ErrorResponse(
+                req,
+                res,
+                400,
+                "Product already exists"
+            );
         } else {
-          const result = await cloudinary.uploader.upload(req.file.path);
+            // ตรวจสอบว่ามีไฟล์ที่ถูกอัปโหลดหรือไม่
+            if (!req.file) {
+                return ResponseManager.ErrorResponse(
+                    req,
+                    res,
+                    400,
+                    "Please choose a product image file"
+                );
+            }
 
-          const insert_product = await Product.create({
-            // productID: req.body.productID,
-            productTypeID: req.body.productTypeID,
-            productname: req.body.productname,
-            productdetail: req.body.productdetail,
-            amount: req.body.amount,
-            price: req.body.price,
-            productcost: req.body.productcost,
-            categoryID: req.body.categoryID,
-            productImg: result.secure_url, // Save Cloudinary image path
-          });
+            // ตรวจสอบขนาดไฟล์ไม่เกิน 5 MB
+            if (req.file.size > 5 * 1024 * 1024) {
+                return ResponseManager.ErrorResponse(
+                    req,
+                    res,
+                    400,
+                    "File size exceeds 5 MB limit"
+                );
+            }
 
-          return ResponseManager.SuccessResponse(req, res, 200, insert_product);
+            // ตรวจสอบว่าไฟล์เป็น JPEG หรือ PNG เท่านั้น
+            const allowedMimeTypes = ["image/jpeg", "image/png"];
+            if (!allowedMimeTypes.includes(req.file.mimetype)) {
+                return ResponseManager.ErrorResponse(
+                    req,
+                    res,
+                    400,
+                    "Only JPEG and PNG image files are allowed"
+                );
+            }
+
+            // Upload image to Cloudinary
+            const result = await cloudinary.uploader.upload(req.file.path);
+
+            const insert_product = await Product.create({
+                productTypeID: req.body.productTypeID,
+                productname: req.body.productname,
+                productdetail: req.body.productdetail,
+                amount: req.body.amount,
+                price: req.body.price,
+                productcost: req.body.productcost,
+                categoryID: req.body.categoryID,
+                productImg: result.secure_url, // Save Cloudinary image path
+            });
+
+            return ResponseManager.SuccessResponse(req, res, 200, insert_product);
         }
-      }
     } catch (err) {
-      return ResponseManager.CatchResponse(req, res, err.message);
+        return ResponseManager.CatchResponse(req, res, err.message);
     }
-  }
+}
 
 //   static async EditProduct(req, res) {
 //     //add product
@@ -241,10 +256,7 @@ static async EditProduct(req, res) {
         },
       });
       if (addcate) {
-        res.json({
-          status: false,
-          message: "Category already exist",
-        });
+        return ResponseManager.ErrorResponse(req, res, 400, "Category already exist");
       } else {
         const insert_cate = await productCategory.create({
           categoryName: req.body.categoryName,
@@ -341,7 +353,7 @@ static async EditProduct(req, res) {
       const dateObject = new Date(timestamp);
 
       // กำหนด locale เป็น 'th' และใช้ toLocaleDateString() และ toLocaleTimeString() ในการแสดงวันที่และเวลา
-      const thaiDateString = dateObject.toLocaleDateString('th') + ' ' + dateObject.toLocaleTimeString('th');
+      const DateString = dateObject.toLocaleDateString('en-GB') + ' ' + dateObject.toLocaleTimeString('en-GB');
 
 
       const getProductByid = await Product.findOne({
@@ -360,7 +372,7 @@ static async EditProduct(req, res) {
             transactionDetail: req.body.transactionDetail,
             quantity_added: req.body.quantity,
             quantity_removed: 0,
-            transaction_date: thaiDateString,
+            transaction_date: DateString,
           });
 
           await Product.update(
@@ -395,7 +407,7 @@ static async EditProduct(req, res) {
               transactionDetail: req.body.transactionDetail,
               quantity_removed: req.body.quantity,
               quantity_added: 0,
-              transaction_date: thaiDateString,
+              transaction_date: DateString,
             });
 
             await Product.update(
@@ -423,12 +435,6 @@ static async EditProduct(req, res) {
             400,
             "Please select transaction type"
           );
-          // await ResponseManager.ErrorResponse(
-          //   req,
-          //   res,
-          //   400,
-          //   "transactionType not correct"
-          // );
         }
       } else {
         return ResponseManager.ErrorResponse(req, res, 400, "Product Not found");
@@ -456,7 +462,10 @@ static async EditProduct(req, res) {
       });
 
       transaction_list.forEach(log => {
-        const dateOnly = moment(log.transaction_date).format('DD/MM/YYYY');
+        const dateOnly = log.transaction_date 
+        ? moment(log.transaction_date, 'DD/MM/YYYY HH:mm:ss').format('DD/MM/YYYY') 
+        : 'Invalid Date';
+
         result.push({
           Date: dateOnly,
           Product: log.product.productname,

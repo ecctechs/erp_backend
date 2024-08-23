@@ -55,13 +55,9 @@ class EmployeeController {
       });
 
       if (esistingempEmail) {
-        return ResponseManager.SuccessResponse(
-          req,
-          res,
-          400,
-          "Email is already exist"
-        );
+        return ResponseManager.ErrorResponse(req, res, 400, "Email is already exist");
       }
+
 
 
         const insert_emp = await Employee.create({
@@ -103,7 +99,7 @@ class EmployeeController {
         const existingNID = await Employee.findOne({
             where: {
                 NID_num: req.body.NID_num,
-                employeeID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+                employeeID: { [Op.ne]: req.params.id }
             },
         });
 
@@ -855,7 +851,7 @@ class EmployeeController {
 
         // รอให้การสร้างรายการเสร็จสมบูรณ์ทั้งหมด
         const createdPayments = await Promise.all(paymentCreationPromises);
-        return ResponseManager.ErrorResponse(req, res, 200, createdPayments);
+        return ResponseManager.SuccessResponse(req, res, 200, createdPayments);
         // res.status(200).json(createdPayments);
       } catch (err) {
         return ResponseManager.CatchResponse(req, res, err.message);
