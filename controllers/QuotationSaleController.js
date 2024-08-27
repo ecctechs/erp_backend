@@ -168,6 +168,8 @@ static async deleteCustomer(req, res) {
             
 
           } else {
+
+            console.log("starttttttttttttttttttt")
             let productUpdateData = {
               bus_name: req.body.bus_name,
               bus_address: req.body.bus_address,
@@ -179,10 +181,29 @@ static async deleteCustomer(req, res) {
               bank_number: req.body.bank_number,
             };
 
+
             if (req.file) {
-                const result = await cloudinary.uploader.upload(req.file.path);
-                productUpdateData.bus_logo = result.secure_url; // Save Cloudinary image path
-            }
+              const allowedMimeTypes = ['image/jpeg', 'image/png'];
+
+              if (!allowedMimeTypes.includes(req.file.mimetype)) {
+                  return ResponseManager.ErrorResponse(req, res, 400, "Only JPEG and PNG image files are allowed");
+              }
+
+              if (req.file.size > 5 * 1024 * 1024) {
+                return ResponseManager.ErrorResponse(req, res, 400, "File size exceeds 5 MB limit");
+                  // return res.status(400).json({ error: "File size exceeds 5 MB limit" });
+              }
+
+              const result = await cloudinary.uploader.upload(req.file.path);
+
+
+              console.log("processssssss",result)
+
+              console.log("==========test Before:",result.secure_url)
+              productUpdateData.bus_logo = result.secure_url;
+
+              console.log("==========test After:",productUpdateData.bus_logo)
+          }
 
             await Business.update(
                 productUpdateData,

@@ -58,7 +58,15 @@ class EmployeeController {
         return ResponseManager.ErrorResponse(req, res, 400, "Email is already exist");
       }
 
+      const existingempBankID = await Employee.findOne({
+        where: {
+          bankAccountID: req.body.bankAccountID,
+        },
+      });
 
+      if (existingempBankID) {
+        return ResponseManager.ErrorResponse(req, res, 400, "Bank Account ID is already exist");
+      }
 
         const insert_emp = await Employee.create({
           title: req.body.title,
@@ -117,6 +125,17 @@ class EmployeeController {
       if (existingEmail) {
           await ResponseManager.ErrorResponse(req, res, 400, "Employee's email already exists");
           return;
+      }
+
+      const existingempBankID = await Employee.findOne({
+        where: {
+          bankAccountID: req.body.bankAccountID,
+          employeeID: { [Op.ne]: req.params.id }
+        },
+      });
+
+      if (existingempBankID) {
+        return ResponseManager.ErrorResponse(req, res, 400, "Bank Account ID is already exist");
       }
 
         await Employee.update(
