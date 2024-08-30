@@ -155,11 +155,11 @@ const Quotation_sale_detail = sequelize.define( 'quotation_sale_details', {
         allowNull: false       
     },
     sale_price: {
-        type: DataTypes.INTEGER,  
+        type: DataTypes.DOUBLE,  
         allowNull: false       
     },
     sale_discount: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.DOUBLE, 
         allowNull: false       
     },
     sale_qty: {
@@ -170,4 +170,68 @@ const Quotation_sale_detail = sequelize.define( 'quotation_sale_details', {
     timestamps: false
 });
 
-module.exports = {Business,Bank,Customer,Quotation_sale,Quotation_sale_detail};
+const Invoice = sequelize.define( 'invoices', {
+    invoice_id: {
+        type: DataTypes.INTEGER, 
+        autoIncrement: true,
+        primaryKey: true   
+    },
+    invoice_number: {
+        type: DataTypes.STRING(40),  
+        allowNull: false       
+    },
+    invoice_date: {
+        type: DataTypes.STRING(100), 
+        allowNull: false       
+    },
+    invoice_status: {
+        type: DataTypes.STRING(10),
+        allowNull: false
+    },
+    remark: {
+        type: DataTypes.STRING(105),
+        allowNull: true
+    },
+    sale_id: {
+        type: DataTypes.INTEGER, 
+        allowNull: false    
+    },
+},{
+    timestamps: false
+});
+
+const Billing = sequelize.define( 'billings', {
+    billing_id: {
+        type: DataTypes.INTEGER, 
+        autoIncrement: true,
+        primaryKey: true   
+    },
+    billing_number: {
+        type: DataTypes.STRING(40),  
+        allowNull: false       
+    },
+    billing_date: {
+        type: DataTypes.STRING(100), 
+        allowNull: false       
+    },
+    billing_status: {
+        type: DataTypes.STRING(10),
+        allowNull: false
+    },
+    payments: {
+        type: DataTypes.STRING(10),
+        allowNull: false
+    },
+    remark: {
+        type: DataTypes.STRING(105),
+        allowNull: true
+    },
+    invoice_id: {
+        type: DataTypes.INTEGER, 
+        allowNull: false    
+    },
+},{
+    timestamps: false
+});
+
+module.exports = {Business,Bank,Customer,Quotation_sale,Quotation_sale_detail,Invoice,Billing};
