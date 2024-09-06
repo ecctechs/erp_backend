@@ -580,20 +580,25 @@ static async deleteCustomer(req, res) {
           { model: Business , include: [Bank]}, 
           { model: Invoice, include: [Billing] }
           ],
+          where: {
+              status: "allowed",
+          }
         });
         const today = new Date();
 
         for (let log of quotationslist) {
+
+            console.log("Invoice Date: ",log.invoice.invoice_date)
             const expiredDate = new Date(log.invoice.invoice_date);
             
             // ตรวจสอบว่า credit_expired_date น้อยกว่าวันที่ปัจจุบันหรือไม่
-            if (today > expiredDate) {
-                // หากใช่ อัปเดตสถานะเป็น 'expired'
-                log.invoice.invoice_status = 'expired';
+            // if (today > expiredDate) {
+            //     // หากใช่ อัปเดตสถานะเป็น 'expired'
+            //     log.invoice.invoice_status = 'expired';
 
-                // อัปเดตสถานะในฐานข้อมูล
-                await Invoice.update({ invoice_status: 'expired' }, { where: { invoice_id: log.invoice.invoice_id } });
-            }
+            //     // อัปเดตสถานะในฐานข้อมูล
+            //     await Invoice.update({ invoice_status: 'expired' }, { where: { invoice_id: log.invoice.invoice_id } });
+            // }
 
             result.push({
                 sale_id: log.sale_id,
@@ -678,14 +683,14 @@ static async deleteCustomer(req, res) {
 
             await Billing.create({
               billing_number:newInvoiceNumber,
-              billing_date:invoiceDateStr,
+              billing_date: invoiceDateStr,
               billing_status: 'Complete',
               payments: 'cash',
               remark: '',
               invoice_id: req.params.id
             });
           }
-
+          console.log("tyyyyyyyyyyyyyyyyyyyyyy",req.body.invoice_status)
           await Invoice.update({
               invoice_date: req.body.invoice_date,
               invoice_status: req.body.invoice_status,
@@ -763,8 +768,15 @@ static async getBilling(req,res){
       { model: Employee}, 
       { model: Customer}, 
       { model: Business , include: [Bank]}, 
-      { model: Invoice, include: [Billing] }
+      { model: Invoice, 
+        where: {
+          invoice_status: "issue a receipt",
+        },
+        include: [Billing]
+      }
       ],
+
+      
     });
     const today = new Date();
 
