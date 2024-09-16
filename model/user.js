@@ -32,6 +32,10 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER, 
         allowNull: false 
     },
+    bus_id:{
+        type: DataTypes.INTEGER, 
+        allowNull: false 
+    },
   });
 
   return User;

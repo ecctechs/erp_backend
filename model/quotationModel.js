@@ -91,6 +91,10 @@ const Customer = sequelize.define( 'customers', {
         type: DataTypes.STRING(40),  
         allowNull: false       
     },
+    bus_id: {
+        type: DataTypes.INTEGER,   
+        allowNull: false  
+    },
 },{
     timestamps: false
 });

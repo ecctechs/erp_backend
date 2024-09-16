@@ -12,6 +12,7 @@ const { QueryTypes } = require('sequelize');
 const multer = require('multer');
 var upload = multer({ dest: 'import/'});
 const unzipper = require('unzipper');
+const TokenManager = require('../middleware/tokenManager');
 
 
 const sourceDB = pgp({

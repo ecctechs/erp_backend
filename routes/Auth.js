@@ -4,14 +4,17 @@ const RouteName = '/auth'
 const AuthController = require('../controllers/AuthController');
 const { verifyTokenWithRole , logUserActivity } = require('../middleware/verifytokenwithrole'); 
 // const logUserActivity = require('../middleware/UserActivity');
-
+const { cloudinary } = require('../utils/cloudinary');
+const multer = require('multer');
+var upload = multer({ dest: 'upload/'});
+var type = upload.single('file');
 
 Route.get(RouteName+'/',AuthController.index);
 Route.post(RouteName+'/login', AuthController.login);
 Route.post(RouteName+'/getToken/:username',AuthController.getToken);
 Route.post(RouteName+'/checkAuthen',AuthController.checkAuthen);
 Route.post(RouteName+'/RegisterUsers',AuthController.RegisterUsers);
-// Route.get(RouteName+'/GetUsers',verifyTokenWithRole(['superuser','superman']),logUserActivity('Read/GetUsers','GetUsers'),AuthController.GetUsers);
+Route.post(RouteName+'/RegisterNewUsers',type,AuthController.RegisterNewUsers);
 Route.delete(RouteName+'/DeleteUsers/:id',AuthController.DeleteUsers);
 Route.put(RouteName+'/EditUsers/:id',AuthController.EditUsers);
 Route.get(RouteName+'/GetRole',AuthController.GetRole);

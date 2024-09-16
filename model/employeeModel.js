@@ -71,6 +71,10 @@ const Employee = sequelize.define('employees', {
         type: DataTypes.INTEGER, 
         allowNull: false 
     },
+    bus_id: {
+        type: DataTypes.INTEGER, 
+        allowNull: false 
+    },
 },{
     timestamps: false
 })
@@ -84,6 +88,10 @@ const Position = sequelize.define( 'positions', {
     Position: {
         type: DataTypes.STRING, 
         allowNull: false       
+    },
+    bus_id: {
+        type: DataTypes.INTEGER, 
+        allowNull: false 
     },
 },{
     timestamps: false
@@ -114,6 +122,58 @@ const Salary_pay = sequelize.define( 'salary_payments', {
     employeeID: {
         type: DataTypes.INTEGER,
         allowNull: false       
+    },
+    bus_id: {
+        type: DataTypes.INTEGER, 
+        allowNull: false 
+    },
+},{
+    timestamps: false
+});
+
+const Leaving = sequelize.define( 'leavings', {
+    leaving_id: {
+        type: DataTypes.INTEGER, 
+        autoIncrement: true,
+        primaryKey: true       
+    },
+    date: {
+        type: DataTypes.STRING, 
+        allowNull: false       
+    },
+    detail: {
+        type: DataTypes.INTEGER, 
+        allowNull: false       
+    },
+    employeeID: {
+        type: DataTypes.INTEGER,
+        allowNull: false       
+    },
+},{
+    timestamps: false
+});
+
+const Overtime = sequelize.define( 'overtimes', {
+    overtime_id: {
+        type: DataTypes.INTEGER, 
+        autoIncrement: true,
+        primaryKey: true       
+    },
+    date: {
+        type: DataTypes.STRING, 
+        allowNull: false       
+    },
+    detail: {
+        type: DataTypes.INTEGER, 
+        allowNull: false       
+    },
+    employeeID: {
+        type: DataTypes.INTEGER,
+        allowNull: false       
+    },
+    hours: {
+        type: DataTypes.INTEGER,
+        allowNull: false  
     }
 },{
     timestamps: false
@@ -128,12 +188,17 @@ const Department = sequelize.define( 'departments', {
     departmentName: {
         type: DataTypes.STRING,
         allowNull: false       
-    }
+    },
+    bus_id: {
+        type: DataTypes.INTEGER, 
+        allowNull: false 
+    },
 },{
     timestamps: false
 });
 
+Employee.belongsTo(Position, { foreignKey: "PositionID" });
+Position.hasMany(Employee, { foreignKey: "PositionID" });
 
 
-
-module.exports = {Employee,Position,Salary_pay,Department};
+module.exports = {Employee,Position,Salary_pay,Department,Leaving,Overtime};

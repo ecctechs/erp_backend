@@ -5,9 +5,11 @@ const {
   productCategory,
   Transaction,
 } = require("../model/productModel"); // call model
+const { Business } = require('../model/quotationModel')
 const { cloudinary } = require("../utils/cloudinary");
 const { Op } = require('sequelize');
 const moment = require('moment');
+const TokenManager = require('../middleware/tokenManager');
 
 class ProductController {
   static async getProduct(req, res) {
@@ -15,8 +17,27 @@ class ProductController {
     try {
       Product.belongsTo(productCategory, { foreignKey: "categoryID" });
       productCategory.hasMany(Product, { foreignKey: "categoryID" });
+      Product.belongsTo(productType, { foreignKey: "productTypeID" });
+      productType.hasMany(Product, { foreignKey: "productTypeID" });
 
-      var products = await Product.findAll({ include: [productCategory] });
+      Product.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Product, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
+      var products = await Product.findAll({ 
+        include: [
+          productCategory,
+          productType
+        ],
+        where: { bus_id: BusID } 
+      });
 
       return ResponseManager.SuccessResponse(req, res, 200, products);
     } catch (err) {
@@ -35,9 +56,21 @@ class ProductController {
   static async getProductByProductType(req, res) {
     //get product by type
     try {
+
+      Product.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Product, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
       const ProductByProductType = await Product.findAll({
         where: {
           productTypeID: req.params.id,
+          bus_id: BusID
         },
       });
       return ResponseManager.SuccessResponse(
@@ -53,13 +86,29 @@ class ProductController {
 
   static async AddProduct(req, res) {
     try {
+
+      Product.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Product, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
         console.log(req.body.productname);
 
         const addproduct = await Product.findOne({
             where: {
                 productname: req.body.productname,
+                bus_id: BusID
             },
         });
+
+        const today = new Date();
+        const DateString = today.toISOString().split('T')[0];
+
 
         if (addproduct) {
             return ResponseManager.ErrorResponse(
@@ -112,6 +161,8 @@ class ProductController {
                 productcost: req.body.productcost,
                 categoryID: req.body.categoryID,
                 productImg: result.secure_url, // Save Cloudinary image path
+                product_date: DateString,
+                bus_id: BusID
             });
 
             return ResponseManager.SuccessResponse(req, res, 200, insert_product);
@@ -250,9 +301,21 @@ static async EditProduct(req, res) {
   static async AddCategory(req, res) {
     //add category
     try {
+
+      productCategory.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(productCategory, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
       const addcate = await productCategory.findOne({
         where: {
           categoryName: req.body.categoryName,
+          bus_id: BusID
         },
       });
       if (addcate) {
@@ -260,6 +323,7 @@ static async EditProduct(req, res) {
       } else {
         const insert_cate = await productCategory.create({
           categoryName: req.body.categoryName,
+          bus_id: BusID
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -349,6 +413,7 @@ static async EditProduct(req, res) {
     // console.log("working")
     // res.send("test222");
     try {
+      
       const timestamp = Date.now();
       const dateObject = new Date(timestamp);
 
@@ -373,6 +438,7 @@ static async EditProduct(req, res) {
             quantity_added: req.body.quantity,
             quantity_removed: 0,
             transaction_date: DateString,
+
           });
 
           await Product.update(
@@ -444,11 +510,127 @@ static async EditProduct(req, res) {
     }
   }
 
+  static async EditTransaction(req, res) {
+    //add product
+    try {
+      const getProductAmount = await Product.findOne({
+        where: {
+          productID: req.body.productID,
+        },
+      });
+      
+      const getProductByid = await Transaction.findOne({
+        where: {
+          transaction_id: req.params.id,
+        },
+      });
+      if (getProductByid) {
+        const transactionType = req.body.transactionType;
+
+        if (transactionType == "receive") {
+          await Transaction.update({
+            productID: req.body.productID,
+            transactionType: transactionType,
+            transactionDetail: req.body.transactionDetail,
+            quantity_added: req.body.quantity,
+            quantity_removed: 0
+
+          },
+          {
+            where: {
+              transaction_id: req.params.id,
+            },
+          }
+        );
+
+          await Product.update(
+            {
+              amount: req.body.quantity + getProductAmount.dataValues.amount,
+            },
+            {
+              where: {
+                productID: req.body.productID,
+              },
+            }
+          );
+
+          return ResponseManager.SuccessResponse(
+            req,
+            res,
+            200,
+            "product receive success"
+          );
+        } else if (transactionType == "issue") {
+          if (getProductAmount.dataValues.amount < req.body.quantity) {
+            return ResponseManager.ErrorResponse(
+              req,
+              res,
+              400,
+              "product amount low then quantity"
+            );
+          } else {
+            await Transaction.update({
+              productID: req.body.productID,
+              transactionType: transactionType,
+              transactionDetail: req.body.transactionDetail,
+              quantity_removed: req.body.quantity,
+              quantity_added: 0
+            },
+            {
+              where: {
+                transaction_id: req.params.id,
+              },
+            });
+
+            await Product.update(
+              {
+                amount: getProductAmount.dataValues.amount - req.body.quantity,
+              },
+              {
+                where: {
+                  productID: req.body.productID,
+                },
+              }
+            );
+
+            return ResponseManager.SuccessResponse(
+              req,
+              res,
+              200,
+              "product issue success"
+            );
+          }
+        } else {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Please select transaction type"
+          );
+        }
+      } else {
+        return ResponseManager.ErrorResponse(req, res, 400, "Product Not found");
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
   static async getTransaction(req,res) {
     try {
 
       Transaction.belongsTo(Product, { foreignKey: "productID" });
       Product.hasMany(Transaction, { foreignKey: "productID" });
+
+      Product.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Product, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
 
       let result = [];  
       let transaction_list = [];
@@ -456,7 +638,8 @@ static async EditProduct(req, res) {
       transaction_list = await Transaction.findAll({
         include: [
           {
-            model: Product
+            model: Product,
+            where: { bus_id: BusID }
           }
         ]
       });
@@ -467,7 +650,9 @@ static async EditProduct(req, res) {
         : 'Invalid Date';
 
         result.push({
+          id: log.transaction_id,
           Date: dateOnly,
+          productID: log.productID,
           Product: log.product.productname,
           Transaction: log.transactionType,
           Detail: log.transactionDetail,
@@ -542,7 +727,20 @@ static async EditProduct(req, res) {
   static async getCategory(req, res) {
     //get all product type
     try {
-      const category_list = await productCategory.findAll();
+
+      productCategory.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(productCategory, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+      const category_list = await productCategory.findAll({
+        where: { bus_id: BusID }
+      });
       return ResponseManager.SuccessResponse(req, res, 200, category_list);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);

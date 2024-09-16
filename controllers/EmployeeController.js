@@ -8,7 +8,10 @@ const {
   Position,
   Salary_pay,
   Department,
+  Leaving,
+  Overtime
 } = require("../model/employeeModel"); // call model
+const { Business } = require('../model/quotationModel')
 
 class EmployeeController {
   static async getEmployee(req, res) {
@@ -21,8 +24,21 @@ class EmployeeController {
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
 
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
       var employees = await Employee.findAll({
         include: [{ model: Position }, { model: Department }],
+        where: {
+          bus_id: BusID,
+        },
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, employees);
@@ -34,6 +50,17 @@ class EmployeeController {
   static async AddEmployee(req, res) {
     //add category
     try {
+
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
       const esistingempNID = await Employee.findOne({
         where: {
           NID_num: req.body.NID_num,
@@ -84,6 +111,7 @@ class EmployeeController {
           bankAccountID: req.body.bankAccountID,
           PositionID: req.body.PositionID,
           departmentID: req.body.departmentID,
+          bus_id: BusID,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_emp);
@@ -207,9 +235,22 @@ class EmployeeController {
   static async AddDepartment(req, res) {
     //add category
     try {
+
+      Department.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Department, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
       const adddepart = await Department.findOne({
         where: {
           departmentName: req.body.departmentName,
+          bus_id: BusID
         },
       });
       if (adddepart) {
@@ -222,6 +263,7 @@ class EmployeeController {
       } else {
         const insert_depart = await Department.create({
           departmentName: req.body.departmentName,
+          bus_id: BusID
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_depart);
@@ -319,7 +361,20 @@ class EmployeeController {
 
   static async getDepartment(req, res) {
     try {
-      const departments = await Department.findAll();
+      Department.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Department, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+      const departments = await Department.findAll({
+        where: {
+          bus_id: BusID
+        },
+      });
 
       let datalist = [];
 
@@ -331,6 +386,7 @@ class EmployeeController {
         const employee = await Employee.findAll({
           where: {
             departmentID: departments[property].departmentID.toString(),
+            bus_id: BusID
           },
         });
 
@@ -356,13 +412,17 @@ class EmployeeController {
       // กำหนดความสัมพันธ์ระหว่าง Table3 และ Table4
       Department.hasMany(Employee, { foreignKey: "departmentID" });
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
+
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+      
   
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
       }
   
-      const { RoleName, userID, userEmail } = tokenData;
+      const { RoleName, userID, userEmail, BusID } = tokenData;
       console.log("-----------------------------", RoleName);
       
       let result = [];
@@ -371,8 +431,11 @@ class EmployeeController {
       if (RoleName === 'SUPERUSER') {
         paymentslist = await Salary_pay.findAll({
           include: [
-            { model: Employee, include: [Position, Department] }, // เชื่อมโยง Table2 และ Table3 และ Table4
+            { model: Employee, 
+              include: [Position, Department] 
+            }, // เชื่อมโยง Table2 และ Table3 และ Table4
           ],
+          where: { bus_id: BusID },
         });
         paymentslist.forEach(log => {
           result.push({
@@ -381,9 +444,11 @@ class EmployeeController {
             round: log.round,
             month: log.month,
             year: log.year,
-            employeeName: log.employee.F_name + " " + log.employee.L_name
+            employeeName: log.employee.F_name + " " + log.employee.L_name,
+            salary: log.employee.Salary
           });
         });
+        
       } else if(RoleName === 'SALE') {
         paymentslist = await Salary_pay.findAll({
           include: [
@@ -394,6 +459,7 @@ class EmployeeController {
               }, 
               include: [Position, Department] }
           ],
+          where: { bus_id: BusID },
         });
         paymentslist.forEach(log => {
           result.push({
@@ -402,7 +468,8 @@ class EmployeeController {
             round: log.round,
             month: log.month,
             year: log.year,
-            employeeName: log.employee.F_name + " " + log.employee.L_name
+            employeeName: log.employee.F_name + " " + log.employee.L_name,
+            salary: log.employee.Salary
           });
         });
       } else if (RoleName === 'MANAGER') {
@@ -446,19 +513,23 @@ class EmployeeController {
                 }
               ]
             }
-          ]
+          ],
+          where: { bus_id: BusID },
+        });
+
+        paymentslist.forEach(log => {
+          result.push({
+            payment_id: log.payment_id,
+            date: log.Date,
+            round: log.round,
+            month: log.month,
+            year: log.year,
+            employeeName: log.employee.F_name + " " + log.employee.L_name,
+            salary: log.employee.Salary
+          });
         });
       }
-      paymentslist.forEach(log => {
-        result.push({
-          payment_id: log.payment_id,
-          date: log.Date,
-          round: log.round,
-          month: log.month,
-          year: log.year,
-          employeeName: log.employee.F_name + " " + log.employee.L_name
-        });
-      });
+
   
       return ResponseManager.SuccessResponse(req, res, 200, result);
     } catch (err) {
@@ -475,17 +546,21 @@ class EmployeeController {
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
 
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
       }
   
-      const { RoleName, userID, userEmail } = tokenData;
+      const { RoleName, userID, userEmail, BusID } = tokenData;
       let result = [];  
       let employeeslist = [];
       
       if (RoleName === 'SUPERUSER') {
         employeeslist = await Employee.findAll({
+          where: { bus_id: BusID},
           include: [{ model: Position }, { model: Department }],
         });
         employeeslist.forEach(log => {
@@ -507,7 +582,8 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           include: [{ model: Position }, { model: Department }],
           where: {
-            Email: userEmail
+            Email: userEmail,
+            bus_id: BusID
           }
         });
         employeeslist.forEach(log => {
@@ -528,7 +604,8 @@ class EmployeeController {
 
         const userData = await Employee.findOne({
           where: {
-            Email: userEmail
+            Email: userEmail,
+            bus_id: BusID
           },
           include: [
             {
@@ -548,6 +625,7 @@ class EmployeeController {
           include: [{ model: Position }, { model: Department }],
           where: {
             departmentID: userdepart,
+            bus_id: BusID,
             Email: {
               [Op.ne]: userEmail
             }
@@ -588,19 +666,24 @@ class EmployeeController {
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
 
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
       }
   
-      const { RoleName, userID, userEmail } = tokenData;
+      const { RoleName, userID, userEmail, BusID } = tokenData;
       let result = [];  
       let employeeslist = [];
       
       if (RoleName === 'SUPERUSER') {
         employeeslist = await Employee.findAll({
+          where: { bus_id: BusID },
           include: [{ model: Position }, { model: Department }],
         });
+        console.log("+++++++++++++---------",employeeslist)
         employeeslist.forEach(log => {
           result.push({
             employeeID: log.employeeID,
@@ -620,7 +703,8 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           include: [{ model: Position }, { model: Department }],
           where: {
-            Email: userEmail
+            Email: userEmail,
+            bus_id: BusID
           }
         });
         employeeslist.forEach(log => {
@@ -641,7 +725,7 @@ class EmployeeController {
 
         const userData = await Employee.findOne({
           where: {
-            Email: userEmail
+            Email: userEmail,
           },
           include: [
             {
@@ -660,9 +744,11 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           include: [{ model: Position }, { model: Department }],
           where: {
-            departmentID: userdepart
+            departmentID: userdepart,
+            bus_id: BusID
           }
         });
+        
         employeeslist.forEach(log => {
           result.push({
             employeeID: log.employeeID,
@@ -691,9 +777,21 @@ class EmployeeController {
   static async AddPosition(req, res) {
     //add category
     try {
+
+      Position.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Position, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
       const adddepart = await Position.findOne({
         where: {
           Position: req.body.Position,
+          bus_id: BusID
         },
       });
       if (adddepart) {
@@ -706,6 +804,7 @@ class EmployeeController {
       } else {
         const insert_depart = await Position.create({
           Position: req.body.Position,
+          bus_id: BusID
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_depart);
@@ -802,12 +901,24 @@ class EmployeeController {
   static async AddPayment(req, res) {
     //add category
     try {
+      Salary_pay.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Salary_pay, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
       const data = await Salary_pay.findOne({
         where: {
           month: req.body.month,
           round: req.body.round,
           year: req.body.year,
           employeeID: req.body.employeeID,
+          bus_id: BusID
         },
       });
       if (data) {
@@ -824,6 +935,7 @@ class EmployeeController {
           round: req.body.round,
           month: req.body.month,
           year: req.body.year,
+          bus_id: BusID
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, data_payment);
@@ -834,6 +946,18 @@ class EmployeeController {
   }
   static async AddPayment2(req, res) {
     try {
+
+      Salary_pay.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Salary_pay, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
         // ตรวจสอบว่ามีข้อมูลใน req.body.payments หรือไม่
         if (!req.body.payments || !Array.isArray(req.body.payments)) {
             return res.status(400).json({ error: 'Invalid request format. Missing payments array.' });
@@ -849,7 +973,8 @@ class EmployeeController {
                     month: paymentData.month,
                     round: paymentData.round,
                     year: paymentData.year,
-                    employeeID: paymentData.employeeID
+                    employeeID: paymentData.employeeID,
+                    bus_id: BusID
                 }
             });
 
@@ -864,6 +989,7 @@ class EmployeeController {
                     round: paymentData.round,
                     month: paymentData.month,
                     year: paymentData.year,
+                    bus_id: BusID
                 }));
             }
         }
@@ -875,6 +1001,149 @@ class EmployeeController {
       } catch (err) {
         return ResponseManager.CatchResponse(req, res, err.message);
       }
+  }
+  static async AddLeave(req, res) {
+    //add category
+    try {
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
+      const data = await Leaving.findOne({
+        where: {
+          employeeID: req.body.employeeID,
+          date: req.body.date,
+        },
+      });
+      if (data) {
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          400,
+          "Leaving date already exists"
+        );
+      } else {
+        const data_leaving = await Leaving.create({
+          employeeID: req.body.employeeID,
+          date: req.body.date,
+          detail: req.body.detail,
+        });
+        console.log(req.body);
+        return ResponseManager.SuccessResponse(req, res, 200, data_leaving);
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async getLeave(req, res) {
+    //get all product type
+    try {
+
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+
+      Leaving.belongsTo(Employee, { foreignKey: "employeeID" });
+      Employee.hasMany(Leaving, { foreignKey: "employeeID" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+      const category_list = await Leaving.findAll({
+        include: [
+          {
+            model: Employee,
+            where: { bus_id: BusID }
+          }
+        ]
+        
+      });
+      return ResponseManager.SuccessResponse(req, res, 200, category_list);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async AddOvertime(req, res) {
+    //add category
+    try {
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
+      const data = await Overtime.findOne({
+        where: {
+          employeeID: req.body.employeeID,
+          date: req.body.date,
+        },
+      });
+      if (data) {
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          400,
+          "Overtime date already exists"
+        );
+      } else {
+        const data_overtime = await Overtime.create({
+          employeeID: req.body.employeeID,
+          date: req.body.date,
+          detail: req.body.detail,
+          hours: req.body.hours
+        });
+        console.log(req.body);
+        return ResponseManager.SuccessResponse(req, res, 200, data_overtime);
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async getOvertime(req, res) {
+    //get all product type
+    try {
+
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
+
+      Overtime.belongsTo(Employee, { foreignKey: "employeeID" });
+      Employee.hasMany(Overtime, { foreignKey: "employeeID" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+      const data_overtime = await Leaving.findAll({
+        include: [
+          {
+            model: Employee,
+            where: { bus_id: BusID }
+          }
+        ]
+        
+      });
+      return ResponseManager.SuccessResponse(req, res, 200, data_overtime);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
   }
 }
 

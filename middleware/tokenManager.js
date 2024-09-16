@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const tokenData = require("./tokenData.json");
 const {User,Role} = require('../model/userModel');
+const {Business} = require('../model/quotationModel')
 
 class TokenManager{
     static getGenerateAccessToken(payload){
@@ -25,9 +26,13 @@ class TokenManager{
             User.belongsTo(Role, { foreignKey: "RoleID" });
             Role.hasMany(User, { foreignKey: "RoleID" });
 
+            User.belongsTo(Business, { foreignKey: "bus_id" });
+            Business.hasMany(User, { foreignKey: "bus_id" });
+
             const users = await User.findAll({
                 include: [
                     { model: Role },
+                    { model: Business }
                     // { model: Distributor }
                 ],
                 where: { userID: userID }
@@ -41,6 +46,7 @@ class TokenManager{
                 userID: users[0].userID,
                 // username: users[0].username,
                 // user_tel: users[0].user_tel,
+                BusID: users[0].bus_id,
                 RoleID: users[0].RoleID,
                 RoleName:  users[0].role.RoleName ,
                 userEmail: users[0].userEmail

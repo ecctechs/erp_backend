@@ -37,7 +37,14 @@ const Product = sequelize.define('products', {
     },
     productImg: {
         type: DataTypes.STRING(100), 
-    }
+    },
+    product_date: {
+        type: DataTypes.STRING,    
+    },
+    bus_id: {
+        type: DataTypes.INTEGER, 
+        allowNull: false 
+    },
 },{
     timestamps: false
 })
@@ -66,6 +73,10 @@ const productCategory = sequelize.define( 'product_categories', {
     categoryName: {
         type: DataTypes.STRING, 
         allowNull: false,           
+    },
+    bus_id: {
+        type: DataTypes.INTEGER, 
+        allowNull: false 
     },
 },{
     timestamps: false
@@ -96,7 +107,7 @@ const Transaction = sequelize.define( 'product_transactions', {
     },
     transaction_date: {
         type: DataTypes.STRING,    
-    }
+    },
 },{
     timestamps: false
 });

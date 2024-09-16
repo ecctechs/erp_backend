@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { User, Role } = require("../model/userModel"); // call model  // ต้องแก้ตามโครงสร้างโปรเจ็คของคุณ
+const { Business } = require("../model/quotationModel");
 const tokenData = require("./tokenData.json");
 const { Op } = require("sequelize");
 const { UserActivity } = require("../model/userModel"); // call model
@@ -26,6 +27,10 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
 
     User.belongsTo(Role, { foreignKey: "RoleID" });
     Role.hasMany(User, { foreignKey: "RoleID" });
+
+    User.belongsTo(Business, { foreignKey: "bus_id" });
+    Business.hasMany(User, { foreignKey: "bus_id" });
+
     console.log(requiredRoles);
 
     User.findAll({

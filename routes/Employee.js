@@ -27,4 +27,10 @@ Route.get(RouteName+'/getPosition',EmployeeController.getPosition)
 Route.post(RouteName+'/AddPayment',EmployeeController.AddPayment)
 Route.post(RouteName+'/AddPayment2',EmployeeController.AddPayment2)
 
+Route.post(RouteName+'/AddLeave',EmployeeController.AddLeave)
+Route.get(RouteName+'/getLeave',EmployeeController.getLeave)
+
+Route.post(RouteName+'/AddOvertime',EmployeeController.AddOvertime)
+Route.get(RouteName+'/getOvertime',EmployeeController.getOvertime)
+
 module.exports = Route

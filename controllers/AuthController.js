@@ -3,8 +3,10 @@ var bcrypt = require('bcryptjs');
 const TokenManager = require('../middleware/tokenManager');
 const ResponseManager = require("../middleware/ResponseManager");
 const {User, Role } = require('../model/userModel'); // call model
+const { Business, Bank } = require('../model/quotationModel')
 const logUserActivity = require('../middleware/UserActivity');
 const { Op } = require('sequelize');
+const { cloudinary } = require('../utils/cloudinary');
 
 
 // const { Pool } = require('pg');
@@ -216,16 +218,46 @@ class AuthController {
     // }
 
     static async RegisterUsers (req, res) { //add category
+        User.belongsTo(Business, { foreignKey: "bus_id" });
+        Business.hasMany(User, { foreignKey: "bus_id" });
+
+        const tokenData = await TokenManager.update_token(req);
+        if (!tokenData) {
+          return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        }
+    
+        const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
         try {   
            
-            const addcate = await User.findOne({
+            const addemail = await User.findOne({
                 where: {
                     userEmail: req.body.userEmail,
                   },
             })         
-                if(addcate){
-                    return ResponseManager.SuccessResponse(req,res,400,"User already exists") 
-                }else{
+                if(addemail){
+                    return ResponseManager.ErrorResponseResponse(req,res,400,"User already exists") 
+                }
+
+                const addName = await User.findOne({
+                    where: {
+                        userF_name:req.body.userF_name, 
+                        userL_name:req.body.userL_name,
+                      },
+                })         
+                    if(addName){
+                        return ResponseManager.SuccessResponse(req,res,400,"User already exists") 
+                    }
+
+                    const addPhone = await User.findOne({
+                        where: {
+                            userPhone:req.body.userPhone,  
+                          },
+                    })         
+                        if(addPhone){
+                            return ResponseManager.SuccessResponse(req,res,400,"User phone number already exists") 
+                        }
                     //const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
                     const insert_cate = await User.create({
                         userF_name:req.body.userF_name, 
@@ -234,14 +266,114 @@ class AuthController {
                         userEmail:req.body.userEmail,   
                         userPassword:req.body.userPassword,   
                         RoleID:req.body.RoleID,     
+                        bus_id: BusID,
                     })
                     console.log(req.body)
                     return ResponseManager.SuccessResponse(req,res,200,(insert_cate))   
-                }          
+                        
         }catch (err) {
             return ResponseManager.CatchResponse(req, res, err.message)
         }
     }
+
+    static async RegisterNewUsers(req, res) { 
+        // เชื่อมโยง User กับ Business ผ่าน bus_id
+        User.belongsTo(Business, { foreignKey: "bus_id" });
+        Business.hasMany(User, { foreignKey: "bus_id" });
+    
+
+        console.log("req.body:", req.body);  // ดูข้อมูลทั้งหมดที่ถูกส่งมาจาก frontend
+
+        try {
+
+            if (!req.body.bus_name) {
+                return ResponseManager.ErrorResponse(req, res, 400, "bus_name is required");
+            }
+            // ตรวจสอบว่าผู้ใช้งานมีอยู่ในระบบหรือยัง
+            const existingUser = await User.findOne({
+                where: {
+                    userEmail: req.body.userEmail,
+                },
+            });
+            if (existingUser) {
+                return ResponseManager.ErrorResponse(req, res, 400, "User already exists");
+            }
+    
+            // ตรวจสอบว่ามี Business ที่มีชื่อซ้ำหรือไม่
+            const existingBus = await Business.findOne({
+                where: {
+                    bus_name: req.body.bus_name,
+                },
+            });
+            if (existingBus) {
+                return ResponseManager.SuccessResponse(req, res, 400, "Business already exists");
+            }
+    
+            if (!req.file) {
+                return ResponseManager.ErrorResponse(req, res, 400, "No file uploaded");
+            }
+
+            // ตรวจสอบไฟล์รูปภาพที่อัปโหลด
+            const allowedMimeTypes = ['image/jpeg', 'image/png'];
+            if (req.file && !allowedMimeTypes.includes(req.file.mimetype)) {
+                return ResponseManager.ErrorResponse(req, res, 400, "Only JPEG and PNG image files are allowed");
+            }
+            if (req.file && req.file.size > 5 * 1024 * 1024) {
+                res.status(400).json({ error: "File size exceeds 5 MB limit" });
+            }
+    
+            // อัปโหลดโลโก้ไปยัง Cloudinary
+            const result = await cloudinary.uploader.upload(req.file.path);
+    
+            console.log("Cloudinary upload result:", result);
+
+            // สร้าง Bank ใหม่
+            const createbank = await Bank.create({
+                bank_name: req.body.bank_name,
+                bank_account: req.body.bank_account,
+                bank_number: req.body.bank_number,
+            });
+    
+            console.log("Bank creation result:", createbank);
+
+            // ถ้าสร้าง Bank สำเร็จ ทำการสร้าง Business ใหม่
+            let createdBusiness = null;
+            if (createbank) {
+                createdBusiness = await Business.create({
+                    bus_name: req.body.bus_name,
+                    bus_address: req.body.bus_address,
+                    bus_website: req.body.bus_website,
+                    bus_tel: req.body.bus_tel,
+                    bus_tax: req.body.bus_tax,
+                    bus_logo: result.secure_url,
+                    bank_id: createbank.bank_id
+                });
+                console.log("Business creation result:", createdBusiness);
+            }
+    
+            if (createdBusiness) {
+                // ใช้ bus_id ของ Business ที่เพิ่งถูกสร้างเพื่อสร้างผู้ใช้ใหม่
+                const insertUser = await User.create({
+                    userF_name: req.body.userF_name,
+                    userL_name: req.body.userL_name,
+                    userPhone: req.body.userPhone,
+                    userEmail: req.body.userEmail,
+                    userPassword: req.body.userPassword,
+                    RoleID: 1, 
+                    bus_id: createdBusiness.bus_id, 
+                });
+                console.log("User creation result:", insertUser);
+                console.log(req.body);
+                return ResponseManager.SuccessResponse(req, res, 200, insertUser);
+            } else {
+                return ResponseManager.ErrorResponse(req, res, 500, "Failed to create Business");
+            }
+    
+        } catch (err) {
+            return ResponseManager.CatchResponse(req, res, err.message);
+        }
+    }
+
     static async EditUsers (req, res) {
         try {   
             const editemp = await User.findOne({
@@ -301,8 +433,20 @@ class AuthController {
              
         // }catch (err) {
         //     return ResponseManager.CatchResponse(req, res, err.message)
+
         // }
         User.belongsTo(Role, { foreignKey: "RoleID" });
+        User.belongsTo(Business, { foreignKey: "bus_id" });
+        Business.hasMany(User, { foreignKey: "bus_id" });
+
+        const tokenData = await TokenManager.update_token(req);
+        if (!tokenData) {
+          return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        }
+    
+        const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
         try {   
 
             const Users = await User.findAll({
@@ -311,6 +455,9 @@ class AuthController {
                         model: Role
                     }
                 ],
+                where: {
+                    bus_id: BusID,
+                },
             }); 
 
             return ResponseManager.SuccessResponse(req,res,200,(Users))
@@ -320,19 +467,7 @@ class AuthController {
         }
     }
     static async GetUserByID (req, res) { //add category
-        // try {   
-        //     let datalist = [];
-        //     const Users = await User.findAll();   
-        //     User.belongsTo(Role, { foreignKey: "RoleID" });
-        //     Role.hasMany(User, { foreignKey: "RoleID" });
 
-        //     var Users_join = await User.findAll({ include: [Role] });
- 
-        //     return ResponseManager.SuccessResponse(req,res,200,(Users_join))
-             
-        // }catch (err) {
-        //     return ResponseManager.CatchResponse(req, res, err.message)
-        // }
         User.belongsTo(Role, { foreignKey: "RoleID" });
         try {   
 

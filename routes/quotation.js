@@ -24,7 +24,7 @@ Route.delete(RouteName+'/deleteInvoice/:id',QuotationSaleController.deleteInvoic
 Route.put(RouteName+'/editBilling/:id', QuotationSaleController.editBilling)
 Route.get(RouteName+'/getBilling',QuotationSaleController.getBilling)
 Route.delete(RouteName+'/deleteBilling/:id',QuotationSaleController.deleteBilling)
-Route.get(RouteName+'/getBusinessByID/:id',QuotationSaleController.getBusinessByID)
+Route.get(RouteName+'/getBusinessByID',QuotationSaleController.getBusinessByID)
 Route.put(RouteName+'/editBusiness/:id', upload.single('file') ,QuotationSaleController.editBusiness)
 Route.get(RouteName+'/checkLastestQuotation',QuotationSaleController.checkLastestQuotation)
 Route.get(RouteName+'/exportFileQuotationData/:id', QuotationSaleController.exportFileQuotationData);

@@ -1,8 +1,10 @@
 const ResponseManager = require("../middleware/ResponseManager");
 const {Business,Bank,Customer,Quotation_sale,Quotation_sale_detail,Invoice,Billing} = require('../model/quotationModel'); // call model
 const {Employee,Position,Salary_pay,Department,} = require("../model/employeeModel"); // call model
+const {User} = require("../model/userModel"); // call model
 const { cloudinary } = require("../utils/cloudinary");
 const { Op } = require('sequelize'); // Import Op from sequelize
+const TokenManager = require('../middleware/tokenManager');
 
 class QuotationSaleController {
 
@@ -28,7 +30,19 @@ class QuotationSaleController {
     static async getCustomer(req, res) {
         try {
 
-            const customer = await Customer.findAll();
+          Customer.belongsTo(Business, { foreignKey: "bus_id" });
+          Business.hasMany(Customer, { foreignKey: "bus_id" });
+    
+          const tokenData = await TokenManager.update_token(req);
+          if (!tokenData) {
+            return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+          }
+      
+          const { RoleName, userID, userEmail, BusID } = tokenData;
+
+            const customer = await Customer.findAll({
+              where: { bus_id: BusID }
+            });
             
             return ResponseManager.SuccessResponse(req, res, 200, customer);
           } catch (err) {
@@ -37,14 +51,36 @@ class QuotationSaleController {
     }
     static async addCustomer(req, res) {
       try {   
+
+        Customer.belongsTo(Business, { foreignKey: "bus_id" });
+        Business.hasMany(Customer, { foreignKey: "bus_id" });
+  
+        const tokenData = await TokenManager.update_token(req);
+        if (!tokenData) {
+          return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        }
+    
+        const { RoleName, userID, userEmail, BusID } = tokenData;
+
         const addCustomer = await Customer.findOne({
             where: {
                 cus_name: req.body.cus_name,
+                bus_id: BusID
               },
         })         
             if(addCustomer){
                 return ResponseManager.SuccessResponse(req,res,400,"Customer already exists") 
-            }else{
+            }
+
+            const addCustomerTax = await Customer.findOne({
+              where: {
+                  cus_tax:req.body.cus_tax, 
+                  bus_id: BusID
+                },
+          })         
+              if(addCustomerTax){
+                  return ResponseManager.SuccessResponse(req,res,400,"Customer tax already exists") 
+              }
                 const insert_cate = await Customer.create({
                   cus_name:req.body.cus_name,  
                   cus_address:req.body.cus_address,  
@@ -52,10 +88,11 @@ class QuotationSaleController {
                   cus_email:req.body.cus_email, 
                   cus_tax:req.body.cus_tax, 
                   cus_purchase:req.body.cus_purchase, 
+                  bus_id: BusID
                 })
-                console.log(req.body)
+            
                 return ResponseManager.SuccessResponse(req,res,200,(insert_cate))   
-            }   
+              
          
     }catch (err) {
         return ResponseManager.CatchResponse(req, res, err.message)
@@ -130,7 +167,7 @@ static async deleteCustomer(req, res) {
     
           const checkBusiness = await Business.findOne({
             where: {
-                bus_id: 1,
+              bus_name: req.body.bus_name,
                 // bus_name: req.body.bus_name,
             },
           });
@@ -169,7 +206,7 @@ static async deleteCustomer(req, res) {
 
           } else {
 
-            console.log("starttttttttttttttttttt")
+            
             let productUpdateData = {
               bus_name: req.body.bus_name,
               bus_address: req.body.bus_address,
@@ -326,9 +363,21 @@ static async deleteCustomer(req, res) {
       console.log("Received sale_number:     ", req.body.sale_number);
       console.log("Received data:    ", req.body); // ตรวจสอบข้อมูลทั้งหมดที่ได้รับ
         try {
+
+          Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
+          Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+    
+          const tokenData = await TokenManager.update_token(req);
+          if (!tokenData) {
+            return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+          }
+      
+          const { RoleName, userID, userEmail, BusID } = tokenData;
+
           const existQuatationSale = await Quotation_sale.findOne({
             where: {
                 sale_number: req.body.sale_number,
+                bus_id: BusID
             },
           });
 
@@ -340,6 +389,7 @@ static async deleteCustomer(req, res) {
           const existCustomer = await Customer.findOne({
             where: {
               cus_id: req.body.cus_id,
+              bus_id: BusID
             },
           });
 
@@ -484,6 +534,14 @@ static async deleteCustomer(req, res) {
       Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
       Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
 
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+
       let result = [];  
       let quotationslist = [];
 
@@ -495,6 +553,7 @@ static async deleteCustomer(req, res) {
           { model: Business , include: [Bank]}, 
           { model: Invoice }
           ],
+          where: { bus_id: BusID }
         });
         const today = new Date();
 
@@ -569,6 +628,13 @@ static async deleteCustomer(req, res) {
       Invoice.hasOne(Billing, { foreignKey: "invoice_id" });
       Billing.belongsTo(Invoice, { foreignKey: "invoice_id" });
 
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
       let result = [];  
       let quotationslist = [];
 
@@ -582,6 +648,7 @@ static async deleteCustomer(req, res) {
           ],
           where: {
               status: "allowed",
+              bus_id: BusID
           }
         });
         const today = new Date();
@@ -759,6 +826,13 @@ static async getBilling(req,res){
   Invoice.hasOne(Billing, { foreignKey: "invoice_id" });
   Billing.belongsTo(Invoice, { foreignKey: "invoice_id" });
 
+  const tokenData = await TokenManager.update_token(req);
+  if (!tokenData) {
+    return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+  }
+
+  const { RoleName, userID, userEmail, BusID } = tokenData;
+
   let result = [];  
   let quotationslist = [];
 
@@ -775,7 +849,9 @@ static async getBilling(req,res){
         include: [Billing]
       }
       ],
-
+      where: {
+        bus_id: BusID
+      }
       
     });
     const today = new Date();
@@ -959,7 +1035,19 @@ static async deleteBilling(req,res){
   }
   static async checkLastestQuotation(req,res) {
     try {
+
+      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+      }
+  
+      const { RoleName, userID, userEmail, BusID } = tokenData;
+
       const lastestSale = await Quotation_sale.findOne({
+        where: { bus_id: BusID },
         order: [['sale_number', 'DESC']]
       })
 
@@ -975,18 +1063,33 @@ static async deleteBilling(req,res){
   }
   static async getBusinessByID(req,res){
   try{
-
     Business.hasMany(Bank, { foreignKey: 'bank_id' });
+    Business.hasMany(User, { foreignKey: 'bus_id'});
+    User.belongsTo(Business, { foreignKey: 'bus_id'});
 
-    const business = await Business.findOne({
-        include: [
-          {
-            model: Bank,
-          },
-        ],
-        where: {
-          bus_id: req.params.id,
-        },
+    const tokenData = await TokenManager.update_token(req);
+    
+    if (!tokenData) {
+      return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+    }
+
+    const { RoleName, userID, userEmail, BusID } = tokenData;
+    console.log("--------------------------",tokenData);
+
+    const business = await User.findOne({
+      include: [
+        {
+          model: Business,
+          include: [
+            {
+              model: Bank,
+            },
+          ],
+        }
+      ],
+      where: {
+        bus_id: BusID,
+      },
     })
 
     return ResponseManager.SuccessResponse(req, res, 200, business);
