@@ -1123,17 +1123,68 @@ class EmployeeController {
       }
   
       const { RoleName, userID, userEmail, BusID } = tokenData;
+      let data_leave;
 
-      const category_list = await Leaving.findAll({
-        include: [
-          {
-            model: Employee,
-            where: { bus_id: BusID }
-          }
-        ]
-        
-      });
-      return ResponseManager.SuccessResponse(req, res, 200, category_list);
+      if (RoleName === 'SUPERUSER') {
+        data_leave = await Leaving.findAll({
+          include: [
+            {
+              model: Employee,
+              where: { bus_id: BusID }
+            }
+          ]
+        });
+      } else if(RoleName === 'SALE') {
+        data_leave = await Leaving.findAll({
+          include: [
+            {
+              model: Employee,
+              where: { 
+                bus_id: BusID,
+                Email: userEmail
+              }
+            }
+          ]
+        });
+      } else if (RoleName === 'MANAGER') {
+        const userData = await Employee.findOne({
+          where: {
+            Email: userEmail,
+            bus_id: BusID
+          },
+          include: [
+            {
+              model: Department
+            }
+          ]
+        });
+
+        if (!userData || !userData.department) {
+          return await ResponseManager.ErrorResponse(req, res, 404, "Manager department data not found");
+        }
+  
+        // console.log("Department Name:", userData.department.departmentName);
+        const userdepart = userData.department.departmentID;
+
+        data_leave = await Leaving.findAll({
+          include: [
+            {
+              model: Employee,
+              where: { 
+                departmentID: userdepart,
+                bus_id: BusID,
+                Email: {
+                  [Op.ne]: userEmail
+                }
+              }
+            }
+          ]
+        });
+
+
+      }
+
+      return ResponseManager.SuccessResponse(req, res, 200, data_leave);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
@@ -1195,16 +1246,69 @@ class EmployeeController {
       }
   
       const { RoleName, userID, userEmail, BusID } = tokenData;
+      let data_overtime;
 
-      const data_overtime = await Overtime.findAll({
-        include: [
-          {
-            model: Employee,
-            where: { bus_id: BusID }
-          }
-        ]
-        
-      });
+      if (RoleName === 'SUPERUSER') {
+        data_overtime = await Overtime.findAll({
+          include: [
+            {
+              model: Employee,
+              where: { bus_id: BusID }
+            }
+          ]
+          
+        });
+      } else if(RoleName === 'SALE') {
+        data_overtime = await Overtime.findAll({
+          include: [
+            {
+              model: Employee,
+              where: { 
+                bus_id: BusID,
+                Email: userEmail,
+               }
+            }
+          ]
+          
+        });
+      } else if (RoleName === 'MANAGER') {
+
+        const userData = await Employee.findOne({
+          where: {
+            Email: userEmail,
+            bus_id: BusID
+          },
+          include: [
+            {
+              model: Department
+            }
+          ]
+        });
+
+        if (!userData || !userData.department) {
+          return await ResponseManager.ErrorResponse(req, res, 404, "Manager department data not found");
+        }
+  
+        // console.log("Department Name:", userData.department.departmentName);
+        const userdepart = userData.department.departmentID;
+
+        data_overtime = await Overtime.findAll({
+          include: [
+            {
+              model: Employee,
+              where: { 
+                departmentID: userdepart,
+                bus_id: BusID,
+                Email: {
+                  [Op.ne]: userEmail
+                }
+               }
+            }
+          ]
+          
+        });
+      }
+
       return ResponseManager.SuccessResponse(req, res, 200, data_overtime);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
