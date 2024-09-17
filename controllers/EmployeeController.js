@@ -1196,7 +1196,7 @@ class EmployeeController {
   
       const { RoleName, userID, userEmail, BusID } = tokenData;
 
-      const data_overtime = await Leaving.findAll({
+      const data_overtime = await Overtime.findAll({
         include: [
           {
             model: Employee,
