@@ -38,6 +38,15 @@ class EmployeeController {
         include: [{ model: Position }, { model: Department }],
         where: {
           bus_id: BusID,
+          F_name: {
+            [Op.not]: '-' // กรองเฉพาะพนักงานที่ F_name ไม่เป็น null
+          },
+          L_name: {
+            [Op.not]: '-' // กรองเฉพาะพนักงานที่ L_name ไม่เป็น null
+          },
+          Email: {
+            [Op.not]: '-' // กรองเฉพาะพนักงานที่ Email ไม่เป็น null
+          }
         },
       });
 
@@ -205,24 +214,37 @@ class EmployeeController {
   }
 
   static async DeleteEmployee(req, res) {
-    //delete product
     try {
-      const deletecate = await Employee.findOne({
+      // ค้นหาข้อมูลพนักงานจากฐานข้อมูล
+      const employee = await Employee.findOne({
         where: {
           employeeID: req.params.id,
         },
       });
-      if (deletecate) {
-        await Employee.destroy({
+  
+      if (employee) {
+        // ทำการอัปเดตข้อมูลพนักงาน โดยลบเฉพาะข้อมูลส่วนตัวและคง salary, start_working_date และ employeeID ไว้
+        await Employee.update({
+          F_name: '-', // ลบชื่อ
+          L_name: '-', // ลบนามสกุล
+          Address: '-', // ลบที่อยู่
+          Birthdate: '-', // ลบวันเกิด
+          NID_num: '-', // ลบเลขบัตรประชาชน
+          Phone_num: '-', // ลบเบอร์โทร
+          Email: '-', // ลบอีเมล
+          bankName: '-', // ลบชื่อธนาคาร
+          bankAccountID: '-', // ลบเลขบัญชี
+        }, {
           where: {
             employeeID: req.params.id,
           },
         });
+  
         return ResponseManager.SuccessResponse(
           req,
           res,
           200,
-          "Employee Deleted"
+          "Employee data partially deleted"
         );
       } else {
         return ResponseManager.ErrorResponse(req, res, 400, "No Employee found");
@@ -230,7 +252,7 @@ class EmployeeController {
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
-  }
+  } 
 
   static async AddDepartment(req, res) {
     //add category
@@ -560,7 +582,15 @@ class EmployeeController {
       
       if (RoleName === 'SUPERUSER') {
         employeeslist = await Employee.findAll({
-          where: { bus_id: BusID},
+          where: {
+            bus_id: BusID,
+            F_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่ชื่อไม่เท่ากับ "-"
+            },
+            L_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่นามสกุลไม่เท่ากับ "-"
+            }
+          },
           include: [{ model: Position }, { model: Department }],
         });
         employeeslist.forEach(log => {
@@ -580,11 +610,17 @@ class EmployeeController {
         });
       } else if(RoleName === 'SALE') {
         employeeslist = await Employee.findAll({
-          include: [{ model: Position }, { model: Department }],
           where: {
             Email: userEmail,
-            bus_id: BusID
-          }
+            bus_id: BusID,
+            F_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่ชื่อไม่เท่ากับ "-"
+            },
+            L_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่นามสกุลไม่เท่ากับ "-"
+            }
+          },
+          include: [{ model: Position }, { model: Department }],
         });
         employeeslist.forEach(log => {
           result.push({
@@ -622,14 +658,20 @@ class EmployeeController {
         const userdepart = userData.department.departmentID;
 
         employeeslist = await Employee.findAll({
-          include: [{ model: Position }, { model: Department }],
           where: {
             departmentID: userdepart,
             bus_id: BusID,
             Email: {
               [Op.ne]: userEmail
+            },
+            F_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่ชื่อไม่เท่ากับ "-"
+            },
+            L_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่นามสกุลไม่เท่ากับ "-"
             }
-          }
+          },
+          include: [{ model: Position }, { model: Department }],
         });
         employeeslist.forEach(log => {
           result.push({
@@ -680,7 +722,15 @@ class EmployeeController {
       
       if (RoleName === 'SUPERUSER') {
         employeeslist = await Employee.findAll({
-          where: { bus_id: BusID },
+          where: {
+            bus_id: BusID,
+            F_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่ชื่อไม่เท่ากับ "-"
+            },
+            L_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่นามสกุลไม่เท่ากับ "-"
+            }
+          },
           include: [{ model: Position }, { model: Department }],
         });
         console.log("+++++++++++++---------",employeeslist)
@@ -701,11 +751,17 @@ class EmployeeController {
         });
       } else if(RoleName === 'SALE') {
         employeeslist = await Employee.findAll({
-          include: [{ model: Position }, { model: Department }],
           where: {
             Email: userEmail,
-            bus_id: BusID
-          }
+            bus_id: BusID,
+            F_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่ชื่อไม่เท่ากับ "-"
+            },
+            L_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่นามสกุลไม่เท่ากับ "-"
+            }
+          },
+          include: [{ model: Position }, { model: Department }],
         });
         employeeslist.forEach(log => {
           result.push({
@@ -742,11 +798,20 @@ class EmployeeController {
         const userdepart = userData.department.departmentID;
 
         employeeslist = await Employee.findAll({
-          include: [{ model: Position }, { model: Department }],
           where: {
             departmentID: userdepart,
-            bus_id: BusID
-          }
+            bus_id: BusID,
+            Email: {
+              [Op.ne]: userEmail
+            },
+            F_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่ชื่อไม่เท่ากับ "-"
+            },
+            L_name: {
+              [Op.ne]: "-" // กรองเฉพาะพนักงานที่นามสกุลไม่เท่ากับ "-"
+            }
+          },
+          include: [{ model: Position }, { model: Department }],
         });
         
         employeeslist.forEach(log => {

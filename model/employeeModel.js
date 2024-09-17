@@ -142,7 +142,7 @@ const Leaving = sequelize.define( 'leavings', {
         allowNull: false       
     },
     detail: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.STRING, 
         allowNull: false       
     },
     employeeID: {
@@ -164,7 +164,7 @@ const Overtime = sequelize.define( 'overtimes', {
         allowNull: false       
     },
     detail: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.STRING, 
         allowNull: false       
     },
     employeeID: {
