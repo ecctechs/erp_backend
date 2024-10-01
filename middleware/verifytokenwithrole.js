@@ -1,35 +1,28 @@
 const jwt = require("jsonwebtoken");
-const { User, Role } = require("../model/userModel"); // call model  // ต้องแก้ตามโครงสร้างโปรเจ็คของคุณ
+const { User, Role } = require("../model/userModel");
 const { Business } = require("../model/quotationModel");
 const tokenData = require("./tokenData.json");
 const { Op } = require("sequelize");
-const { UserActivity } = require("../model/userModel"); // call model
+const { UserActivity } = require("../model/userModel");
 
 const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
   const token = req.headers.authorization
     ? req.headers.authorization.split(" ")[1]
     : null;
-  //  console.log(token);
 
   if (!token) {
-    // return logUserActivity('Unauthorized: No token provided', 'N/A')(req, res, next);
     return next();
   }
 
-
   jwt.verify(token, tokenData["secret_key"], (err, decoded) => {
-     console.log(err)
+    console.log(err);
     if (err) {
       return next();
-      // return logUserActivity('Unauthorized: Invalid token', 'N/A')(req, res, next);
-      // return res.status(401).json({ message: "Unauthorized: Invalid token" });
     }
 
     User.belongsTo(Role, { foreignKey: "RoleID" });
     Role.hasMany(User, { foreignKey: "RoleID" });
 
-    User.belongsTo(Business, { foreignKey: "bus_id" });
-    Business.hasMany(User, { foreignKey: "bus_id" });
 
     console.log(requiredRoles);
 
@@ -52,23 +45,12 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
       .then((users) => {
         if (!Array.isArray(users)) {
           return next();
-          // return logUserActivity('Unauthorized: Token not found in the database', 'N/A')(req, res, next);
-          // return res
-          //   .status(401)
-          //   .json({ message: "Unauthorized: Token not found in the database" });
         }
 
-        // Check user roles
         const userRoles = users.map((u) => u.role.RoleName);
 
         if (!Array.isArray(userRoles)) {
           return next();
-          // return logUserActivity('Unauthorized: Invalid data format in the database', 'N/A')(req, res, next);
-          // return res
-          //   .status(401)
-          //   .json({
-          //     message: "Unauthorized: Invalid data format in the database",
-          //   });
         }
 
         const hasRequiredRole = requiredRoles.some((role) =>
@@ -77,17 +59,14 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
 
         if (!hasRequiredRole) {
           return next();
-          // return logUserActivity('Forbidden: Insufficient permissions', 'N/A')(req, res, next);
-          // return res
-          //   .status(403)
-          //   .json({ message: "Forbidden: Insufficient permissions" });
         }
 
-        // Token is valid, and user roles match the required roles
         req.user = decoded;
-        // console.log(req.user)
 
-        req.userData = { userId: req.user.userID, role: req.user.userRole };
+        req.userData = { 
+          ...req.userData,
+          userId: req.user.userID, 
+          role: req.user.userRole };
         next();
       })
       .catch((error) => {
@@ -97,7 +76,6 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
   });
 };
 
-// Middleware function สำหรับบันทึกกิจกรรมผู้ใช้
 const logUserActivity = (activityType, routeName) => {
   return async (req, res, next) => {
     const { method, url, body } = req;
@@ -105,18 +83,18 @@ const logUserActivity = (activityType, routeName) => {
     const timestamp = Date.now();
     const dateObject = new Date(timestamp);
 
-    // กำหนด locale เป็น 'th' และใช้ toLocaleDateString() และ toLocaleTimeString() ในการแสดงวันที่และเวลา
-    const thaiDateString = dateObject.toLocaleDateString('th') + ' ' + dateObject.toLocaleTimeString('th');
-    
+    const thaiDateString =
+      dateObject.toLocaleDateString("th") +
+      " " +
+      dateObject.toLocaleTimeString("th");
+
     const loggedUserId = (req.userData && req.userData.userId) || "unknown";
     const role = (req.userData && req.userData.role) || "unknown";
 
     try {
-      // รอรับค่า status code จากคำขอ (response) ที่ถูกส่งกลับ
       const bodyString = JSON.stringify(body);
- 
-      if(loggedUserId === "unknown" || role === "unknown"){
 
+      if (loggedUserId === "unknown" || role === "unknown") {
         await UserActivity.create({
           userId: loggedUserId,
           activityType: `${activityType}/${role}`,
@@ -127,9 +105,12 @@ const logUserActivity = (activityType, routeName) => {
           timestamp: thaiDateString,
         });
         await res
-            .status(401)
-            .json({ message: "No token provided , Forbidden: Insufficient permissions , Unauthorized: Invalid data format in the database , Unauthorized: Invalid token"});
-      }else{
+          .status(401)
+          .json({
+            message:
+              "No token provided , Forbidden: Insufficient permissions , Unauthorized: Invalid data format in the database , Unauthorized: Invalid token",
+          });
+      } else {
         await UserActivity.create({
           userId: loggedUserId,
           activityType: `${activityType}/${role}`,
@@ -142,15 +123,76 @@ const logUserActivity = (activityType, routeName) => {
 
         return next();
       }
-
     } catch (error) {
       console.error("Error logging user activity:", error);
-    }                       
+    }
   };
+};
+
+const verifyTokenWithbus_id = async (req, res, next) => {
+  User.belongsTo(Business, { foreignKey: "bus_id" });
+  Business.hasMany(User, { foreignKey: "bus_id" });
+
+  try {
+    if (!req.headers.authorization) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+
+    const token = req.headers.authorization.replace("Bearer ", "");
+
+    jwt.verify(token, tokenData["secret_key"], async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: "Unauthorized: Invalid token" });
+      }
+
+      const userIDFromToken = decoded.userID;
+
+      try {
+        const user = await User.findOne({
+          include: [
+            {
+              model: Business,
+              attributes: ["bus_id", "bus_name"],
+            },
+          ],
+          where: {
+            userID: userIDFromToken,
+            accessToken: token, 
+          },
+        });
+
+        if (!user) {
+          return res
+            .status(403)
+            .json({ message: "Forbidden: Invalid business ID or user" });
+        }
+
+        req.userData = {
+          ...req.userData,
+          userId: user.userID,
+          bus_id: user.business.bus_id, 
+        };
+
+        next();
+      } catch (dbError) {
+        console.error(
+          "Error checking token and bus_id in the database:",
+          dbError
+        );
+        return res.status(500).json({ message: "Internal Server Error" });
+      }
+    });
+  } catch (error) {
+    return res
+      .status(403)
+      .json({ message: "Forbidden: Error processing request" });
+  }
 };
 
 module.exports = {
   verifyTokenWithRole,
   logUserActivity,
-  // ตัวอย่างอื่น ๆ ของ controller สามารถเพิ่มต่อได้
+  verifyTokenWithbus_id,
 };

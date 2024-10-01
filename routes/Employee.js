@@ -1,36 +1,106 @@
-//set route to call API
-//ex. if call to working code in getProduct function have to call API http://localhost:5000/product/getProduct
-const express = require('express');
+const express = require("express");
 const Route = express.Router();
-const RouteName = '/employee'
-const { verifyTokenWithRole , logUserActivity} = require('../middleware/verifytokenwithrole'); 
+const RouteName = "/employee";
+const {
+  verifyTokenWithRole,
+  logUserActivity,
+  verifyTokenWithbus_id,
+} = require("../middleware/verifytokenwithrole");
 
+const EmployeeController = require("../controllers/EmployeeController");
 
-const EmployeeController = require('../controllers/EmployeeController');
+Route.get(
+  RouteName + "/getEmployee",
+  verifyTokenWithbus_id,
+  EmployeeController.getEmployee
+);
+Route.post(
+  RouteName + "/AddEmployee",
+  verifyTokenWithbus_id,
+  EmployeeController.AddEmployee
+);
+Route.put(RouteName + "/EditEmployee/:id", EmployeeController.EditEmployee);
+Route.delete(
+  RouteName + "/DeleteEmployee/:id",
+  EmployeeController.DeleteEmployee
+);
+Route.post(
+  RouteName + "/AddDepartment",
+  verifyTokenWithbus_id,
+  EmployeeController.AddDepartment
+);
+Route.put(RouteName + "/EditDepartment/:id", EmployeeController.EditDepartment);
+Route.delete(
+  RouteName + "/DeleteDepartment/:id",
+  EmployeeController.DeleteDepartment
+);
+Route.get(
+  RouteName + "/getDepartment",
+  verifyTokenWithbus_id,
+  EmployeeController.getDepartment
+);
+Route.get(
+  RouteName + "/getPayment",
+  verifyTokenWithbus_id,
+  verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
+  EmployeeController.getPayment
+);
+Route.get(
+  RouteName + "/getEmployeeSalary",
+  verifyTokenWithbus_id,
+  verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
+  EmployeeController.getEmployeeSalary
+);
+Route.get(
+  RouteName + "/getEmployeeQuotation",
+  verifyTokenWithbus_id,
+  verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
+  EmployeeController.getEmployeeQuotation
+);
+Route.post(
+  RouteName + "/AddPosition",
+  verifyTokenWithbus_id,
+  EmployeeController.AddPosition
+);
+Route.put(RouteName + "/EditPosition/:id", EmployeeController.EditPosition);
+Route.delete(
+  RouteName + "/DeletePosition/:id",
+  EmployeeController.DeletePosition
+);
+Route.get(RouteName + "/getPosition", EmployeeController.getPosition);
+Route.post(
+  RouteName + "/AddPayment",
+  verifyTokenWithbus_id,
+  EmployeeController.AddPayment
+);
+Route.post(
+  RouteName + "/AddPayment2",
+  verifyTokenWithbus_id,
+  EmployeeController.AddPayment2
+);
 
-Route.get(RouteName+'/getEmployee',EmployeeController.getEmployee)
-Route.post(RouteName+'/AddEmployee',EmployeeController.AddEmployee)
-Route.put(RouteName+'/EditEmployee/:id',EmployeeController.EditEmployee)
-Route.delete(RouteName+'/DeleteEmployee/:id',EmployeeController.DeleteEmployee)
-Route.post(RouteName+'/AddDepartment',EmployeeController.AddDepartment)
-Route.put(RouteName+'/EditDepartment/:id',EmployeeController.EditDepartment)
-Route.delete(RouteName+'/DeleteDepartment/:id',EmployeeController.DeleteDepartment)
-Route.get(RouteName+'/getDepartment',EmployeeController.getDepartment)
-Route.get(RouteName+'/getPayment', verifyTokenWithRole(['SUPERUSER','MANAGER','SALE']),EmployeeController.getPayment)
-Route.get(RouteName+'/getEmployeeSalary', verifyTokenWithRole(['SUPERUSER','MANAGER','SALE']),EmployeeController.getEmployeeSalary)
-Route.get(RouteName+'/getEmployeeQuotation', verifyTokenWithRole(['SUPERUSER','MANAGER','SALE']),EmployeeController.getEmployeeQuotation)
-//Route.get(RouteName+'/getPayment', verifyTokenWithRole(['superuser','superman']),logUserActivity('Read/getPayment','getPayment'),EmployeeController.getPayment)
-Route.post(RouteName+'/AddPosition',EmployeeController.AddPosition)
-Route.put(RouteName+'/EditPosition/:id',EmployeeController.EditPosition)
-Route.delete(RouteName+'/DeletePosition/:id',EmployeeController.DeletePosition)
-Route.get(RouteName+'/getPosition',EmployeeController.getPosition)
-Route.post(RouteName+'/AddPayment',EmployeeController.AddPayment)
-Route.post(RouteName+'/AddPayment2',EmployeeController.AddPayment2)
+Route.post(
+  RouteName + "/AddLeave",
+  verifyTokenWithbus_id,
+  EmployeeController.AddLeave
+);
+Route.get(
+  RouteName + "/getLeave",
+  verifyTokenWithbus_id,
+  verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
+  EmployeeController.getLeave
+);
 
-Route.post(RouteName+'/AddLeave',EmployeeController.AddLeave)
-Route.get(RouteName+'/getLeave',EmployeeController.getLeave)
+Route.post(
+  RouteName + "/AddOvertime",
+  verifyTokenWithbus_id,
+  EmployeeController.AddOvertime
+);
+Route.get(
+  RouteName + "/getOvertime",
+  verifyTokenWithbus_id,
+  verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
+  EmployeeController.getOvertime
+);
 
-Route.post(RouteName+'/AddOvertime',EmployeeController.AddOvertime)
-Route.get(RouteName+'/getOvertime',EmployeeController.getOvertime)
-
-module.exports = Route
+module.exports = Route;

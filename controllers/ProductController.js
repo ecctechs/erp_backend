@@ -4,16 +4,15 @@ const {
   productType,
   productCategory,
   Transaction,
-} = require("../model/productModel"); // call model
-const { Business } = require('../model/quotationModel')
+} = require("../model/productModel");
+const { Business } = require("../model/quotationModel");
 const { cloudinary } = require("../utils/cloudinary");
-const { Op } = require('sequelize');
-const moment = require('moment');
-const TokenManager = require('../middleware/tokenManager');
+const { Op } = require("sequelize");
+const moment = require("moment");
+const TokenManager = require("../middleware/tokenManager");
 
 class ProductController {
   static async getProduct(req, res) {
-    // get all data product
     try {
       Product.belongsTo(productCategory, { foreignKey: "categoryID" });
       productCategory.hasMany(Product, { foreignKey: "categoryID" });
@@ -25,18 +24,19 @@ class ProductController {
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
-        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
       }
-  
-      const { RoleName, userID, userEmail, BusID } = tokenData;
 
+      const { bus_id } = req.userData;
 
-      var products = await Product.findAll({ 
-        include: [
-          productCategory,
-          productType
-        ],
-        where: { bus_id: BusID } 
+      var products = await Product.findAll({
+        include: [productCategory, productType],
+        where: { bus_id: bus_id },
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, products);
@@ -45,7 +45,6 @@ class ProductController {
     }
   }
   static async getProductType(req, res) {
-    //get all product type
     try {
       const productTypes = await productType.findAll();
       return ResponseManager.SuccessResponse(req, res, 200, productTypes);
@@ -54,23 +53,26 @@ class ProductController {
     }
   }
   static async getProductByProductType(req, res) {
-    //get product by type
     try {
-
       Product.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Product, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
-        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
       }
-  
-      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+      const { bus_id } = req.userData;
 
       const ProductByProductType = await Product.findAll({
         where: {
           productTypeID: req.params.id,
-          bus_id: BusID
+          bus_id: bus_id,
         },
       });
       return ResponseManager.SuccessResponse(
@@ -86,197 +88,156 @@ class ProductController {
 
   static async AddProduct(req, res) {
     try {
-
       Product.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Product, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
-        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
       }
-  
-      const { RoleName, userID, userEmail, BusID } = tokenData;
 
-        console.log(req.body.productname);
+      const { bus_id } = req.userData;
 
-        const addproduct = await Product.findOne({
-            where: {
-                productname: req.body.productname,
-                bus_id: BusID
-            },
+      console.log(req.body.productname);
+
+      const addproduct = await Product.findOne({
+        where: {
+          productname: req.body.productname,
+          bus_id: bus_id,
+        },
+      });
+
+      const today = new Date();
+      const DateString = today.toISOString().split("T")[0];
+
+      if (addproduct) {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Product already exists"
+        );
+      } else {
+        if (!req.file) {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Please choose a product image file"
+          );
+        }
+
+        if (req.file.size > 5 * 1024 * 1024) {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "File size exceeds 5 MB limit"
+          );
+        }
+
+        const allowedMimeTypes = ["image/jpeg", "image/png"];
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Only JPEG and PNG image files are allowed"
+          );
+        }
+
+        const result = await cloudinary.uploader.upload(req.file.path);
+
+        const insert_product = await Product.create({
+          productTypeID: req.body.productTypeID,
+          productname: req.body.productname,
+          productdetail: req.body.productdetail,
+          amount: req.body.amount,
+          price: req.body.price,
+          productcost: req.body.productcost,
+          categoryID: req.body.categoryID,
+          productImg: result.secure_url, 
+          product_date: DateString,
+          bus_id: bus_id,
         });
 
-        const today = new Date();
-        const DateString = today.toISOString().split('T')[0];
-
-
-        if (addproduct) {
-            return ResponseManager.ErrorResponse(
-                req,
-                res,
-                400,
-                "Product already exists"
-            );
-        } else {
-            // ตรวจสอบว่ามีไฟล์ที่ถูกอัปโหลดหรือไม่
-            if (!req.file) {
-                return ResponseManager.ErrorResponse(
-                    req,
-                    res,
-                    400,
-                    "Please choose a product image file"
-                );
-            }
-
-            // ตรวจสอบขนาดไฟล์ไม่เกิน 5 MB
-            if (req.file.size > 5 * 1024 * 1024) {
-                return ResponseManager.ErrorResponse(
-                    req,
-                    res,
-                    400,
-                    "File size exceeds 5 MB limit"
-                );
-            }
-
-            // ตรวจสอบว่าไฟล์เป็น JPEG หรือ PNG เท่านั้น
-            const allowedMimeTypes = ["image/jpeg", "image/png"];
-            if (!allowedMimeTypes.includes(req.file.mimetype)) {
-                return ResponseManager.ErrorResponse(
-                    req,
-                    res,
-                    400,
-                    "Only JPEG and PNG image files are allowed"
-                );
-            }
-
-            // Upload image to Cloudinary
-            const result = await cloudinary.uploader.upload(req.file.path);
-
-            const insert_product = await Product.create({
-                productTypeID: req.body.productTypeID,
-                productname: req.body.productname,
-                productdetail: req.body.productdetail,
-                amount: req.body.amount,
-                price: req.body.price,
-                productcost: req.body.productcost,
-                categoryID: req.body.categoryID,
-                productImg: result.secure_url, // Save Cloudinary image path
-                product_date: DateString,
-                bus_id: BusID
-            });
-
-            return ResponseManager.SuccessResponse(req, res, 200, insert_product);
-        }
-    } catch (err) {
-        return ResponseManager.CatchResponse(req, res, err.message);
-    }
-}
-
-//   static async EditProduct(req, res) {
-//     //add product
-//     try {
-//       const editproduct = await Product.findOne({
-//         where: {
-//           productID: req.params.id,
-//         },
-//       });
-//       if (editproduct) {
-//         if (req.file && req.file.size > 5 * 1024 * 1024) {
-//           res.status(400).json({ error: "File size exceeds 5 MB limit" });
-//         } else {
-            
-//           const result = await cloudinary.uploader.upload(req.file.path);
-
-//           await Product.update(
-//             {
-//               productTypeID: req.body.productTypeID,
-//               productname: req.body.productname,
-//               productdetail: req.body.productdetail,
-//               amount: req.body.amount,
-//               price: req.body.price,
-//               productcost: req.body.productcost,
-//               categoryName: req.body.categoryName,
-//               productImg: result.secure_url, // Save Cloudinary image path
-//             },
-//             {
-//               where: {
-//                 productID: req.params.id,
-//               },
-//             }
-//           );
-//         }
-//         await ResponseManager.SuccessResponse(req, res, 200, "Product Updated");
-//       } else {
-//         await ResponseManager.ErrorResponse(req, res, 400, "No product found");
-//       }
-//     } catch (err) {
-//       await ResponseManager.CatchResponse(req, res, err.message);
-//     }
-//   }
-
-static async EditProduct(req, res) {
-    //add product
-    try {
-        const editproduct = await Product.findOne({
-            where: {
-                productID: req.params.id,
-            },
-        });
-
-        if (editproduct) {
-            if (req.file && req.file.size > 5 * 1024 * 1024) {
-                res.status(400).json({ error: "File size exceeds 5 MB limit" });
-            } 
-
-
-            const existingProduct = await Product.findOne({
-                where: {
-                    productname: req.body.productname,
-                    productID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
-                },
-            });
-
-            if (existingProduct) {
-                return ResponseManager.ErrorResponse(req, res, 400, "Product already exists");
-         
-            }
-
-                let productUpdateData = {
-                    productTypeID: req.body.productTypeID,
-                    productname: req.body.productname,
-                    productdetail: req.body.productdetail,
-                    amount: req.body.amount,
-                    price: req.body.price,
-                    productcost: req.body.productcost,
-                    categoryID: req.body.categoryID,
-                };
-
-                if (req.file) {
-                    const result = await cloudinary.uploader.upload(req.file.path);
-                    productUpdateData.productImg = result.secure_url; // Save Cloudinary image path
-                }
-
-                await Product.update(
-                    productUpdateData,
-                    {
-                        where: {
-                            productID: req.params.id,
-                        },
-                    }
-                );
-            
-
-                return ResponseManager.SuccessResponse(req, res, 200, "Product Updated");
-        } else {
-          return ResponseManager.ErrorResponse(req, res, 400, "No product found");
-        }
+        return ResponseManager.SuccessResponse(req, res, 200, insert_product);
+      }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
-}
+  }
+
+  static async EditProduct(req, res) {
+    try {
+      const editproduct = await Product.findOne({
+        where: {
+          productID: req.params.id,
+        },
+      });
+
+      if (editproduct) {
+        if (req.file && req.file.size > 5 * 1024 * 1024) {
+          res.status(400).json({ error: "File size exceeds 5 MB limit" });
+        }
+
+        const existingProduct = await Product.findOne({
+          where: {
+            productname: req.body.productname,
+            productID: { [Op.ne]: req.params.id }, 
+          },
+        });
+
+        if (existingProduct) {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Product already exists"
+          );
+        }
+
+        let productUpdateData = {
+          productTypeID: req.body.productTypeID,
+          productname: req.body.productname,
+          productdetail: req.body.productdetail,
+          amount: req.body.amount,
+          price: req.body.price,
+          productcost: req.body.productcost,
+          categoryID: req.body.categoryID,
+        };
+
+        if (req.file) {
+          const result = await cloudinary.uploader.upload(req.file.path);
+          productUpdateData.productImg = result.secure_url; 
+        }
+
+        await Product.update(productUpdateData, {
+          where: {
+            productID: req.params.id,
+          },
+        });
+
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          200,
+          "Product Updated"
+        );
+      } else {
+        return ResponseManager.ErrorResponse(req, res, 400, "No product found");
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
 
   static async DeleteProduct(req, res) {
-    //delete product
     try {
       const deleteproduct = await Product.findOne({
         where: {
@@ -289,7 +250,12 @@ static async EditProduct(req, res) {
             productID: req.params.id,
           },
         });
-        return ResponseManager.SuccessResponse(req, res, 200, "Product Deleted");
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          200,
+          "Product Deleted"
+        );
       } else {
         return ResponseManager.ErrorResponse(req, res, 400, "No product found");
       }
@@ -299,31 +265,39 @@ static async EditProduct(req, res) {
   }
 
   static async AddCategory(req, res) {
-    //add category
     try {
-
       productCategory.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(productCategory, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
-        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
       }
-  
-      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+      const { bus_id } = req.userData;
 
       const addcate = await productCategory.findOne({
         where: {
           categoryName: req.body.categoryName,
-          bus_id: BusID
+          bus_id: bus_id,
         },
       });
       if (addcate) {
-        return ResponseManager.ErrorResponse(req, res, 400, "Category already exist");
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Category already exist"
+        );
       } else {
         const insert_cate = await productCategory.create({
           categoryName: req.body.categoryName,
-          bus_id: BusID
+          bus_id: bus_id,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -334,7 +308,6 @@ static async EditProduct(req, res) {
   }
 
   static async EditCategory(req, res) {
-    //add product
     try {
       const delcate = await productCategory.findOne({
         where: {
@@ -342,18 +315,21 @@ static async EditProduct(req, res) {
         },
       });
       if (delcate) {
-
-
         const existingCate = await productCategory.findOne({
-            where: {
-                categoryName: req.body.categoryName,
-                categoryID: { [Op.ne]: req.params.id } // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
-            },
+          where: {
+            categoryName: req.body.categoryName,
+            categoryID: { [Op.ne]: req.params.id }, // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+          },
         });
 
         if (existingCate) {
-            await ResponseManager.ErrorResponse(req, res, 400, "Category already exists");
-            return;
+          await ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Category already exists"
+          );
+          return;
         }
 
         await productCategory.update(
@@ -373,7 +349,12 @@ static async EditProduct(req, res) {
           "Category Updated"
         );
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, "No Category found");
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "No Category found"
+        );
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -381,7 +362,6 @@ static async EditProduct(req, res) {
   }
 
   static async DeleteCategory(req, res) {
-    //delete product
     try {
       const deletecate = await productCategory.findOne({
         where: {
@@ -401,7 +381,12 @@ static async EditProduct(req, res) {
           "Category Deleted"
         );
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, "No Category found");
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "No Category found"
+        );
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -409,17 +394,14 @@ static async EditProduct(req, res) {
   }
 
   static async AddTransaction(req, res) {
-    //add category
-    // console.log("working")
-    // res.send("test222");
     try {
-      
       const timestamp = Date.now();
       const dateObject = new Date(timestamp);
 
-      // กำหนด locale เป็น 'th' และใช้ toLocaleDateString() และ toLocaleTimeString() ในการแสดงวันที่และเวลา
-      const DateString = dateObject.toLocaleDateString('en-GB') + ' ' + dateObject.toLocaleTimeString('en-GB');
-
+      const DateString =
+        dateObject.toLocaleDateString("en-GB") +
+        " " +
+        dateObject.toLocaleTimeString("en-GB");
 
       const getProductByid = await Product.findOne({
         where: {
@@ -438,7 +420,6 @@ static async EditProduct(req, res) {
             quantity_added: req.body.quantity,
             quantity_removed: 0,
             transaction_date: DateString,
-
           });
 
           await Product.update(
@@ -464,7 +445,7 @@ static async EditProduct(req, res) {
               req,
               res,
               400,
-              "product amount low then quantity"
+              "product amount low than quantity"
             );
           } else {
             await Transaction.create({
@@ -503,7 +484,12 @@ static async EditProduct(req, res) {
           );
         }
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, "Product Not found");
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Product Not found"
+        );
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -511,14 +497,13 @@ static async EditProduct(req, res) {
   }
 
   static async EditTransaction(req, res) {
-    //add product
     try {
       const getProductAmount = await Product.findOne({
         where: {
           productID: req.body.productID,
         },
       });
-      
+
       const getProductByid = await Transaction.findOne({
         where: {
           transaction_id: req.params.id,
@@ -528,20 +513,20 @@ static async EditProduct(req, res) {
         const transactionType = req.body.transactionType;
 
         if (transactionType == "receive") {
-          await Transaction.update({
-            productID: req.body.productID,
-            transactionType: transactionType,
-            transactionDetail: req.body.transactionDetail,
-            quantity_added: req.body.quantity,
-            quantity_removed: 0
-
-          },
-          {
-            where: {
-              transaction_id: req.params.id,
+          await Transaction.update(
+            {
+              productID: req.body.productID,
+              transactionType: transactionType,
+              transactionDetail: req.body.transactionDetail,
+              quantity_added: req.body.quantity,
+              quantity_removed: 0,
             },
-          }
-        );
+            {
+              where: {
+                transaction_id: req.params.id,
+              },
+            }
+          );
 
           await Product.update(
             {
@@ -566,21 +551,23 @@ static async EditProduct(req, res) {
               req,
               res,
               400,
-              "product amount low then quantity"
+              "product amount low than quantity"
             );
           } else {
-            await Transaction.update({
-              productID: req.body.productID,
-              transactionType: transactionType,
-              transactionDetail: req.body.transactionDetail,
-              quantity_removed: req.body.quantity,
-              quantity_added: 0
-            },
-            {
-              where: {
-                transaction_id: req.params.id,
+            await Transaction.update(
+              {
+                productID: req.body.productID,
+                transactionType: transactionType,
+                transactionDetail: req.body.transactionDetail,
+                quantity_removed: req.body.quantity,
+                quantity_added: 0,
               },
-            });
+              {
+                where: {
+                  transaction_id: req.params.id,
+                },
+              }
+            );
 
             await Product.update(
               {
@@ -609,16 +596,20 @@ static async EditProduct(req, res) {
           );
         }
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, "Product Not found");
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Product Not found"
+        );
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
-  static async getTransaction(req,res) {
+  static async getTransaction(req, res) {
     try {
-
       Transaction.belongsTo(Product, { foreignKey: "productID" });
       Product.hasMany(Transaction, { foreignKey: "productID" });
 
@@ -627,27 +618,34 @@ static async EditProduct(req, res) {
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
-        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
       }
-  
-      const { RoleName, userID, userEmail, BusID } = tokenData;
 
-      let result = [];  
+      const { bus_id } = req.userData;
+
+      let result = [];
       let transaction_list = [];
 
       transaction_list = await Transaction.findAll({
         include: [
           {
             model: Product,
-            where: { bus_id: BusID }
-          }
-        ]
+            where: { bus_id: bus_id },
+          },
+        ],
       });
 
-      transaction_list.forEach(log => {
-        const dateOnly = log.transaction_date 
-        ? moment(log.transaction_date, 'DD/MM/YYYY HH:mm:ss').format('DD/MM/YYYY') 
-        : 'Invalid Date';
+      transaction_list.forEach((log) => {
+        const dateOnly = log.transaction_date
+          ? moment(log.transaction_date, "DD/MM/YYYY HH:mm:ss").format(
+              "DD/MM/YYYY"
+            )
+          : "Invalid Date";
 
         result.push({
           id: log.transaction_id,
@@ -656,7 +654,10 @@ static async EditProduct(req, res) {
           Product: log.product.productname,
           Transaction: log.transactionType,
           Detail: log.transactionDetail,
-          Quantity: log.quantity_added === 0 ? log.quantity_removed : log.quantity_added
+          Quantity:
+            log.quantity_added === 0
+              ? log.quantity_removed
+              : log.quantity_added,
         });
       });
 
@@ -667,7 +668,6 @@ static async EditProduct(req, res) {
   }
 
   static async AddProductType(req, res) {
-    //add category
     try {
       const addcate = await productType.findOne({
         where: {
@@ -692,7 +692,6 @@ static async EditProduct(req, res) {
   }
 
   static async DeleteProductType(req, res) {
-    //delete product
     try {
       const deletecate = await productType.findOne({
         where: {
@@ -725,21 +724,24 @@ static async EditProduct(req, res) {
   }
 
   static async getCategory(req, res) {
-    //get all product type
     try {
-
       productCategory.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(productCategory, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
-        return await ResponseManager.ErrorResponse(req, res, 401, "Unauthorized: Invalid token data");
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
       }
-  
-      const { RoleName, userID, userEmail, BusID } = tokenData;
+
+      const { bus_id } = req.userData;
 
       const category_list = await productCategory.findAll({
-        where: { bus_id: BusID }
+        where: { bus_id: bus_id },
       });
       return ResponseManager.SuccessResponse(req, res, 200, category_list);
     } catch (err) {
