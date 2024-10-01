@@ -24,11 +24,11 @@ class AuthController {
       return res.send("Token Error..");
     } 
 
-    // const token = req.headers.authorization?.split(' ')[1]; // สมมติว่า token มาในรูปแบบ "Bearer <token>"
+    const token = req.headers.authorization?.split(' ')[1]; // สมมติว่า token มาในรูปแบบ "Bearer <token>"
 
-    // if (!token) {
-    //     return res.status(400).send("Token is missing.");
-    // }
+    if (!token) {
+        return res.status(400).send("Token is missing.");
+    }
 
 
       res.send(jwtStatus);
