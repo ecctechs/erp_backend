@@ -204,35 +204,36 @@ class EmployeeController {
           );
         }
 
-        await Employee.update(
-          {
-            title: req.body.title,
-            F_name: req.body.F_name,
-            L_name: req.body.L_name,
-            Address: req.body.Address,
-            Birthdate: req.body.Birthdate,
-            NID_num: req.body.NID_num,
-            Phone_num: req.body.Phone_num,
-            Email: req.body.Email,
-            start_working_date: req.body.start_working_date,
-            Salary: req.body.Salary,
-            employeeType: req.body.employeeType,
-            bankName: req.body.bankName,
-            bankAccountID: req.body.bankAccountID,
-            PositionID: req.body.PositionID,
-            DepartmentID: req.body.DepartmentID,
+        const updatedData = {
+          title: req.body.title,
+          F_name: req.body.F_name,
+          L_name: req.body.L_name,
+          Address: req.body.Address,
+          Birthdate: req.body.Birthdate,
+          NID_num: req.body.NID_num,
+          Phone_num: req.body.Phone_num,
+          Email: req.body.Email,
+          start_working_date: req.body.start_working_date,
+          Salary: req.body.Salary,
+          employeeType: req.body.employeeType,
+          bankName: req.body.bankName,
+          bankAccountID: req.body.bankAccountID,
+          PositionID: req.body.PositionID,
+          departmentID: req.body.departmentID,
+        };
+
+        console.log('Updating employee with data:', updatedData);
+
+        await Employee.update(updatedData, {
+          where: {
+            employeeID: req.params.id,
           },
-          {
-            where: {
-              employeeID: req.params.id,
-            },
-          }
-        );
+        });
         return ResponseManager.SuccessResponse(
           req,
           res,
           200,
-          "Employee Updated"
+           "Employee Updated"
         );
       } else {
         return ResponseManager.ErrorResponse(
