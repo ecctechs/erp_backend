@@ -1198,7 +1198,13 @@ class QuotationSaleController {
 
       if (editproduct) {
         if (req.file && req.file.size > 5 * 1024 * 1024) {
-          res.status(400).json({ error: "File size exceeds 5 MB limit" });
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "File size exceeds 5 MB limit"
+          );
+          // res.status(400).json({ error: "File size exceeds 5 MB limit" });
         } else {
           let productUpdateData = {
             bus_name: req.body.bus_name,

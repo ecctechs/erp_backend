@@ -343,7 +343,7 @@ class AuthController {
             userF_name: req.body.userF_name,
             userL_name: req.body.userL_name,
             userPhone: req.body.userPhone,
-            userEmail: req.body.userEmail, 
+            userEmail: req.body.userEmail,
             userPassword: req.body.userPassword,
             RoleID: req.body.RoleID,
           },

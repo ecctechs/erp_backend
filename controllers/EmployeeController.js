@@ -26,7 +26,7 @@ class EmployeeController {
       Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       const { bus_id } = req.userData;
-      // console.log("Testtttttt",bus_id)
+      // console.log("Testtttttttttttttttt",req.body.departmentID)
       var employees = await Employee.findAll({
         include: [{ model: Position }, { model: Department }],
         where: {
@@ -53,6 +53,9 @@ class EmployeeController {
     try {
       Employee.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Employee, { foreignKey: "bus_id" });
+
+      Employee.belongsTo(Department, { foreignKey: "departmentID" });
+      Department.hasMany(Employee, { foreignKey: "departmentID" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -136,6 +139,15 @@ class EmployeeController {
   }
 
   static async EditEmployee(req, res) {
+    Employee.belongsTo(Position, { foreignKey: "PositionID" });
+    Position.hasMany(Employee, { foreignKey: "PositionID" });
+
+    Employee.belongsTo(Department, { foreignKey: "departmentID" });
+    Department.hasMany(Employee, { foreignKey: "departmentID" });
+
+    Employee.belongsTo(Business, { foreignKey: "bus_id" });
+    Business.hasMany(Employee, { foreignKey: "bus_id" });
+
     try {
       const editemp = await Employee.findOne({
         where: {
@@ -236,6 +248,10 @@ class EmployeeController {
   }
 
   static async DeleteEmployee(req, res) {
+
+    Employee.belongsTo(Department, { foreignKey: "departmentID" });
+    Department.hasMany(Employee, { foreignKey: "departmentID" });
+    
     try {
       const employee = await Employee.findOne({
         where: {
