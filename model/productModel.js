@@ -43,6 +43,9 @@ const Product = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    Status:{
+      type: DataTypes.STRING,
+    }
   },
   {
     timestamps: false,

@@ -36,7 +36,7 @@ class ProductController {
 
       var products = await Product.findAll({
         include: [productCategory, productType],
-        where: { bus_id: bus_id },
+        where: { bus_id: bus_id ,Status: "active"},
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, products);
@@ -164,6 +164,7 @@ class ProductController {
           productImg: result.secure_url, 
           product_date: DateString,
           bus_id: bus_id,
+          Status:"active"
         });
 
         return ResponseManager.SuccessResponse(req, res, 200, insert_product);
@@ -245,11 +246,21 @@ class ProductController {
         },
       });
       if (deleteproduct) {
-        await Product.destroy({
+        // await Product.destroy({
+        //   where: {
+        //     productID: req.params.id,
+        //   },
+        // });
+        const updatedData = {
+          Status: "not active",
+        }
+
+        await Product.update(updatedData, {
           where: {
             productID: req.params.id,
           },
         });
+
         return ResponseManager.SuccessResponse(
           req,
           res,

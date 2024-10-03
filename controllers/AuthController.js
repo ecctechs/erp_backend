@@ -152,6 +152,21 @@ class AuthController {
         );
       }
 
+      const checkPass = await User.findOne({
+        where: {
+          userPassword: req.body.userPassword,
+        },
+      });
+
+      if (checkPass) {
+        return ResponseManager.ErrorResponseResponse(
+          req,
+          res,
+          400,
+          "Password already exists"
+        );
+      }
+
       const addName = await User.findOne({
         where: {
           userF_name: req.body.userF_name,
@@ -324,8 +339,24 @@ class AuthController {
       if (editemp) {
         const existingUser = await User.findOne({
           where: {
-            userEmail: req.body.userEmail,
-            userID: { [Op.ne]: req.params.id },
+            [Op.or]: [
+              {
+                userEmail: req.body.userEmail,
+                userID: { [Op.ne]: req.params.id },
+              },
+              {
+                userF_name: req.body.userF_name,
+                userID: { [Op.ne]: req.params.id },
+              },
+              {
+                userL_name: req.body.userL_name,
+                userID: { [Op.ne]: req.params.id },
+              },
+              {
+                userPassword: req.body.userPassword,
+                userID: { [Op.ne]: req.params.id },
+              },
+            ],
           },
         });
 
@@ -334,7 +365,7 @@ class AuthController {
             req,
             res,
             400,
-            "User already exists"
+            "Email,UserName,LastName,Password already exists"
           );
         }
 
@@ -412,13 +443,20 @@ class AuthController {
           userID: req.params.id,
         },
       });
+      const UserGetAll = await User.findAll();
+      
       if (deletecate) {
-        await User.destroy({
+        if(UserGetAll.length == 2) {
+          return ResponseManager.SuccessResponse(req, res, 400, "User have only 1 , cant not delete");
+        }else{
+          await User.destroy({
           where: {
             userID: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(req, res, 200, "User Deleted");
+        // return ResponseManager.SuccessResponse(req, res, 200, UserGetAll.length);
+      }
       } else {
         return ResponseManager.ErrorResponse(req, res, 400, "No User found");
       }

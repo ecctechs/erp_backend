@@ -31,6 +31,7 @@ class EmployeeController {
         include: [{ model: Position }, { model: Department }],
         where: {
           bus_id: bus_id,
+          Status: "active",
           F_name: {
             [Op.not]: "-",
           },
@@ -130,6 +131,7 @@ class EmployeeController {
         PositionID: req.body.PositionID,
         departmentID: req.body.departmentID,
         bus_id: bus_id,
+        Status: "active",
       });
       console.log(req.body);
       return ResponseManager.SuccessResponse(req, res, 200, insert_emp);
@@ -261,22 +263,31 @@ class EmployeeController {
       });
 
       if (employee) {
-        await Employee.update(
-          {
-            Address: "-", // ลบที่อยู่
-            Birthdate: "-", // ลบวันเกิด
-            NID_num: "-", // ลบเลขบัตรประชาชน
-            Phone_num: "-", // ลบเบอร์โทร
-            Email: "-", // ลบอีเมล
-            bankName: "-", // ลบชื่อธนาคาร
-            bankAccountID: "-", // ลบเลขบัญชี
+        // await Employee.update(
+        //   {
+        //     Address: "-", // ลบที่อยู่
+        //     Birthdate: "-", // ลบวันเกิด
+        //     NID_num: "-", // ลบเลขบัตรประชาชน
+        //     Phone_num: "-", // ลบเบอร์โทร
+        //     Email: "-", // ลบอีเมล
+        //     bankName: "-", // ลบชื่อธนาคาร
+        //     bankAccountID: "-", // ลบเลขบัญชี
+        //   },
+        //   {
+        //     where: {
+        //       employeeID: req.params.id,
+        //     },
+        //   }
+        // );
+        const updatedData = {
+          Status: "not active",
+        }
+
+        await Employee.update(updatedData, {
+          where: {
+            employeeID: req.params.id,
           },
-          {
-            where: {
-              employeeID: req.params.id,
-            },
-          }
-        );
+        });
 
         return ResponseManager.SuccessResponse(
           req,
@@ -405,6 +416,19 @@ class EmployeeController {
           departmentID: req.params.id,
         },
       });
+      const checkEmployee = await Employee.findOne({
+        where: {
+          departmentID: req.params.id,
+        },
+      });
+      if(checkEmployee){
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Cant Delete bacause Employee is binding"
+        );
+      }
       if (deletecate) {
         await Department.destroy({
           where: {

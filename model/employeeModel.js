@@ -74,6 +74,10 @@ const Employee = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    Status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     timestamps: false,
