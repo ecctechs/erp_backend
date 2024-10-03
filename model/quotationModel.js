@@ -104,6 +104,10 @@ const Customer = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    Status:{
+      type: DataTypes.STRING(10),
+      allowNull: false,
+    }
   },
   {
     timestamps: false,

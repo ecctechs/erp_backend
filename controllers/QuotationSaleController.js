@@ -56,7 +56,7 @@ class QuotationSaleController {
       const { bus_id } = req.userData;
 
       const customer = await Customer.findAll({
-        where: { bus_id: bus_id },
+        where: { bus_id: bus_id , Status : "active"},
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, customer);
@@ -118,6 +118,7 @@ class QuotationSaleController {
         cus_tax: req.body.cus_tax,
         cus_purchase: req.body.cus_purchase,
         bus_id: bus_id,
+        Status:"active"
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -184,7 +185,17 @@ class QuotationSaleController {
         },
       });
       if (deleteproduct) {
-        await Customer.destroy({
+        // await Customer.destroy({
+        //   where: {
+        //     cus_id: req.params.id,
+        //   },
+        // });
+
+        const updatedData = {
+          Status: "not active",
+        }
+
+        await Customer.update(updatedData, {
           where: {
             cus_id: req.params.id,
           },
