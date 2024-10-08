@@ -106,7 +106,7 @@ const Customer = sequelize.define(
     },
     Status:{
       type: DataTypes.STRING(10),
-      allowNull: false,
+      allowNull: false, 
     }
   },
   {
@@ -252,7 +252,7 @@ const Billing = sequelize.define(
       allowNull: false,
     },
     payments: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.STRING(35),
       allowNull: false,
     },
     remark: {
