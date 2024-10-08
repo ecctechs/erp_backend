@@ -518,7 +518,7 @@ class QuotationSaleController {
         }
       }
 
-      if ((req.body.status = "allowed")) {
+      if ((req.body.status === "allowed")) {
         const today = new Date();
         const invoiceDateStr = today.toISOString().split("T")[0];
 
@@ -809,32 +809,43 @@ class QuotationSaleController {
         }
       }
 
-      if ((req.body.invoice_status = "issue a receipt")) {
+      if ((req.body.invoice_status === "issue a receipt")) {
         const today = new Date();
-        const invoiceDateStr = today.toISOString().split("T")[0];
+        const BillingDateStr = today.toISOString().split("T")[0];
 
-        const lastInvoice = await Billing.findOne({
+        const lastBilling = await Billing.findOne({
           order: [["billing_number", "DESC"]],
-        });
+        }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null 
 
-        let newInvoiceNumber;
+        const billingOfInvoice = await Billing.findOne({
+          where: {
+            invoice_id: req.params.id,
+          }
+        }); 
 
-        if (!lastInvoice) {
-          newInvoiceNumber = "BI-00000001";
+        let newBillingNumber;
+
+        if (!lastBilling) { // ถ้าไม่ใช้ billing เป็น null
+          newBillingNumber = "BI-00000001";
+          
         } else {
-          const lastNumber = parseInt(lastInvoice.billing_number.slice(3)); 
+          const lastNumber = parseInt(lastBilling.billing_number.slice(3)); 
           const nextNumber = lastNumber + 1;
-          newInvoiceNumber = "BI-" + nextNumber.toString().padStart(8, "0"); 
+          newBillingNumber = "BI-" + nextNumber.toString().padStart(8, "0"); 
         }
 
+        if(!billingOfInvoice){
         await Billing.create({
-          billing_number: newInvoiceNumber,
-          billing_date: invoiceDateStr,
+          billing_number: newBillingNumber,
+          billing_date: BillingDateStr,
           billing_status: "Complete",
           payments: "cash",
           remark: "",
           invoice_id: req.params.id,
         });
+      }
+
+
       }
     
       await Invoice.update(
