@@ -31,7 +31,6 @@ class EmployeeController {
         include: [{ model: Position }, { model: Department }],
         where: {
           bus_id: bus_id,
-          Status: "active",
           F_name: {
             [Op.not]: "-",
           },

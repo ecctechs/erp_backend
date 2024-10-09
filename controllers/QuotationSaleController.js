@@ -56,7 +56,7 @@ class QuotationSaleController {
       const { bus_id } = req.userData;
 
       const customer = await Customer.findAll({
-        where: { bus_id: bus_id , Status : "active"},
+        where: { bus_id: bus_id },
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, customer);
