@@ -36,7 +36,7 @@ class ProductController {
 
       var products = await Product.findAll({
         include: [productCategory, productType],
-        where: { bus_id: bus_id ,Status: "active"},
+        where: { bus_id: bus_id },
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, products);
