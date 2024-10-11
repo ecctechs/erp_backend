@@ -19,6 +19,8 @@ const { cloudinary } = require("../utils/cloudinary");
 const { Op } = require("sequelize");
 const TokenManager = require("../middleware/tokenManager");
 
+const sequelize = require('../database');
+
 class QuotationSaleController {
   static async getBusiness(req, res) {
     try {
@@ -526,16 +528,25 @@ class QuotationSaleController {
           order: [["invoice_number", "DESC"]],
         });
 
+        const QuotationOfInvoice = await Invoice.findOne({
+          where: {
+            sale_id: req.params.id,
+          }
+        }); 
+
         let newInvoiceNumber;
 
         if (!lastInvoice) {
           newInvoiceNumber = "IN-00000001";
+          
         } else {
           const lastNumber = parseInt(lastInvoice.invoice_number.slice(3));
           const nextNumber = lastNumber + 1;
           newInvoiceNumber = "IN-" + nextNumber.toString().padStart(8, "0");
         }
 
+
+        if(!QuotationOfInvoice){
         await Invoice.create({
           invoice_number: newInvoiceNumber,
           invoice_date: invoiceDateStr,
@@ -543,6 +554,7 @@ class QuotationSaleController {
           remark: "",
           sale_id: req.params.id,
         });
+        }
       }
 
       await Quotation_sale.update(
@@ -683,105 +695,182 @@ class QuotationSaleController {
 
   static async getInvoice(req, res) {
     try {
-      Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
-      Quotation_sale_detail.belongsTo(Quotation_sale, {
-        foreignKey: "sale_id",
-      });
-
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
-
-      Business.hasMany(Bank, { foreignKey: "bank_id" });
-      Bank.belongsTo(Business, { foreignKey: "bank_id" });
-
-      Quotation_sale.belongsTo(Employee, { foreignKey: "employeeID" });
-      Employee.hasMany(Quotation_sale, { foreignKey: "employeeID" });
-
-      Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
-      Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
-
-      Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
-      Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
-
-      Invoice.hasOne(Billing, { foreignKey: "invoice_id" });
-      Billing.belongsTo(Invoice, { foreignKey: "invoice_id" });
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
-      const { bus_id } = req.userData;
-
       let result = [];
-      let quotationslist = [];
 
-      quotationslist = await Quotation_sale.findAll({
-        include: [
-          { model: Quotation_sale_detail },
-          { model: Employee },
-          { model: Customer },
-          { model: Business, include: [Bank] },
-          { model: Invoice, include: [Billing] },
-        ],
-        where: {
-          status: "allowed",
-          bus_id: bus_id,
-        },
+      const log = await sequelize.query(`
+        select * 
+from invoices
+Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
+Left join businesses on businesses.bus_id = quotation_sales.bus_id
+Left join banks on banks.bank_id = businesses.bank_id
+Left join customers on quotation_sales.cus_id = customers.cus_id
+left join employees on employees."employeeID"  = quotation_sales."employeeID" 
+Left join billings on billings.invoice_id = invoices.invoice_id
+      `, {
+        type: sequelize.QueryTypes.SELECT
       });
-      const today = new Date();
 
-      for (let log of quotationslist) {
-        console.log("Invoice Date: ", log.invoice.invoice_date);
-        const expiredDate = new Date(log.invoice.invoice_date);
+      const product_detail = await sequelize.query(`
+select * 
+from quotation_sale_details
+      `, {
+        type: sequelize.QueryTypes.SELECT
+      });
 
-        result.push({
-          sale_id: log.sale_id,
-          quotation_num: log.sale_number,
-          status: log.status,
-          employeeID: log.employeeID,
-          employee_name: log.employee.F_name + " " + log.employee.L_name,
-          cus_id: log.cus_id,
-          cus_name: log.customer.cus_name,
-          cus_address: log.customer.cus_address,
-          cus_tel: log.customer.cus_tel,
-          cus_email: log.customer.cus_email,
-          cus_tax: log.customer.cus_tax,
-          cus_purchase: log.customer.cus_purchase,
-          quotation_start_date: log.sale_date,
-          credit_date: log.credit_date_number,
-          quotation_expired_date: log.credit_expired_date,
-          sale_totalprice: log.sale_totalprice,
-          invoice_id: log.invoice.invoice_id,
-          invoice_number: log.invoice.invoice_number,
-          invoice_status: log.invoice.invoice_status,
-          invoice_date: log.invoice.invoice_date,
-          invoice_remark: log.invoice.remark,
-          billing:
-            !log.invoice.billing ||
-            log.invoice.invoice_status !== "issue a receipt"
-              ? "pending"
-              : log.invoice.billing.billing_number,
-          details: log.quotation_sale_details.map((detail) => ({
-            sale_id: detail.sale_id,
-            productID: detail.productID,
-            sale_price: detail.sale_price,
-            sale_discount: detail.sale_discount,
-            sale_qty: detail.sale_qty,
-          })),
-        });
+        for(var i = 0 ; i < log.length ; i++)
+        {
+             // สร้าง object สำหรับการขาย
+  const saleData = {
+    sale_id: log[i].sale_id,
+    quotation_num: log[i].sale_number,
+    status: log[i].status,
+    employeeID: log[i].employeeID,
+    employee_name: log[i].F_name + " " + log[i].L_name,
+    cus_id: log[i].cus_id,
+    cus_name: log[i].cus_name,
+    cus_address: log[i].cus_address,
+    cus_tel: log[i].cus_tel,
+    cus_email: log[i].cus_email,
+    cus_tax: log[i].cus_tax,
+    cus_purchase: log[i].cus_purchase,
+    quotation_start_date: log[i].sale_date,
+    credit_date: log[i].credit_date_number,
+    quotation_expired_date: log[i].credit_expired_date,
+    sale_totalprice: log[i].sale_totalprice,
+    invoice_id: log[i].invoice_id,
+    invoice_number: log[i].invoice_number,
+    invoice_status: log[i].invoice_status,
+    invoice_date: log[i].invoice_date,
+    invoice_remark: log[i].remark,
+    billing:
+       log[i].invoice_status !== "issue a receipt"
+        ? "pending"
+        : log[i].billing_number,
+    details: [] // สร้าง array สำหรับรายละเอียดผลิตภัณฑ์
+  };
+
+  // ตรวจสอบและ push รายละเอียดผลิตภัณฑ์เข้าไปใน array details
+  //  if (log[i].sale_id === product_detail[i].sale_id) {
+    saleData.details.push({
+      sale_id: product_detail[i].sale_id,
+      productID: product_detail[i].productID,
+      sale_price: product_detail[i].sale_price,
+      sale_discount: product_detail[i].sale_discount,
+      sale_qty: product_detail[i].sale_qty,
+    });
+  //  }
+
+  // push saleData เข้าไปใน result
+  result.push(saleData);
       }
-
+  
       return ResponseManager.SuccessResponse(req, res, 200, result);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+
+  // static async getInvoice(req, res) {
+  //   try {
+  //     Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
+  //     Quotation_sale_detail.belongsTo(Quotation_sale, {
+  //       foreignKey: "sale_id",
+  //     });
+
+  //     Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
+  //     Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+
+  //     Business.hasMany(Bank, { foreignKey: "bank_id" });
+  //     Bank.belongsTo(Business, { foreignKey: "bank_id" });
+
+  //     Quotation_sale.belongsTo(Employee, { foreignKey: "employeeID" });
+  //     Employee.hasMany(Quotation_sale, { foreignKey: "employeeID" });
+
+  //     Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
+  //     Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
+
+  //     Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
+  //     Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
+
+  //     Invoice.hasOne(Billing, { foreignKey: "invoice_id" });
+  //     Billing.belongsTo(Invoice, { foreignKey: "invoice_id" });
+
+  //     const tokenData = await TokenManager.update_token(req);
+  //     if (!tokenData) {
+  //       return await ResponseManager.ErrorResponse(
+  //         req,
+  //         res,
+  //         401,
+  //         "Unauthorized: Invalid token data"
+  //       );
+  //     }
+
+  //     const { bus_id } = req.userData;
+
+  //     let result = [];
+  //     let quotationslist = [];
+
+  //     quotationslist = await Quotation_sale.findAll({
+  //       include: [
+  //         { model: Quotation_sale_detail },
+  //         { model: Employee },
+  //         { model: Customer },
+  //         { model: Business, include: [Bank] },
+  //         { model: Invoice, include: [Billing] },
+  //       ],
+  //       where: {
+  //         status: "allowed",
+  //         bus_id: bus_id,
+  //       },
+  //     });
+  //     const today = new Date();
+
+  //     for (let log of quotationslist) {
+  //       // console.log("Invoice Date: ", log.invoice.invoice_date);
+  //       // const expiredDate = new Date(log.invoice.invoice_date);
+
+  //       result.push({
+  //         sale_id: log.sale_id,
+  //         quotation_num: log.sale_number,
+  //         status: log.status,
+  //         employeeID: log.employeeID,
+  //         employee_name: log.employee.F_name + " " + log.employee.L_name,
+  //         cus_id: log.cus_id,
+  //         cus_name: log.customer.cus_name,
+  //         cus_address: log.customer.cus_address,
+  //         cus_tel: log.customer.cus_tel,
+  //         cus_email: log.customer.cus_email,
+  //         cus_tax: log.customer.cus_tax,
+  //         cus_purchase: log.customer.cus_purchase,
+  //         quotation_start_date: log.sale_date,
+  //         credit_date: log.credit_date_number,
+  //         quotation_expired_date: log.credit_expired_date,
+  //         sale_totalprice: log.sale_totalprice,
+  //         invoice_id: log.invoice.invoice_id,
+  //         invoice_number: log.invoice.invoice_number,
+  //         invoice_status: log.invoice.invoice_status,
+  //         invoice_date: log.invoice.invoice_date,
+  //         invoice_remark: log.invoice.remark,
+  //         billing:
+  //           !log.invoice.billing ||
+  //           log.invoice.invoice_status !== "issue a receipt"
+  //             ? "pending"
+  //             : log.invoice.billing.billing_number,
+  //         details: log.quotation_sale_details.map((detail) => ({
+  //           sale_id: detail.sale_id,
+  //           productID: detail.productID,
+  //           sale_price: detail.sale_price,
+  //           sale_discount: detail.sale_discount,
+  //           sale_qty: detail.sale_qty,
+  //         })),
+  //       });
+  //     }
+
+  //     return ResponseManager.SuccessResponse(req, res, 200, result);
+  //   } catch (err) {
+  //     return ResponseManager.CatchResponse(req, res, err.message);
+  //   }
+  // }
   static async editInvoice(req, res) {
     try {
       const existQuatationSale = await Invoice.findOne({
@@ -850,6 +939,7 @@ class QuotationSaleController {
     
       await Invoice.update(
         {
+          
           invoice_date: req.body.invoice_date,
           invoice_status: req.body.invoice_status,
           remark: req.body.remark,
