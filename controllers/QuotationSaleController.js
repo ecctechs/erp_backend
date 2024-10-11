@@ -677,10 +677,11 @@ class QuotationSaleController {
             !log.invoice || log.status !== "allowed"
               ? "pending"
               : log.invoice.invoice_number,
-          details: log.quotation_sale_details.map((detail) => ({
+            details: log.quotation_sale_details.map((detail) => ({
             sale_id: detail.sale_id,
             productID: detail.productID,
             sale_price: detail.sale_price,
+            discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
           })),
@@ -755,6 +756,7 @@ from quotation_sale_details
       sale_id: product_detail[i].sale_id,
       productID: product_detail[i].productID,
       sale_price: product_detail[i].sale_price,
+      discounttype: product_detail[i].discounttype,
       sale_discount: product_detail[i].sale_discount,
       sale_qty: product_detail[i].sale_qty,
     });
@@ -1074,6 +1076,7 @@ from quotation_sale_details
             sale_id: detail.sale_id,
             productID: detail.productID,
             sale_price: detail.sale_price,
+            discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
           })),
