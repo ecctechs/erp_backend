@@ -677,11 +677,11 @@ class QuotationSaleController {
             !log.invoice || log.status !== "allowed"
               ? "pending"
               : log.invoice.invoice_number,
-            details: log.quotation_sale_details.map((detail) => ({
+              //
+          details: log.quotation_sale_details.map((detail) => ({
             sale_id: detail.sale_id,
             productID: detail.productID,
             sale_price: detail.sale_price,
-            discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
           })),
@@ -718,53 +718,48 @@ from quotation_sale_details
         type: sequelize.QueryTypes.SELECT
       });
 
-        for(var i = 0 ; i < log.length ; i++)
-        {
-             // สร้าง object สำหรับการขาย
-  const saleData = {
-    sale_id: log[i].sale_id,
-    quotation_num: log[i].sale_number,
-    status: log[i].status,
-    employeeID: log[i].employeeID,
-    employee_name: log[i].F_name + " " + log[i].L_name,
-    cus_id: log[i].cus_id,
-    cus_name: log[i].cus_name,
-    cus_address: log[i].cus_address,
-    cus_tel: log[i].cus_tel,
-    cus_email: log[i].cus_email,
-    cus_tax: log[i].cus_tax,
-    cus_purchase: log[i].cus_purchase,
-    quotation_start_date: log[i].sale_date,
-    credit_date: log[i].credit_date_number,
-    quotation_expired_date: log[i].credit_expired_date,
-    sale_totalprice: log[i].sale_totalprice,
-    invoice_id: log[i].invoice_id,
-    invoice_number: log[i].invoice_number,
-    invoice_status: log[i].invoice_status,
-    invoice_date: log[i].invoice_date,
-    invoice_remark: log[i].remark,
-    billing:
-       log[i].invoice_status !== "issue a receipt"
-        ? "pending"
-        : log[i].billing_number,
-    details: [] // สร้าง array สำหรับรายละเอียดผลิตภัณฑ์
-  };
-
-  // ตรวจสอบและ push รายละเอียดผลิตภัณฑ์เข้าไปใน array details
-  //  if (log[i].sale_id === product_detail[i].sale_id) {
-    saleData.details.push({
-      sale_id: product_detail[i].sale_id,
-      productID: product_detail[i].productID,
-      sale_price: product_detail[i].sale_price,
-      discounttype: product_detail[i].discounttype,
-      sale_discount: product_detail[i].sale_discount,
-      sale_qty: product_detail[i].sale_qty,
-    });
-  //  }
-
-  // push saleData เข้าไปใน result
-  result.push(saleData);
-      }
+      log.forEach(sale => {
+        const saleData = {
+          sale_id: sale.sale_id,
+          quotation_num: sale.sale_number,
+          status: sale.status,
+          employeeID: sale.employeeID,
+          employee_name: `${sale.F_name} ${sale.L_name}`,
+          cus_id: sale.cus_id,
+          cus_name: sale.cus_name,
+          cus_address: sale.cus_address,
+          cus_tel: sale.cus_tel,
+          cus_email: sale.cus_email,
+          cus_tax: sale.cus_tax,
+          cus_purchase: sale.cus_purchase,
+          quotation_start_date: sale.sale_date,
+          credit_date: sale.credit_date_number,
+          quotation_expired_date: sale.credit_expired_date,
+          sale_totalprice: sale.sale_totalprice,
+          invoice_id: sale.invoice_id,
+          invoice_number: sale.invoice_number,
+          invoice_status: sale.invoice_status,
+          invoice_date: sale.invoice_date,
+          invoice_remark: sale.remark,
+          billing: sale.invoice_status !== "issue a receipt" ? "pending" : sale.billing_number,
+          details: []
+        };
+  
+        // Filter product details for the current sale
+        const saleDetails = product_detail.filter(detail => detail.sale_id === sale.sale_id);
+        saleDetails.forEach(detail => {
+          saleData.details.push({
+            sale_id: detail.sale_id,
+            productID: detail.productID,
+            sale_price: detail.sale_price,
+            sale_discount: detail.sale_discount,
+            sale_qty: detail.sale_qty,
+          });
+        });
+  
+        // Add the complete sale data to the result
+        result.push(saleData);
+      });
   
       return ResponseManager.SuccessResponse(req, res, 200, result);
     } catch (err) {
@@ -1076,7 +1071,6 @@ from quotation_sale_details
             sale_id: detail.sale_id,
             productID: detail.productID,
             sale_price: detail.sale_price,
-            discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
           })),
