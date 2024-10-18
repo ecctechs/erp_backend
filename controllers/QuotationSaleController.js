@@ -682,6 +682,7 @@ class QuotationSaleController {
             sale_id: detail.sale_id,
             productID: detail.productID,
             sale_price: detail.sale_price,
+            discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
           })),
@@ -752,6 +753,7 @@ from quotation_sale_details
             sale_id: detail.sale_id,
             productID: detail.productID,
             sale_price: detail.sale_price,
+            discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
           });
@@ -1071,6 +1073,7 @@ from quotation_sale_details
             sale_id: detail.sale_id,
             productID: detail.productID,
             sale_price: detail.sale_price,
+            discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
           })),
