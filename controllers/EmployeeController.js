@@ -1339,6 +1339,8 @@ class EmployeeController {
           date: req.body.date,
           detail: req.body.detail,
           hours: req.body.hours,
+          rate: req.body.rate,
+          total: req.body.total
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, data_overtime);

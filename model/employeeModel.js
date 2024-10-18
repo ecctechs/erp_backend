@@ -194,6 +194,14 @@ const Overtime = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    rate: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    }, 
+    total: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    }
   },
   {
     timestamps: false,
