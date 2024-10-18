@@ -541,6 +541,7 @@ class EmployeeController {
             round: log.round,
             month: log.month,
             year: log.year,
+            employeeID: log.employee.employeeID,
             employeeName: log.employee.F_name + " " + log.employee.L_name,
             salary: log.employee.Salary,
           });
