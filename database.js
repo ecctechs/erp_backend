@@ -11,7 +11,7 @@ const { Sequelize } = require('sequelize');
 // });
 
 
-// const sequelize = new Sequelize(
+const sequelize = new Sequelize(
   process.env.POSTGRESQL_HOST,
   {
       dialect: 'postgres',
@@ -20,7 +20,7 @@ const { Sequelize } = require('sequelize');
           ssl: true
       }
   }
-// )
+)
 
 module.exports = sequelize;
 
