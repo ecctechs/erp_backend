@@ -20,7 +20,7 @@ const { Sequelize } = require('sequelize');
           ssl: true
       }
   }
-)
+// )
 
 module.exports = sequelize;
 
