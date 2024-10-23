@@ -1138,19 +1138,37 @@ from quotation_sale_details
         },
       });
       if (deleteqto) {
-        await Invoice.destroy({
+        const data_Billing = await Billing.findOne({
+          where: {
+            billing_id: req.params.id,
+          },
+        })
+        const invoice_updated = await Invoice.update(
+        {
+          invoice_status:"pending",
+        },
+        {
+          where:{
+            invoice_id:data_Billing.invoice_id
+          }
+        }
+      )
+      if(invoice_updated){
+        await Billing.destroy({
           where: {
             billing_id: req.params.id,
           },
         });
+      }
+   
         return ResponseManager.SuccessResponse(
           req,
           res,
           200,
-          "Receipt Deleted"
+          "Billing Deleted "
         );
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, "No Receipt found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No Billing found");
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
