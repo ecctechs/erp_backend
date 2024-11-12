@@ -1354,7 +1354,7 @@ class EmployeeController {
         return ResponseManager.SuccessResponse(
           req,
           res,
-          400,
+          200,
           "Edit Leave Success"
         );
       }
