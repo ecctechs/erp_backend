@@ -231,7 +231,7 @@ class MigrateController {
           );
         } else {
           console.log(`No data found for table: ${tableName}. Skipping...`);
-          continue; 
+          continue;
         }
       }
 
@@ -250,8 +250,8 @@ class MigrateController {
         .pipe(csv())
         .on("data", (data) => results.push(data))
         .on("end", async () => {
-          const tableName = req.body.tableName; 
-          const columns = results[0]; 
+          const tableName = req.body.tableName;
+          const columns = results[0];
 
           try {
             await sequelize.transaction(async (transaction) => {
@@ -281,11 +281,9 @@ class MigrateController {
               }
             });
 
-            res
-              .status(200)
-              .json({
-                message: "CSV file uploaded and data updated successfully",
-              });
+            res.status(200).json({
+              message: "CSV file uploaded and data updated successfully",
+            });
           } catch (error) {
             console.error("Error processing CSV data:", error);
             res.status(500).json({ error: "Failed to process CSV data" });
