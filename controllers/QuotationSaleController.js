@@ -13,13 +13,13 @@ const {
   Position,
   Salary_pay,
   Department,
-} = require("../model/employeeModel"); 
-const { User } = require("../model/userModel"); 
+} = require("../model/employeeModel");
+const { User } = require("../model/userModel");
 const { cloudinary } = require("../utils/cloudinary");
 const { Op } = require("sequelize");
 const TokenManager = require("../middleware/tokenManager");
 
-const sequelize = require('../database');
+const sequelize = require("../database");
 
 class QuotationSaleController {
   static async getBusiness(req, res) {
@@ -120,7 +120,7 @@ class QuotationSaleController {
         cus_tax: req.body.cus_tax,
         cus_purchase: req.body.cus_purchase,
         bus_id: bus_id,
-        Status:"active"
+        Status: "active",
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -195,7 +195,7 @@ class QuotationSaleController {
 
         const updatedData = {
           Status: "not active",
-        }
+        };
 
         await Customer.update(updatedData, {
           where: {
@@ -352,6 +352,7 @@ class QuotationSaleController {
             bus_id: req.body.bus_id,
             cus_id: req.body.cus_id,
             employeeID: req.body.employeeID,
+            discount_quotation: req.body.discount_quotation,
           });
 
           const products = req.body.products;
@@ -479,6 +480,8 @@ class QuotationSaleController {
         employeeID: req.body.employeeID,
         status: req.body.status,
         remark: req.body.remark,
+        discount_quotation: req.body.discount_quotation,
+        vatType: req.body.vatType,
       });
 
       const products = req.body.products;
@@ -520,7 +523,7 @@ class QuotationSaleController {
         }
       }
 
-      if ((req.body.status === "allowed")) {
+      if (req.body.status === "allowed") {
         const today = new Date();
         const invoiceDateStr = today.toISOString().split("T")[0];
 
@@ -531,29 +534,27 @@ class QuotationSaleController {
         const QuotationOfInvoice = await Invoice.findOne({
           where: {
             sale_id: req.params.id,
-          }
-        }); 
+          },
+        });
 
         let newInvoiceNumber;
 
         if (!lastInvoice) {
           newInvoiceNumber = "IN-00000001";
-          
         } else {
           const lastNumber = parseInt(lastInvoice.invoice_number.slice(3));
           const nextNumber = lastNumber + 1;
           newInvoiceNumber = "IN-" + nextNumber.toString().padStart(8, "0");
         }
 
-
-        if(!QuotationOfInvoice){
-        await Invoice.create({
-          invoice_number: newInvoiceNumber,
-          invoice_date: invoiceDateStr,
-          invoice_status: "pending",
-          remark: "",
-          sale_id: req.params.id,
-        });
+        if (!QuotationOfInvoice) {
+          await Invoice.create({
+            invoice_number: newInvoiceNumber,
+            invoice_date: invoiceDateStr,
+            invoice_status: "pending",
+            remark: "",
+            sale_id: req.params.id,
+          });
         }
       }
 
@@ -568,6 +569,8 @@ class QuotationSaleController {
           employeeID: req.body.employeeID,
           status: req.body.status,
           remark: req.body.remark,
+          discount_quotation: req.body.discount_quotation,
+          vatType: req.body.vatType,
         },
         {
           where: {
@@ -673,11 +676,13 @@ class QuotationSaleController {
           quotation_expired_date: log.credit_expired_date,
           sale_totalprice: log.sale_totalprice,
           remark: log.remark,
+          discount_quotation: log.discount_quotation,
+          vatType: log.vatType,
           invoice:
             !log.invoice || log.status !== "allowed"
               ? "pending"
               : log.invoice.invoice_number,
-              //
+          //
           details: log.quotation_sale_details.map((detail) => ({
             sale_id: detail.sale_id,
             productID: detail.productID,
@@ -699,7 +704,8 @@ class QuotationSaleController {
     try {
       let result = [];
 
-      const log = await sequelize.query(`
+      const log = await sequelize.query(
+        `
         select * 
 from invoices
 Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
@@ -708,18 +714,23 @@ Left join banks on banks.bank_id = businesses.bank_id
 Left join customers on quotation_sales.cus_id = customers.cus_id
 left join employees on employees."employeeID"  = quotation_sales."employeeID" 
 Left join billings on billings.invoice_id = invoices.invoice_id
-      `, {
-        type: sequelize.QueryTypes.SELECT
-      });
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
 
-      const product_detail = await sequelize.query(`
+      const product_detail = await sequelize.query(
+        `
 select * 
 from quotation_sale_details
-      `, {
-        type: sequelize.QueryTypes.SELECT
-      });
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
 
-      log.forEach(sale => {
+      log.forEach((sale) => {
         const saleData = {
           sale_id: sale.sale_id,
           quotation_num: sale.sale_number,
@@ -742,13 +753,18 @@ from quotation_sale_details
           invoice_status: sale.invoice_status,
           invoice_date: sale.invoice_date,
           invoice_remark: sale.remark,
-          billing: sale.invoice_status !== "issue a receipt" ? "pending" : sale.billing_number,
-          details: []
+          billing:
+            sale.invoice_status !== "issue a receipt"
+              ? "pending"
+              : sale.billing_number,
+          details: [],
         };
-  
+
         // Filter product details for the current sale
-        const saleDetails = product_detail.filter(detail => detail.sale_id === sale.sale_id);
-        saleDetails.forEach(detail => {
+        const saleDetails = product_detail.filter(
+          (detail) => detail.sale_id === sale.sale_id
+        );
+        saleDetails.forEach((detail) => {
           saleData.details.push({
             sale_id: detail.sale_id,
             productID: detail.productID,
@@ -758,11 +774,11 @@ from quotation_sale_details
             sale_qty: detail.sale_qty,
           });
         });
-  
+
         // Add the complete sale data to the result
         result.push(saleData);
       });
-  
+
       return ResponseManager.SuccessResponse(req, res, 200, result);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -882,7 +898,7 @@ from quotation_sale_details
         const existingQuo = await Invoice.findOne({
           where: {
             invoice_number: req.body.invoice_number,
-            invoice_id: { [Op.ne]: req.params.id }, 
+            invoice_id: { [Op.ne]: req.params.id },
           },
         });
 
@@ -897,48 +913,45 @@ from quotation_sale_details
         }
       }
 
-      if ((req.body.invoice_status === "issue a receipt")) {
+      if (req.body.invoice_status === "issue a receipt") {
         const today = new Date();
         const BillingDateStr = today.toISOString().split("T")[0];
 
         const lastBilling = await Billing.findOne({
           order: [["billing_number", "DESC"]],
-        }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null 
+        }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
 
         const billingOfInvoice = await Billing.findOne({
           where: {
             invoice_id: req.params.id,
-          }
-        }); 
+          },
+        });
 
         let newBillingNumber;
 
-        if (!lastBilling) { // ถ้าไม่ใช้ billing เป็น null
+        if (!lastBilling) {
+          // ถ้าไม่ใช้ billing เป็น null
           newBillingNumber = "BI-00000001";
-          
         } else {
-          const lastNumber = parseInt(lastBilling.billing_number.slice(3)); 
+          const lastNumber = parseInt(lastBilling.billing_number.slice(3));
           const nextNumber = lastNumber + 1;
-          newBillingNumber = "BI-" + nextNumber.toString().padStart(8, "0"); 
+          newBillingNumber = "BI-" + nextNumber.toString().padStart(8, "0");
         }
 
-        if(!billingOfInvoice){
-        await Billing.create({
-          billing_number: newBillingNumber,
-          billing_date: BillingDateStr,
-          billing_status: "Complete",
-          payments: "cash",
-          remark: "",
-          invoice_id: req.params.id,
-        });
+        if (!billingOfInvoice) {
+          await Billing.create({
+            billing_number: newBillingNumber,
+            billing_date: BillingDateStr,
+            billing_status: "Complete",
+            payments: "cash",
+            remark: "",
+            invoice_id: req.params.id,
+          });
+        }
       }
 
-
-      }
-    
       await Invoice.update(
         {
-          
           invoice_date: req.body.invoice_date,
           invoice_status: req.body.invoice_status,
           remark: req.body.remark,
@@ -1097,7 +1110,7 @@ from quotation_sale_details
         const existingQuo = await Billing.findOne({
           where: {
             billing_number: req.body.billing_number,
-            billing_id: { [Op.ne]: req.params.id }, 
+            billing_id: { [Op.ne]: req.params.id },
           },
         });
 
@@ -1142,25 +1155,25 @@ from quotation_sale_details
           where: {
             billing_id: req.params.id,
           },
-        })
-        const invoice_updated = await Invoice.update(
-        {
-          invoice_status:"pending",
-        },
-        {
-          where:{
-            invoice_id:data_Billing.invoice_id
-          }
-        }
-      )
-      if(invoice_updated){
-        await Billing.destroy({
-          where: {
-            billing_id: req.params.id,
-          },
         });
-      }
-   
+        const invoice_updated = await Invoice.update(
+          {
+            invoice_status: "pending",
+          },
+          {
+            where: {
+              invoice_id: data_Billing.invoice_id,
+            },
+          }
+        );
+        if (invoice_updated) {
+          await Billing.destroy({
+            where: {
+              billing_id: req.params.id,
+            },
+          });
+        }
+
         return ResponseManager.SuccessResponse(
           req,
           res,

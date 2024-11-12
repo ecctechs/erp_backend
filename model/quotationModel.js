@@ -59,7 +59,7 @@ const Bank = sequelize.define(
       allowNull: false,
     },
     bank_number: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.STRING(15),
       allowNull: false,
     },
   },
@@ -104,10 +104,10 @@ const Customer = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Status:{
+    Status: {
       type: DataTypes.STRING(10),
-      allowNull: false, 
-    }
+      allowNull: false,
+    },
   },
   {
     timestamps: false,
@@ -162,6 +162,14 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
+    discount_quotation: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    vatType: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+    },
   },
   {
     timestamps: false,
@@ -194,7 +202,7 @@ const Quotation_sale_detail = sequelize.define(
     discounttype: {
       type: DataTypes.STRING(40),
       allowNull: false,
-    }
+    },
   },
   {
     timestamps: false,

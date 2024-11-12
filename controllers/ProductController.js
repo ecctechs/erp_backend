@@ -107,7 +107,7 @@ class ProductController {
 
       const addproduct = await Product.findOne({
         where: {
-          productname: req.body.productname,
+          productname: req.body.productname.trim(),
           bus_id: bus_id,
         },
       });
@@ -161,10 +161,10 @@ class ProductController {
           price: req.body.price,
           productcost: req.body.productcost,
           categoryID: req.body.categoryID,
-          productImg: result.secure_url, 
+          productImg: result.secure_url,
           product_date: DateString,
           bus_id: bus_id,
-          Status:"active"
+          Status: "active",
         });
 
         return ResponseManager.SuccessResponse(req, res, 200, insert_product);
@@ -190,7 +190,7 @@ class ProductController {
         const existingProduct = await Product.findOne({
           where: {
             productname: req.body.productname,
-            productID: { [Op.ne]: req.params.id }, 
+            productID: { [Op.ne]: req.params.id },
           },
         });
 
@@ -215,7 +215,7 @@ class ProductController {
 
         if (req.file) {
           const result = await cloudinary.uploader.upload(req.file.path);
-          productUpdateData.productImg = result.secure_url; 
+          productUpdateData.productImg = result.secure_url;
         }
 
         await Product.update(productUpdateData, {
@@ -253,7 +253,7 @@ class ProductController {
         // });
         const updatedData = {
           Status: "not active",
-        }
+        };
 
         await Product.update(updatedData, {
           where: {
@@ -433,6 +433,8 @@ class ProductController {
             transaction_date: DateString,
           });
 
+          // ใช้ reduce เพื่อรวมค่าของ Quantity
+
           await Product.update(
             {
               amount: req.body.quantity + getProductByid.dataValues.amount,
@@ -444,12 +446,7 @@ class ProductController {
             }
           );
 
-          return ResponseManager.SuccessResponse(
-            req,
-            res,
-            200,
-            "product receive success"
-          );
+          return ResponseManager.SuccessResponse(req, res, 200, "success");
         } else if (transactionType == "issue") {
           if (getProductByid.dataValues.amount < req.body.quantity) {
             return ResponseManager.ErrorResponse(
@@ -523,7 +520,71 @@ class ProductController {
       if (getProductByid) {
         const transactionType = req.body.transactionType;
 
-        if (transactionType == "receive") {
+        if (
+          transactionType == "issue" &&
+          getProductByid.transactionType == "receive"
+        ) {
+          const quantityDifference =
+            req.body.quantity + getProductByid.quantity_added;
+
+          // อัปเดตจำนวนสินค้าใน Product โดยเพิ่ม quantity ที่มีการเปลี่ยนแปลง
+          await Product.update(
+            {
+              amount: getProductAmount.amount - quantityDifference,
+            },
+            { where: { productID: req.body.productID } }
+          );
+
+          // อัปเดต Transaction เป็น receive
+          await Transaction.update(
+            {
+              productID: req.body.productID,
+              transactionType: transactionType,
+              transactionDetail: req.body.transactionDetail,
+              quantity_added: 0,
+              quantity_removed: req.body.quantity,
+            },
+            { where: { transaction_id: req.params.id } }
+          );
+          return ResponseManager.SuccessResponse(
+            req,
+            res,
+            200,
+            "product receive success"
+          );
+        } else if (
+          transactionType == "receive" &&
+          getProductByid.transactionType == "issue"
+        ) {
+          const quantityDifference =
+            req.body.quantity + getProductByid.quantity_removed;
+
+          // อัปเดตจำนวนสินค้าใน Product โดยเพิ่ม quantity ที่มีการเปลี่ยนแปลง
+          await Product.update(
+            {
+              amount: getProductAmount.amount + quantityDifference,
+            },
+            { where: { productID: req.body.productID } }
+          );
+
+          // อัปเดต Transaction เป็น receive
+          await Transaction.update(
+            {
+              productID: req.body.productID,
+              transactionType: transactionType,
+              transactionDetail: req.body.transactionDetail,
+              quantity_added: req.body.quantity,
+              quantity_removed: 0,
+            },
+            { where: { transaction_id: req.params.id } }
+          );
+          return ResponseManager.SuccessResponse(
+            req,
+            res,
+            200,
+            "product receive success"
+          );
+        } else if (transactionType == "receive") {
           await Transaction.update(
             {
               productID: req.body.productID,
@@ -539,9 +600,13 @@ class ProductController {
             }
           );
 
+          // คำนวณส่วนต่าง
+          const quantityDifference =
+            req.body.quantity - getProductByid.quantity_added;
+
           await Product.update(
             {
-              amount: req.body.quantity + getProductAmount.dataValues.amount,
+              amount: getProductAmount.amount + quantityDifference,
             },
             {
               where: {
@@ -579,10 +644,13 @@ class ProductController {
                 },
               }
             );
+            // คำนวณส่วนต่าง
+            const quantityDifference =
+              req.body.quantity - getProductByid.quantity_removed;
 
             await Product.update(
               {
-                amount: getProductAmount.dataValues.amount - req.body.quantity,
+                amount: getProductAmount.amount - quantityDifference,
               },
               {
                 where: {

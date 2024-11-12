@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../database");
-const { Business } = require('./quotationModel');
+const { Business } = require("./quotationModel");
 
 const Employee = sequelize.define(
   "employees",
@@ -156,6 +156,10 @@ const Leaving = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    dateEnd: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     detail: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -197,11 +201,11 @@ const Overtime = sequelize.define(
     rate: {
       type: DataTypes.DOUBLE,
       allowNull: false,
-    }, 
+    },
     total: {
       type: DataTypes.DOUBLE,
       allowNull: false,
-    }
+    },
   },
   {
     timestamps: false,

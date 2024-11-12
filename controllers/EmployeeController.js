@@ -74,12 +74,25 @@ class EmployeeController {
           NID_num: req.body.NID_num,
         },
       });
+      const checkphoneDup = await Employee.findOne({
+        where: {
+          Phone_num: req.body.Phone_num,
+        },
+      });
       if (esistingempNID) {
         return ResponseManager.SuccessResponse(
           req,
           res,
           400,
           "National ID is already exist"
+        );
+      }
+      if (checkphoneDup) {
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          400,
+          "Phone is already exist"
         );
       }
 
@@ -223,7 +236,7 @@ class EmployeeController {
           departmentID: req.body.departmentID,
         };
 
-        console.log('Updating employee with data:', updatedData);
+        console.log("Updating employee with data:", updatedData);
 
         await Employee.update(updatedData, {
           where: {
@@ -234,7 +247,7 @@ class EmployeeController {
           req,
           res,
           200,
-           "Employee Updated"
+          "Employee Updated"
         );
       } else {
         return ResponseManager.ErrorResponse(
@@ -250,10 +263,9 @@ class EmployeeController {
   }
 
   static async DeleteEmployee(req, res) {
-
     Employee.belongsTo(Department, { foreignKey: "departmentID" });
     Department.hasMany(Employee, { foreignKey: "departmentID" });
-    
+
     try {
       const employee = await Employee.findOne({
         where: {
@@ -280,7 +292,7 @@ class EmployeeController {
         // );
         const updatedData = {
           Status: "not active",
-        }
+        };
 
         await Employee.update(updatedData, {
           where: {
@@ -420,7 +432,7 @@ class EmployeeController {
           departmentID: req.params.id,
         },
       });
-      if(checkEmployee){
+      if (checkEmployee) {
         return ResponseManager.ErrorResponse(
           req,
           res,
@@ -447,6 +459,31 @@ class EmployeeController {
           400,
           "No Department found"
         );
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async DeleteLeave(req, res) {
+    //delete product
+
+    try {
+      const deletecate = await Leaving.findOne({
+        where: {
+          leaving_id: req.params.id,
+        },
+      });
+
+      if (deletecate) {
+        await Leaving.destroy({
+          where: {
+            leaving_id: req.params.id,
+          },
+        });
+        return ResponseManager.SuccessResponse(req, res, 200, "Leave Deleted");
+      } else {
+        return ResponseManager.ErrorResponse(req, res, 400, "No Leave found");
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -529,9 +566,7 @@ class EmployeeController {
 
       if (RoleName === "SUPERUSER") {
         paymentslist = await Salary_pay.findAll({
-          include: [
-            { model: Employee, include: [Position, Department] },
-          ],
+          include: [{ model: Employee, include: [Position, Department] }],
           where: { bus_id: bus_id },
         });
         paymentslist.forEach((log) => {
@@ -543,6 +578,7 @@ class EmployeeController {
             year: log.year,
             employeeID: log.employee.employeeID,
             employeeName: log.employee.F_name + " " + log.employee.L_name,
+            position: log.employee.position,
             salary: log.employee.Salary,
           });
         });
@@ -659,7 +695,6 @@ class EmployeeController {
       }
       const { RoleName, userID, userEmail } = tokenData;
       const { bus_id } = req.userData;
-
 
       let result = [];
       let employeeslist = [];
@@ -779,6 +814,75 @@ class EmployeeController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+  static async EditSalary(req, res) {
+    try {
+      const editemp = await Salary_pay.findOne({
+        where: {
+          payment_id: req.params.id,
+        },
+      });
+      if (editemp) {
+        const existingPosition = await Salary_pay.findOne({
+          where: {
+            round: req.body.round,
+            month: req.body.month,
+            payment_id: { [Op.ne]: req.params.id },
+          },
+        });
+
+        if (existingPosition) {
+          await ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Salary already exists"
+          );
+          return;
+        }
+
+        await Salary_pay.update(
+          {
+            Date: req.body.Date,
+            round: req.body.round,
+            month: req.body.month,
+            year: req.body.year,
+          },
+          {
+            where: {
+              payment_id: req.params.id,
+            },
+          }
+        );
+        return ResponseManager.SuccessResponse(req, res, 200, "Salary Updated");
+      } else {
+        return ResponseManager.ErrorResponse(req, res, 400, "No Salary found");
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async DeleteSalary(req, res) {
+    try {
+      const deletecate = await Salary_pay.findOne({
+        where: {
+          payment_id: req.params.id,
+        },
+      });
+      if (deletecate) {
+        await Salary_pay.destroy({
+          where: {
+            payment_id: req.params.id,
+          },
+        });
+        return ResponseManager.SuccessResponse(req, res, 200, "Salary Deleted");
+      } else {
+        return ResponseManager.ErrorResponse(req, res, 400, "No Salary found");
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
   static async getEmployeeQuotation(req, res) {
     try {
       Employee.belongsTo(Position, { foreignKey: "PositionID" });
@@ -1132,7 +1236,7 @@ class EmployeeController {
           400,
           "Invalid request format. Missing payments array."
         );
-        
+
         // return res
         //   .status(400)
         //   .json({ error: "Invalid request format. Missing payments array." });
@@ -1210,10 +1314,49 @@ class EmployeeController {
         const data_leaving = await Leaving.create({
           employeeID: req.body.employeeID,
           date: req.body.date,
+          dateEnd: req.body.dateEnd,
           detail: req.body.detail,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, data_leaving);
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async EditLeave(req, res) {
+    try {
+      const data = await Leaving.findOne({
+        where: {
+          leaving_id: req.params.id,
+        },
+      });
+
+      if (!data) {
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          400,
+          "Not found leaving_id"
+        );
+      } else {
+        const body = {
+          date: req.body.date,
+          dateEnd: req.body.dateEnd,
+          detail: req.body.detail,
+          employeeID: req.body.employeeID,
+        };
+        await Leaving.update(body, {
+          where: {
+            leaving_id: req.params.id,
+          },
+        });
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          400,
+          "Edit Leave Success"
+        );
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -1341,7 +1484,7 @@ class EmployeeController {
           detail: req.body.detail,
           hours: req.body.hours,
           rate: req.body.rate,
-          total: req.body.total
+          total: req.body.total,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, data_overtime);

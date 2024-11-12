@@ -51,6 +51,9 @@ Route.get(
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getEmployeeSalary
 );
+Route.put(RouteName + "/EditSalary/:id", EmployeeController.EditSalary);
+
+Route.delete(RouteName + "/DeleteSalary/:id", EmployeeController.DeleteSalary);
 Route.get(
   RouteName + "/getEmployeeQuotation",
   verifyTokenWithbus_id,
@@ -84,6 +87,12 @@ Route.post(
   verifyTokenWithbus_id,
   EmployeeController.AddLeave
 );
+Route.post(
+  RouteName + "/EditLeave/:id",
+  verifyTokenWithbus_id,
+  EmployeeController.EditLeave
+);
+Route.delete(RouteName + "/DeleteLeave/:id", EmployeeController.DeleteLeave);
 Route.get(
   RouteName + "/getLeave",
   verifyTokenWithbus_id,
