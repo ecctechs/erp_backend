@@ -1263,21 +1263,35 @@ class EmployeeController {
             "Duplicate payment entry."
           );
         } else {
-          paymentCreationPromises.push(
-            Salary_pay.create({
-              employeeID: paymentData.employeeID,
-              Date: paymentData.Date,
-              round: paymentData.round,
-              month: paymentData.month,
-              year: paymentData.year,
-              bus_id: bus_id,
-            })
-          );
+          // paymentCreationPromises.push(
+          //   Salary_pay.create({
+          //     employeeID: paymentData.employeeID,
+          //     Date: paymentData.Date,
+          //     round: paymentData.round,
+          //     month: paymentData.month,
+          //     year: paymentData.year,
+          //     bus_id: bus_id,
+          //   })
+          // );
+          Salary_pay.create({
+            employeeID: paymentData.employeeID,
+            Date: paymentData.Date,
+            round: paymentData.round,
+            month: paymentData.month,
+            year: paymentData.year,
+            bus_id: bus_id,
+          });
         }
       }
 
-      const createdPayments = await Promise.all(paymentCreationPromises);
-      return ResponseManager.SuccessResponse(req, res, 200, createdPayments);
+      // const createdPayments = await Promise.all(paymentCreationPromises);
+      // return ResponseManager.SuccessResponse(req, res, 200, createdPayments);
+      return ResponseManager.SuccessResponse(
+        req,
+        res,
+        200,
+        "Success payment salary"
+      );
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
