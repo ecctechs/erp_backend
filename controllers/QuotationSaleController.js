@@ -678,6 +678,8 @@ class QuotationSaleController {
           remark: log.remark,
           discount_quotation: log.discount_quotation,
           vatType: log.vatType,
+          vat: log.vat,
+          // bank_id: log.bank_id,
           invoice:
             !log.invoice || log.status !== "allowed"
               ? "pending"
@@ -1330,6 +1332,26 @@ from quotation_sale_details
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+  static async getBank(req, res) {
+    try {
+      const tokenData = await TokenManager.update_token(req);
+
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
+      }
+
+      const business = await Bank.findAll();
+
+      return ResponseManager.SuccessResponse(req, res, 200, business);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
 
   static async editBusiness(req, res) {
     try {
@@ -1372,7 +1394,7 @@ from quotation_sale_details
           });
           await Bank.update(productUpdateData, {
             where: {
-              bank_id: req.params.id,
+              bank_id: req.body.bank_id,
             },
           });
         }
@@ -1381,7 +1403,7 @@ from quotation_sale_details
           req,
           res,
           200,
-          "Business Updated"
+          req.body.bank_name
         );
       } else {
         return ResponseManager.ErrorResponse(

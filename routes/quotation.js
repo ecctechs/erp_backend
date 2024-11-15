@@ -79,6 +79,12 @@ Route.get(
   verifyTokenWithbus_id,
   QuotationSaleController.getBusinessByID
 );
+
+Route.get(
+  RouteName + "/getBank",
+  verifyTokenWithbus_id,
+  QuotationSaleController.getBank
+);
 Route.put(
   RouteName + "/editBusiness/:id",
   upload.single("file"),
