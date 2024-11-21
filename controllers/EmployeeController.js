@@ -1177,37 +1177,142 @@ class EmployeeController {
           "Unauthorized: Invalid token data"
         );
       }
-
       const { bus_id } = req.userData;
 
-      const data = await Salary_pay.findOne({
-        where: {
-          month: req.body.month,
-          round: req.body.round,
-          year: req.body.year,
-          employeeID: req.body.employeeID,
-          bus_id: bus_id,
-        },
-      });
-      if (data) {
+      let datalist = [];
+      var data_arry = {};
+
+      if (
+        req.body.payments[0].month === "" ||
+        req.body.payments[0].round === "" ||
+        req.body.payments[0].year === ""
+      ) {
         return ResponseManager.SuccessResponse(
           req,
           res,
           400,
-          "Employee Payment already exists"
+          "กรุณาใส่ เดือน ปี และ รอบเงินเดือน"
         );
-      } else {
-        const data_payment = await Salary_pay.create({
-          employeeID: req.body.employeeID,
-          Date: req.body.Date,
-          round: req.body.round,
-          month: req.body.month,
-          year: req.body.year,
+      }
+
+      const paymentPromises = req.body.payments.map(async (payment) => {
+        const existingPayment = await Salary_pay.findOne({
+          where: {
+            month: payment.month,
+            round: payment.round,
+            year: payment.year,
+            employeeID: payment.employeeID,
+            bus_id: bus_id,
+          },
+        });
+
+        if (existingPayment) {
+          throw new Error("Duplicate payment found");
+        }
+
+        // Create a new payment record
+        await Salary_pay.create({
+          employeeID: payment.employeeID,
+          Date: payment.Date,
+          round: payment.round,
+          month: payment.month,
+          year: payment.year,
           bus_id: bus_id,
         });
-        console.log(req.body);
-        return ResponseManager.SuccessResponse(req, res, 200, data_payment);
+      });
+
+      try {
+        // Wait for all payment processing to complete
+        await Promise.all(paymentPromises);
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          200,
+          req.body.payments
+        );
+      } catch (error) {
+        // Handle the error (duplicate payment)
+        return ResponseManager.ErrorResponse(req, res, 400, error.message);
       }
+
+      // for (let i = 0; i < req.body.payments.length; i++) {
+      //   if (
+      //     req.body.payments[i].month === "" ||
+      //     req.body.payments[i].round === "" ||
+      //     req.body.payments[i].year === ""
+      //   ) {
+      //     return ResponseManager.SuccessResponse(
+      //       req,
+      //       res,
+      //       400,
+      //       "กรุณาใส่ เดือน ปี และ รอบเงินเดือน"
+      //     );
+      //   data_arry.month = req.body.payments[i].month;
+      //   data_arry.round = req.body.payments[i].round;
+      //   data_arry.year = req.body.payments[i].year;
+      //   data_arry.employeeID = req.body.payments[i].employeeID;
+      //   data_arry.bus_id = bus_id;
+      //   datalist.push(data_arry);
+
+      // const data = await Salary_pay.findOne({
+      //   where: {
+      //     month: req.body.payments[i].month,
+      //     round: parseInt(req.body.payments[i].round),
+      //     year: req.body.payments[i].year,
+      //     employeeID: parseInt(req.body.payments[i].employeeID),
+      //     bus_id: bus_id,
+      //   },
+      // });
+      // if (data) {
+      //   return ResponseManager.SuccessResponse(
+      //     req,
+      //     res,
+      //     400,
+      //     "Employee Payment already exists"
+      //   );
+      // } else {
+      // await Salary_pay.create({
+      //   employeeID: req.body.payments[i].employeeID,
+      //   Date: req.body.payments[i].Date,
+      //   round: req.body.payments[i].round,
+      //   month: req.body.payments[i].month,
+      //   year: req.body.payments[i].year,
+      //   bus_id: bus_id,
+      // });
+      // datalist.push(req.body.payments);
+      // }
+      // return ResponseManager.SuccessResponse(req, res, 200, datalist);
+      // }
+      // return ResponseManager.SuccessResponse(req, res, 200, datalist);
+
+      // const data = await Salary_pay.findOne({
+      //   where: {
+      //     month: req.body.month,
+      //     round: req.body.round,
+      //     year: req.body.year,
+      //     employeeID: req.body.employeeID,
+      //     bus_id: bus_id,
+      //   },
+      // });
+      // if (data) {
+      //   return ResponseManager.SuccessResponse(
+      //     req,
+      //     res,
+      //     400,
+      //     "Employee Payment already exists"
+      //   );
+      // } else {
+      //   const data_payment = await Salary_pay.create({
+      //     employeeID: req.body.employeeID,
+      //     Date: req.body.Date,
+      //     round: req.body.round,
+      //     month: req.body.month,
+      //     year: req.body.year,
+      //     bus_id: bus_id,
+      //   });
+      //   console.log(req.body);
+      //   return ResponseManager.SuccessResponse(req, res, 200, data_payment);
+      // }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
@@ -1263,35 +1368,22 @@ class EmployeeController {
             "Duplicate payment entry."
           );
         } else {
-          // paymentCreationPromises.push(
-          //   Salary_pay.create({
-          //     employeeID: paymentData.employeeID,
-          //     Date: paymentData.Date,
-          //     round: paymentData.round,
-          //     month: paymentData.month,
-          //     year: paymentData.year,
-          //     bus_id: bus_id,
-          //   })
-          // );
-          Salary_pay.create({
-            employeeID: paymentData.employeeID,
-            Date: paymentData.Date,
-            round: paymentData.round,
-            month: paymentData.month,
-            year: paymentData.year,
-            bus_id: bus_id,
-          });
+          paymentCreationPromises.push(
+            Salary_pay.create({
+              employeeID: paymentData.employeeID,
+              Date: paymentData.Date,
+              round: paymentData.round,
+              month: paymentData.month,
+              year: paymentData.year,
+              bus_id: bus_id,
+            })
+          );
         }
       }
+      return ResponseManager.SuccessResponse(req, res, 200, "success payment ");
 
       // const createdPayments = await Promise.all(paymentCreationPromises);
       // return ResponseManager.SuccessResponse(req, res, 200, createdPayments);
-      return ResponseManager.SuccessResponse(
-        req,
-        res,
-        200,
-        "Success payment salary"
-      );
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
