@@ -755,6 +755,7 @@ from quotation_sale_details
           invoice_status: sale.invoice_status,
           invoice_date: sale.invoice_date,
           invoice_remark: sale.remark,
+          discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "issue a receipt"
               ? "pending"
