@@ -22,17 +22,15 @@ class AuthController {
     let jwtStatus = TokenManager.checkAuthentication(req);
     if (jwtStatus === false) {
       return res.send("Token Error..");
-    } 
-
-    const token = req.headers.authorization?.split(' ')[1]; // สมมติว่า token มาในรูปแบบ "Bearer <token>"
-
-    if (!token) {
-        return res.status(400).send("Token is missing.");
     }
 
+    const token = req.headers.authorization?.split(" ")[1]; // สมมติว่า token มาในรูปแบบ "Bearer <token>"
 
-      res.send(jwtStatus);
-    
+    if (!token) {
+      return res.status(400).send("Token is missing.");
+    }
+
+    res.send(jwtStatus);
   }
 
   static async login(req, res, next) {
@@ -254,31 +252,31 @@ class AuthController {
         );
       }
 
-      if (!req.file) {
-        return ResponseManager.ErrorResponse(req, res, 400, "No file uploaded");
+      // if (!req.file) {
+      //   return ResponseManager.ErrorResponse(req, res, 400, "No file uploaded");
+      // }
+      const result = [];
+      if (req.file) {
+        const allowedMimeTypes = ["image/jpeg", "image/png"];
+        if (req.file && !allowedMimeTypes.includes(req.file.mimetype)) {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Only JPEG and PNG image files are allowed"
+          );
+        }
+        if (req.file && req.file.size > 5 * 1024 * 1024) {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "File size exceeds 5 MB limit"
+          );
+        }
+
+        result = await cloudinary.uploader.upload(req.file.path);
       }
-
-      const allowedMimeTypes = ["image/jpeg", "image/png"];
-      if (req.file && !allowedMimeTypes.includes(req.file.mimetype)) {
-        return ResponseManager.ErrorResponse(
-          req,
-          res,
-          400,
-          "Only JPEG and PNG image files are allowed"
-        );
-      }
-      if (req.file && req.file.size > 5 * 1024 * 1024) {
-        return ResponseManager.ErrorResponse(
-          req,
-          res,
-          400,
-          "File size exceeds 5 MB limit"
-        );
-
-      }
-
-      const result = await cloudinary.uploader.upload(req.file.path);
-
       console.log("Cloudinary upload result:", result);
 
       const createbank = await Bank.create({
@@ -444,19 +442,24 @@ class AuthController {
         },
       });
       const UserGetAll = await User.findAll();
-      
+
       if (deletecate) {
-        if(UserGetAll.length == 2) {
-          return ResponseManager.SuccessResponse(req, res, 400, "User have only 1 , cant not delete");
-        }else{
+        if (UserGetAll.length == 2) {
+          return ResponseManager.SuccessResponse(
+            req,
+            res,
+            400,
+            "User have only 1 , cant not delete"
+          );
+        } else {
           await User.destroy({
-          where: {
-            userID: req.params.id,
-          },
-        });
-        return ResponseManager.SuccessResponse(req, res, 200, "User Deleted");
-        // return ResponseManager.SuccessResponse(req, res, 200, UserGetAll.length);
-      }
+            where: {
+              userID: req.params.id,
+            },
+          });
+          return ResponseManager.SuccessResponse(req, res, 200, "User Deleted");
+          // return ResponseManager.SuccessResponse(req, res, 200, UserGetAll.length);
+        }
       } else {
         return ResponseManager.ErrorResponse(req, res, 400, "No User found");
       }

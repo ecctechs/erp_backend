@@ -10,6 +10,7 @@ const QuotationSaleController = require("../controllers/QuotationSaleController"
 
 const multer = require("multer");
 var upload = multer({ dest: "import/" });
+var type = upload.single("file");
 
 Route.get(RouteName + "/getBusiness", QuotationSaleController.getBusiness);
 Route.get(
@@ -99,5 +100,23 @@ Route.get(
   RouteName + "/exportFileQuotationData/:id",
   QuotationSaleController.exportFileQuotationData
 );
-
+Route.post(
+  RouteName + "/AddQuotation_img",
+  // verifyTokenWithbus_id,
+  type,
+  QuotationSaleController.AddQuotation_img
+);
+Route.delete(
+  RouteName + "/deleteQuotataion_img",
+  QuotationSaleController.deleteQuotataion_img
+);
+Route.get(
+  RouteName + "/getQuotation_img",
+  QuotationSaleController.getQuotation_img
+);
+Route.put(
+  RouteName + "/Edit_getQuotation_img/:id",
+  type,
+  QuotationSaleController.Edit_getQuotation_img
+);
 module.exports = Route;

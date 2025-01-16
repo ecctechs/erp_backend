@@ -7,6 +7,7 @@ const {
   Quotation_sale_detail,
   Invoice,
   Billing,
+  Quotation_img,
 } = require("../model/quotationModel");
 const {
   Employee,
@@ -692,6 +693,8 @@ class QuotationSaleController {
             discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
+            product_detail: detail.product_detail,
+            pro_unti: detail.pro_unti,
           })),
         });
       }
@@ -775,6 +778,8 @@ from quotation_sale_details
             discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
+            product_detail: detail.product_detail,
+            pro_unti: detail.pro_unti,
           });
         });
 
@@ -1092,6 +1097,8 @@ from quotation_sale_details
             discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
             sale_qty: detail.sale_qty,
+            product_detail: detail.product_detail,
+            pro_unti: detail.pro_unti,
           })),
         });
       }
@@ -1412,6 +1419,144 @@ from quotation_sale_details
           res,
           400,
           "No Business found"
+        );
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async deleteQuotataion_img(req, res) {
+    try {
+      await Quotation_img.destroy({
+        where: {
+          quotation_id: req.body.quotation_id,
+        },
+      });
+      return ResponseManager.SuccessResponse(
+        req,
+        res,
+        200,
+        "delete image quotataion suucess"
+      );
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err);
+    }
+  }
+
+  static async AddQuotation_img(req, res) {
+    try {
+      const today = new Date();
+      const DateString = today.toISOString().split("T")[0];
+
+      // const tokenData = await TokenManager.update_token(req);
+      // if (!tokenData) {
+      //   return await ResponseManager.ErrorResponse(
+      //     req,
+      //     res,
+      //     401,
+      //     "Unauthorized: Invalid token data"
+      //   );
+      // }
+
+      // const { bus_id } = req.userData;
+
+      const editproduct = await Quotation_img.findOne({
+        where: {
+          quotation_id: req.body.quotation_id,
+        },
+      });
+
+      if (editproduct) {
+        await Quotation_img.destroy({
+          where: {
+            quotation_id: req.body.quotation_id,
+          },
+        });
+      }
+      // return false;
+
+      if (!req.file) {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Please choose a product image file"
+        );
+      }
+
+      if (req.file.size > 5 * 1024 * 1024) {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "File size exceeds 5 MB limit"
+        );
+      }
+
+      const allowedMimeTypes = ["image/jpeg", "image/png"];
+      if (!allowedMimeTypes.includes(req.file.mimetype)) {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Only JPEG and PNG image files are allowed"
+        );
+      }
+
+      const result = await cloudinary.uploader.upload(req.file.path);
+
+      const insert_product = await Quotation_img.create({
+        quotation_id: req.body.quotation_id,
+        quotation_img: result.secure_url,
+      });
+      return ResponseManager.SuccessResponse(req, res, 200, insert_product);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, req.body);
+    }
+  }
+
+  static async getQuotation_img(req, res) {
+    try {
+      const business = await Quotation_img.findAll();
+
+      return ResponseManager.SuccessResponse(req, res, 200, business);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async Edit_getQuotation_img(req, res) {
+    try {
+      const editproduct = await Quotation_img.findOne({
+        where: {
+          quotation_id: req.params.id,
+        },
+      });
+
+      if (editproduct) {
+        // if (req.file && req.file.size > 5 * 1024 * 1024) {
+        //   res.status(400).json({ error: "File size exceeds 5 MB limit" });
+        // }
+
+        // let productUpdateData = {};
+
+        // if (req.file) {
+        //   const result = await cloudinary.uploader.upload(req.file.path);
+        //   productUpdateData.quotation_img = result.secure_url;
+        // }
+
+        // await Quotation_img.update(productUpdateData, {
+        //   where: {
+        //     quotation_id: req.params.id,
+        //   },
+        // });
+
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          200,
+          "quptation img Updated"
         );
       }
     } catch (err) {
