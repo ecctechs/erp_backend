@@ -22,16 +22,16 @@ const Business = sequelize.define(
       allowNull: false,
     },
     bus_tax: {
-      type: DataTypes.STRING(13),
+      type: DataTypes.STRING(20),
       allowNull: false,
     },
     bus_tel: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.STRING(15),
       allowNull: false,
     },
     bus_logo: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     bank_id: {
       type: DataTypes.INTEGER,
@@ -51,15 +51,15 @@ const Bank = sequelize.define(
       primaryKey: true,
     },
     bank_name: {
-      type: DataTypes.STRING(40),
+      type: DataTypes.STRING(150),
       allowNull: false,
     },
     bank_account: {
-      type: DataTypes.STRING(40),
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
     bank_number: {
-      type: DataTypes.STRING(15),
+      type: DataTypes.STRING(20),
       allowNull: false,
     },
   },
@@ -184,7 +184,7 @@ const Quotation_sale_detail = sequelize.define(
       allowNull: false,
     },
     productID: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING(150),
       allowNull: false,
     },
     sale_price: {
@@ -201,6 +201,14 @@ const Quotation_sale_detail = sequelize.define(
     },
     discounttype: {
       type: DataTypes.STRING(40),
+      allowNull: false,
+    },
+    product_detail: {
+      type: DataTypes.STRING(40),
+      allowNull: false,
+    },
+    pro_unti: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
   },
@@ -230,7 +238,7 @@ const Invoice = sequelize.define(
       allowNull: false,
     },
     remark: {
-      type: DataTypes.STRING(105),
+      type: DataTypes.STRING(355),
       allowNull: true,
     },
     sale_id: {
@@ -280,6 +288,22 @@ const Billing = sequelize.define(
     timestamps: false,
   }
 );
+const Quotation_img = sequelize.define(
+  "quotation_img",
+  {
+    quotation_id: {
+      type: DataTypes.STRING(50),
+      primaryKey: true,
+    },
+    quotation_img: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+  },
+  {
+    timestamps: false,
+  }
+);
 
 module.exports = {
   Business,
@@ -289,4 +313,5 @@ module.exports = {
   Quotation_sale_detail,
   Invoice,
   Billing,
+  Quotation_img,
 };
