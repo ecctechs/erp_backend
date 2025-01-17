@@ -35,18 +35,20 @@ class AuthController {
 
   static async login(req, res, next) {
     try {
+      // กำหนดความสัมพันธ์ระหว่าง User และ Role
       User.belongsTo(Role, { foreignKey: "RoleID" });
       Role.hasMany(User, { foreignKey: "RoleID" });
 
       const timestamp = Date.now();
       const dateObject = new Date(timestamp);
-
       const thaiDateString =
         dateObject.toLocaleDateString("th") +
         " " +
         dateObject.toLocaleTimeString("th");
 
       const { userEmail, userPassword } = req.body;
+
+      // ตรวจสอบว่ามี Email และ Password
       if (!userEmail || !userPassword) {
         return ResponseManager.ErrorResponse(
           req,
@@ -56,57 +58,59 @@ class AuthController {
         );
       }
 
+      // ค้นหาผู้ใช้ในฐานข้อมูล
       const users = await User.findAll({
-        include: [
-          {
-            model: Role,
-          },
-        ],
-        where: {
-          userEmail: userEmail,
-        },
+        include: [{ model: Role }],
+        where: { userEmail },
       });
 
+      // ตรวจสอบว่าผู้ใช้มีอยู่หรือไม่
       if (users.length > 0) {
-        const storedPassword = users[0].userPassword;
+        const user = users[0];
+        const storedPassword = user.userPassword;
 
+        // ตรวจสอบรหัสผ่าน
         if (userPassword === storedPassword) {
-          const payload = {
-            userID: users[0].userID,
-            userF_name: users[0].userF_name,
-            userEmail: users[0].userEmail,
-            userRole: users[0].role.RoleName,
-          };
+          let token = user.accessToken;
 
-          const token = TokenManager.getGenerateAccessToken(payload);
+          // หากไม่มี Token เดิมในฐานข้อมูล ให้สร้างใหม่
+          if (!token) {
+            const payload = {
+              userID: user.userID,
+              userF_name: user.userF_name,
+              userEmail: user.userEmail,
+              userRole: user.role.RoleName,
+            };
 
-          await User.update(
-            {
-              accessToken: token,
-              TokenCreate: thaiDateString,
-            },
-            {
-              where: {
-                userID: users[0].userID,
+            token = TokenManager.getGenerateAccessToken(payload);
+
+            // อัปเดต Token และเวลาที่สร้างในฐานข้อมูล
+            await User.update(
+              {
+                accessToken: token,
+                TokenCreate: thaiDateString,
               },
-            }
-          );
-          const bodyString = JSON.stringify(req.body);
+              { where: { userID: user.userID } }
+            );
+          }
 
+          // บันทึกกิจกรรมของผู้ใช้
+          const bodyString = JSON.stringify(req.body);
           await logUserActivity(
-            users[0].userID,
-            `Read/login/${users[0].role.RoleName}`,
+            user.userID,
+            `Read/login/${user.role.RoleName}`,
             "Login",
             bodyString
           );
 
-          res.json({
+          // ส่งข้อมูล Token และรายละเอียดผู้ใช้กลับไป
+          return res.json({
             token,
-            userID: users[0].userID,
-            userF_name: users[0].userF_name,
-            userEmail: users[0].userEmail,
-            RoleID: users[0].RoleID,
-            RoleName: users[0].role.RoleName,
+            userID: user.userID,
+            userF_name: user.userF_name,
+            userEmail: user.userEmail,
+            RoleID: user.RoleID,
+            RoleName: user.role.RoleName,
           });
         } else {
           return ResponseManager.ErrorResponse(
@@ -128,6 +132,102 @@ class AuthController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+
+  // static async login(req, res, next) {
+  //   try {
+  //     User.belongsTo(Role, { foreignKey: "RoleID" });
+  //     Role.hasMany(User, { foreignKey: "RoleID" });
+
+  //     const timestamp = Date.now();
+  //     const dateObject = new Date(timestamp);
+
+  //     const thaiDateString =
+  //       dateObject.toLocaleDateString("th") +
+  //       " " +
+  //       dateObject.toLocaleTimeString("th");
+
+  //     const { userEmail, userPassword } = req.body;
+  //     if (!userEmail || !userPassword) {
+  //       return ResponseManager.ErrorResponse(
+  //         req,
+  //         res,
+  //         400,
+  //         "userEmail and userPassword are required"
+  //       );
+  //     }
+
+  //     const users = await User.findAll({
+  //       include: [
+  //         {
+  //           model: Role,
+  //         },
+  //       ],
+  //       where: {
+  //         userEmail: userEmail,
+  //       },
+  //     });
+
+  //     if (users.length > 0) {
+  //       const storedPassword = users[0].userPassword;
+
+  //       if (userPassword === storedPassword) {
+  //         const payload = {
+  //           userID: users[0].userID,
+  //           userF_name: users[0].userF_name,
+  //           userEmail: users[0].userEmail,
+  //           userRole: users[0].role.RoleName,
+  //         };
+
+  //         const token = TokenManager.getGenerateAccessToken(payload);
+
+  //         await User.update(
+  //           {
+  //             accessToken: token,
+  //             TokenCreate: thaiDateString,
+  //           },
+  //           {
+  //             where: {
+  //               userID: users[0].userID,
+  //             },
+  //           }
+  //         );
+  //         const bodyString = JSON.stringify(req.body);
+
+  //         await logUserActivity(
+  //           users[0].userID,
+  //           `Read/login/${users[0].role.RoleName}`,
+  //           "Login",
+  //           bodyString
+  //         );
+
+  //         res.json({
+  //           token,
+  //           userID: users[0].userID,
+  //           userF_name: users[0].userF_name,
+  //           userEmail: users[0].userEmail,
+  //           RoleID: users[0].RoleID,
+  //           RoleName: users[0].role.RoleName,
+  //         });
+  //       } else {
+  //         return ResponseManager.ErrorResponse(
+  //           req,
+  //           res,
+  //           401,
+  //           "Incorrect username or password"
+  //         );
+  //       }
+  //     } else {
+  //       return ResponseManager.ErrorResponse(
+  //         req,
+  //         res,
+  //         404,
+  //         "Incorrect username or password"
+  //       );
+  //     }
+  //   } catch (err) {
+  //     return ResponseManager.CatchResponse(req, res, err.message);
+  //   }
+  // }
 
   static async RegisterUsers(req, res) {
     User.belongsTo(Business, { foreignKey: "bus_id" });
