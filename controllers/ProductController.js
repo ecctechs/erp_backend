@@ -39,6 +39,15 @@ class ProductController {
         where: { bus_id: bus_id },
       });
 
+      // ตรวจสอบและอัพเดท status หาก amount = 0
+      for (const product of products) {
+        if (product.amount === 0) {
+          await product.update({ Status: "Discontinued" });
+        } else if (product.Status === "Discontinued" && product.amount > 0) {
+          await product.update({ Status: "active" });
+        }
+      }
+
       return ResponseManager.SuccessResponse(req, res, 200, products);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);

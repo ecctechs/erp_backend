@@ -8,6 +8,7 @@ const {
   Invoice,
   Billing,
   Quotation_img,
+  Company_person,
 } = require("../model/quotationModel");
 const {
   Employee,
@@ -129,7 +130,55 @@ class QuotationSaleController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+  static async editCustomer2(req, res) {
+    try {
+      const editemp = await Company_person.findOne({
+        where: {
+          company_person_id: req.params.id,
+        },
+      });
+      if (editemp) {
+        const existingUser = await Company_person.findOne({
+          where: {
+            company_person_name: req.body.company_person_name,
+            company_person_id: { [Op.ne]: req.params.id },
+          },
+        });
 
+        if (existingUser) {
+          await ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Customer already exists"
+          );
+          return;
+        }
+        await Company_person.update(
+          {
+            company_person_name: req.body.company_person_name,
+            company_person_address: req.body.company_person_address,
+            company_person_tel: req.body.company_person_tel,
+            company_person_email: req.body.company_person_email,
+            company_person_customer: req.body.company_person_customer,
+          },
+          {
+            where: {
+              company_person_id: req.params.id,
+            },
+          }
+        );
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          200,
+          "Customer Updated"
+        );
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
   static async editCustomer(req, res) {
     try {
       const editemp = await Customer.findOne({
@@ -201,6 +250,48 @@ class QuotationSaleController {
         await Customer.update(updatedData, {
           where: {
             cus_id: req.params.id,
+          },
+        });
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          200,
+          "Customer Deleted"
+        );
+      } else {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "No Customer found"
+        );
+      }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async deleteCustomer2(req, res) {
+    try {
+      const deleteproduct = await Company_person.findOne({
+        where: {
+          company_person_id: req.params.id,
+        },
+      });
+      if (deleteproduct) {
+        // await Customer.destroy({
+        //   where: {
+        //     cus_id: req.params.id,
+        //   },
+        // });
+
+        const updatedData = {
+          company_person_status: "not active",
+        };
+
+        await Company_person.update(updatedData, {
+          where: {
+            company_person_id: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(
@@ -481,6 +572,7 @@ class QuotationSaleController {
         employeeID: req.body.employeeID,
         status: req.body.status,
         remark: req.body.remark,
+        remarkInfernal: req.body.remarkInfernal,
         discount_quotation: req.body.discount_quotation,
         vatType: req.body.vatType,
       });
@@ -570,6 +662,7 @@ class QuotationSaleController {
           employeeID: req.body.employeeID,
           status: req.body.status,
           remark: req.body.remark,
+          remarkInfernal: req.body.remarkInfernal,
           discount_quotation: req.body.discount_quotation,
           vatType: req.body.vatType,
         },
@@ -677,6 +770,7 @@ class QuotationSaleController {
           quotation_expired_date: log.credit_expired_date,
           sale_totalprice: log.sale_totalprice,
           remark: log.remark,
+          remarkInfernal: log.remarkInfernal,
           discount_quotation: log.discount_quotation,
           vatType: log.vatType,
           vat: log.vat,
@@ -951,7 +1045,7 @@ from quotation_sale_details
             billing_number: newBillingNumber,
             billing_date: BillingDateStr,
             billing_status: "Complete",
-            payments: "cash",
+            payments: "Cash",
             remark: "",
             invoice_id: req.params.id,
           });
@@ -1559,6 +1653,94 @@ from quotation_sale_details
           "quptation img Updated"
         );
       }
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async getCompanyPerson(req, res) {
+    try {
+      const log = await sequelize.query(
+        `
+        SELECT * 
+        FROM company_people
+        LEFT JOIN customers ON customers.cus_id = company_people.company_person_customer
+        LEFT JOIN businesses ON businesses.bus_id = company_people.bus_id
+        `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
+      }
+
+      const { bus_id } = req.userData;
+
+      // Use 'let' if you intend to modify the array
+      let customer = log;
+
+      // If you want to filter by `bus_id`, you can add filtering logic here
+      if (bus_id) {
+        customer = customer.filter((person) => person.bus_id === bus_id);
+      }
+
+      return ResponseManager.SuccessResponse(req, res, 200, customer);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async addCustomer2(req, res) {
+    try {
+      Customer.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Customer, { foreignKey: "bus_id" });
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
+      }
+
+      const { bus_id } = req.userData;
+
+      const addCustomer = await Company_person.findOne({
+        where: {
+          company_person_name: req.body.company_person_name,
+          bus_id: bus_id,
+        },
+      });
+      if (addCustomer) {
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          400,
+          "Customer already exists"
+        );
+      }
+
+      const insert_cate = await Company_person.create({
+        company_person_name: req.body.company_person_name,
+        company_person_address: req.body.company_person_address,
+        company_person_tel: req.body.company_person_tel,
+        company_person_email: req.body.company_person_email,
+        company_person_customer: req.body.company_person_customer,
+        company_person_status: "active",
+        bus_id: bus_id,
+        Status: "active",
+      });
+
+      return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
