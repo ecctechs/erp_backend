@@ -170,6 +170,10 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.STRING(15),
       allowNull: true,
     },
+    remarkInfernal: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
   },
   {
     timestamps: false,
@@ -305,6 +309,52 @@ const Quotation_img = sequelize.define(
   }
 );
 
+const Company_person = sequelize.define(
+  "company_person",
+  {
+    company_person_id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    company_person_name: {
+      type: DataTypes.STRING(40),
+      allowNull: false,
+    },
+    company_person_address: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    company_person_tel: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+    },
+    company_person_email: {
+      type: DataTypes.STRING(40),
+      allowNull: false,
+    },
+    company_person_customer: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    company_person_status: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+    },
+    bus_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    Status: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+    },
+  },
+  {
+    timestamps: false,
+  }
+);
+
 module.exports = {
   Business,
   Bank,
@@ -314,4 +364,5 @@ module.exports = {
   Invoice,
   Billing,
   Quotation_img,
+  Company_person,
 };

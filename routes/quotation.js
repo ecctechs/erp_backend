@@ -27,9 +27,17 @@ Route.put(
   RouteName + "/editCustomer/:id",
   QuotationSaleController.editCustomer
 );
+Route.put(
+  RouteName + "/editCustomer2/:id",
+  QuotationSaleController.editCustomer2
+);
 Route.delete(
   RouteName + "/deleteCustomer/:id",
   QuotationSaleController.deleteCustomer
+);
+Route.delete(
+  RouteName + "/deleteCustomer2/:id",
+  QuotationSaleController.deleteCustomer2
 );
 Route.post(
   RouteName + "/addBusiness",
@@ -118,5 +126,16 @@ Route.put(
   RouteName + "/Edit_getQuotation_img/:id",
   type,
   QuotationSaleController.Edit_getQuotation_img
+);
+
+Route.get(
+  RouteName + "/getCompanyPerson",
+  verifyTokenWithbus_id,
+  QuotationSaleController.getCompanyPerson
+);
+Route.post(
+  RouteName + "/addCustomer2",
+  verifyTokenWithbus_id,
+  QuotationSaleController.addCustomer2
 );
 module.exports = Route;
