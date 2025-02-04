@@ -616,7 +616,7 @@ class QuotationSaleController {
         }
       }
 
-      if (req.body.status === "allowed") {
+      if (req.body.status === "Allowed") {
         const today = new Date();
         const invoiceDateStr = today.toISOString().split("T")[0];
 
@@ -644,7 +644,7 @@ class QuotationSaleController {
           await Invoice.create({
             invoice_number: newInvoiceNumber,
             invoice_date: invoiceDateStr,
-            invoice_status: "pending",
+            invoice_status: "Pending",
             remark: "",
             sale_id: req.params.id,
           });
@@ -776,8 +776,8 @@ class QuotationSaleController {
           vat: log.vat,
           // bank_id: log.bank_id,
           invoice:
-            !log.invoice || log.status !== "allowed"
-              ? "pending"
+            !log.invoice || log.status !== "Allowed"
+              ? "Pending"
               : log.invoice.invoice_number,
           //
           details: log.quotation_sale_details.map((detail) => ({
@@ -855,7 +855,7 @@ from quotation_sale_details
           discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "issue a receipt"
-              ? "pending"
+              ? "Pending"
               : sale.billing_number,
           details: [],
         };
@@ -1262,7 +1262,7 @@ from quotation_sale_details
         });
         const invoice_updated = await Invoice.update(
           {
-            invoice_status: "pending",
+            invoice_status: "Pending",
           },
           {
             where: {
