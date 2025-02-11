@@ -854,7 +854,7 @@ from quotation_sale_details
           invoice_remark: sale.remark,
           discount_quotation: sale.discount_quotation,
           billing:
-            sale.invoice_status !== "issue a receipt"
+            sale.invoice_status !== "Issue a receipt"
               ? "Pending"
               : sale.billing_number,
           details: [],
@@ -1015,7 +1015,7 @@ from quotation_sale_details
         }
       }
 
-      if (req.body.invoice_status === "issue a receipt") {
+      if (req.body.invoice_status === "Issue a receipt") {
         const today = new Date();
         const BillingDateStr = today.toISOString().split("T")[0];
 
@@ -1145,7 +1145,7 @@ from quotation_sale_details
           {
             model: Invoice,
             where: {
-              invoice_status: "issue a receipt",
+              invoice_status: "Issue a receipt",
             },
             include: [Billing],
           },
