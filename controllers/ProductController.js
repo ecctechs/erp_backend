@@ -432,7 +432,7 @@ class ProductController {
       if (getProductByid) {
         const transactionType = req.body.transactionType;
 
-        if (transactionType == "receive") {
+        if (transactionType == "Receive") {
           await Transaction.create({
             productID: req.body.productID,
             transactionType: transactionType,
@@ -456,7 +456,7 @@ class ProductController {
           );
 
           return ResponseManager.SuccessResponse(req, res, 200, "success");
-        } else if (transactionType == "issue") {
+        } else if (transactionType == "Issue") {
           if (getProductByid.dataValues.amount < req.body.quantity) {
             return ResponseManager.ErrorResponse(
               req,
@@ -530,8 +530,8 @@ class ProductController {
         const transactionType = req.body.transactionType;
 
         if (
-          transactionType == "issue" &&
-          getProductByid.transactionType == "receive"
+          transactionType == "Issue" &&
+          getProductByid.transactionType == "Receive"
         ) {
           const quantityDifference =
             req.body.quantity + getProductByid.quantity_added;
@@ -562,8 +562,8 @@ class ProductController {
             "product receive success"
           );
         } else if (
-          transactionType == "receive" &&
-          getProductByid.transactionType == "issue"
+          transactionType == "Receive" &&
+          getProductByid.transactionType == "Issue"
         ) {
           const quantityDifference =
             req.body.quantity + getProductByid.quantity_removed;
@@ -593,7 +593,7 @@ class ProductController {
             200,
             "product receive success"
           );
-        } else if (transactionType == "receive") {
+        } else if (transactionType == "Receive") {
           await Transaction.update(
             {
               productID: req.body.productID,
@@ -630,7 +630,7 @@ class ProductController {
             200,
             "product receive success"
           );
-        } else if (transactionType == "issue") {
+        } else if (transactionType == "Issue") {
           if (getProductAmount.dataValues.amount < req.body.quantity) {
             return ResponseManager.ErrorResponse(
               req,
