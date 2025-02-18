@@ -220,6 +220,7 @@ class ProductController {
           price: req.body.price,
           productcost: req.body.productcost,
           categoryID: req.body.categoryID,
+          Status: req.body.Status,
         };
 
         if (req.file) {
