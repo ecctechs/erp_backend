@@ -100,6 +100,21 @@ class QuotationSaleController {
         );
       }
 
+      const addCustomerPhone = await Customer.findOne({
+        where: {
+          cus_tel: req.body.cus_tel,
+          bus_id: bus_id,
+        },
+      });
+      if (addCustomerPhone) {
+        return ResponseManager.SuccessResponse(
+          req,
+          res,
+          400,
+          "Customer Contact already exists"
+        );
+      }
+
       const addCustomerTax = await Customer.findOne({
         where: {
           cus_tax: req.body.cus_tax,
@@ -203,6 +218,39 @@ class QuotationSaleController {
           );
           return;
         }
+
+        const addCustomerPhone = await Customer.findOne({
+          where: {
+            cus_tel: req.body.cus_tel,
+
+            cus_id: { [Op.ne]: req.params.id },
+          },
+        });
+        if (addCustomerPhone) {
+          return ResponseManager.SuccessResponse(
+            req,
+            res,
+            400,
+            "Customer Contact already exists"
+          );
+        }
+
+        const addCustomerTax = await Customer.findOne({
+          where: {
+            cus_tax: req.body.cus_tax,
+
+            cus_id: { [Op.ne]: req.params.id },
+          },
+        });
+        if (addCustomerTax) {
+          return ResponseManager.SuccessResponse(
+            req,
+            res,
+            400,
+            "Customer tax already exists"
+          );
+        }
+
         await Customer.update(
           {
             cus_name: req.body.cus_name,
@@ -852,6 +900,7 @@ from quotation_sale_details
           invoice_status: sale.invoice_status,
           invoice_date: sale.invoice_date,
           invoice_remark: sale.remark,
+          vatType: sale.vatType,
           discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "Issue a receipt"
