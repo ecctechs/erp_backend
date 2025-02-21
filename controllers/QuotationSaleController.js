@@ -1233,6 +1233,7 @@ from quotation_sale_details
           billing_status: log.invoice.billing.billing_status,
           payments: log.invoice.billing.payments,
           remark: log.invoice.billing.remark,
+          vatType: log.vatType,
           details: log.quotation_sale_details.map((detail) => ({
             sale_id: detail.sale_id,
             productID: detail.productID,
