@@ -1,10 +1,20 @@
 productID,productTypeID,categoryID,productname,productdetail,amount,price,productcost,productImg,product_date,bus_id,Status
-26,2,8,4324,,0,43,24,https://res.cloudinary.com/dse3aqfrm/image/upload/v1732079488/crm9layn67d2zp9ltzlt.png,2024-11-20,12,active
-25,1,8, ำไ-/ภภ,,343,43,2432,https://res.cloudinary.com/dse3aqfrm/image/upload/v1732078574/zzhzxvj9nvuugxv9ndzq.png,2024-11-20,12,active
-24,1,8,close pro,434,343,343,2432432,https://res.cloudinary.com/dse3aqfrm/image/upload/v1734511876/rqiu2yuiqegxoj0lpbc9.png,2024-11-20,12,not active
-22,1,8,lotion 01,,499,1000,5000,https://res.cloudinary.com/dse3aqfrm/image/upload/v1731398914/betl3nmyxe46xghufgsa.png,2024-11-12,12,not active
-23,2,8,service1,,0,432,432,https://res.cloudinary.com/dse3aqfrm/image/upload/v1734324673/xwc7z1gredxyryqr23qm.pdf,2024-11-20,12,not active
-28,1,11,prod_1,,10001,100,50,https://res.cloudinary.com/dse3aqfrm/image/upload/v1736919090/mvoloei8knyjd1tg9umw.png,2025-01-15,10,not active
-31,2,11,lotion 01,,0,1111,2222,https://res.cloudinary.com/dse3aqfrm/image/upload/v1738925501/musmaahrz0vsxc21vags.png,2025-02-07,10,Discontinued
-30,1,11,นํ้าหอม,,2,44,5,https://res.cloudinary.com/dse3aqfrm/image/upload/v1737968219/iorgatrjjcsmcsxchmnx.png,2025-01-27,10,active
-27,1,8,543,,5655,654,75,https://res.cloudinary.com/dse3aqfrm/image/upload/v1734346415/axilhpqraktecjnjpbb3.png,2024-11-21,12,active
+20,1,3,434,23432,318,4234,3432,https://res.cloudinary.com/dse3aqfrm/image/upload/v1739949816/lahbneh8ehqzycneqzsv.jpg,2025-02-19,1,not active
+21,1,4,11111111,112222222,4452,44,4343,https://res.cloudinary.com/dse3aqfrm/image/upload/v1739949847/rkdp9vz6rvoklsei4uum.jpg,2025-02-19,1,not active
+9,1,7,lotion 01,,5000,1000,500,https://res.cloudinary.com/dse3aqfrm/image/upload/v1731398122/mfkjfse1o0h3quq0yqya.png,2024-11-12,1,not active
+17,1,10,LIP Balm Strawberry,,100,299,150,https://res.cloudinary.com/dse3aqfrm/image/upload/v1737258198/abhuvtwc60yt4tie4zcp.jpg,2025-01-19,1,not active
+23,2,1,For Your Body : Body Oil,,0,1099,1000,https://res.cloudinary.com/dse3aqfrm/image/upload/v1742805102/imalynfdddpg3gzen3ye.jpg,2025-03-24,1,Discontinued
+12,1,1,Body scrub,-,650,290,190,https://res.cloudinary.com/dse3aqfrm/image/upload/v1731919572/dvlxrmpt0afclesy1n5c.jpg,2024-11-18,1,not active
+22,1,1,Salt & Stone,กลิ่น Bergamot & Hinoki,250,599,250,https://res.cloudinary.com/dse3aqfrm/image/upload/v1742803352/q566mvdth37zlqmp12sd.jpg,2025-03-24,1,active
+15,1,10,Lip Balm,,-200,100,50,https://res.cloudinary.com/dse3aqfrm/image/upload/v1739950658/ibi43pmbfqxqeceq7rno.jpg,2024-12-07,1,not active
+10,1,7,lotion 02,,1000,6000,5000,https://res.cloudinary.com/dse3aqfrm/image/upload/v1731398154/usmb9krnrjt2y0jptxh9.png,2024-11-12,1,not active
+24,1,1,For Your Body,,400,1099,550,https://res.cloudinary.com/dse3aqfrm/image/upload/v1742806004/rpnnecgvx8ww18w5siy9.jpg,2025-03-24,1,active
+25,1,12,Dashl : red,Lip oil,500,199,80,https://res.cloudinary.com/dse3aqfrm/image/upload/v1742973323/kygkm1w12cwthlums4ms.jpg,2025-03-26,1,active
+27,1,13,Lamav,Vit C Hand Cream,200,150,50,https://res.cloudinary.com/dse3aqfrm/image/upload/v1742974200/ttu1j6ftvxetxqsseqrw.jpg,2025-03-26,1,active
+11,1,1,Body Gel Peach,-,900,390,150,https://res.cloudinary.com/dse3aqfrm/image/upload/v1731919497/fuyo621ex0az1fp871lq.jpg,2024-11-18,1,not active
+26,1,13,0,0,20,20,15,https://res.cloudinary.com/dse3aqfrm/image/upload/v1742973871/cliyzfucdhwqnuccb3zj.jpg,2025-03-26,1,not active
+13,1,2,Shampoo,-,600,390,190,https://res.cloudinary.com/dse3aqfrm/image/upload/v1731920985/o3zmft0i6cwkdgrnm1rm.jpg,2024-11-18,1,not active
+14,2,9,Packing,-,0,2000,500,https://res.cloudinary.com/dse3aqfrm/image/upload/v1731923234/c4k1yzjk3gdebkxkupp3.jpg,2024-11-18,1,Discontinued
+16,2,8,Shipping,ขนส่งในเขต กทม.และปริมณฑล,0,2000,1000,https://res.cloudinary.com/dse3aqfrm/image/upload/v1734508594/fk7py34rh83inptztsth.jpg,2024-12-07,1,Discontinued
+18,1,4,test2222,323,112,6000,5000,https://res.cloudinary.com/dse3aqfrm/image/upload/v1738046082/jz2r81po35nwwqyobbrd.png,2025-01-28,1,not active
+19,1,2,ครีมนวดผม,,1000,199,80,https://res.cloudinary.com/dse3aqfrm/image/upload/v1739884996/fdwvojzid3ny9nj3kaml.jpg,2025-02-18,1,not active
