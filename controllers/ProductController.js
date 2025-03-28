@@ -41,9 +41,15 @@ class ProductController {
 
       // ตรวจสอบและอัพเดท status หาก amount = 0
       for (const product of products) {
-        if (product.amount === 0) {
+        if (product.amount === 0 && product.productTypeID === 1) {
           await product.update({ Status: "Discontinued" });
-        } else if (product.Status === "Discontinued" && product.amount > 0) {
+        } else if (
+          product.Status === "Discontinued" &&
+          product.amount > 0 &&
+          product.productTypeID === 1
+        ) {
+          await product.update({ Status: "active" });
+        } else {
           await product.update({ Status: "active" });
         }
       }
