@@ -41,17 +41,18 @@ class ProductController {
 
       // ตรวจสอบและอัพเดท status หาก amount = 0
       for (const product of products) {
-        if (product.amount === 0 && product.productTypeID === 1) {
-          await product.update({ Status: "Discontinued" });
-        } else if (
-          product.Status === "Discontinued" &&
-          product.amount > 0 &&
-          product.productTypeID === 1
-        ) {
-          await product.update({ Status: "active" });
-        } else {
-          await product.update({ Status: "active" });
-        }
+        // if (product.amount === 0 && product.productTypeID === 1) {
+        //   await product.update({ Status: "Discontinued" });
+        // }
+        // else if (
+        //   product.Status === "Discontinued" &&
+        //   product.amount > 0 &&
+        //   product.productTypeID === 1
+        // ) {
+        //   await product.update({ Status: "active" });
+        // } else {
+        //   await product.update({ Status: "active" });
+        // }
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, products);
@@ -388,19 +389,60 @@ class ProductController {
     }
   }
 
+  // static async DeleteCategory(req, res) {
+  //   try {
+  //     const deletecate = await productCategory.findOne({
+  //       where: {
+  //         categoryID: req.params.id,
+  //       },
+  //     });
+  //     if (deletecate) {
+  //       await productCategory.destroy({
+  //         where: {
+  //           categoryID: req.params.id,
+  //         },
+  //       });
+  //       return ResponseManager.SuccessResponse(
+  //         req,
+  //         res,
+  //         200,
+  //         "Category Deleted"
+  //       );
+  //     } else {
+  //       return ResponseManager.ErrorResponse(
+  //         req,
+  //         res,
+  //         400,
+  //         "No Category found"
+  //       );
+  //     }
+  //   } catch (err) {
+  //     return ResponseManager.CatchResponse(req, res, err.message);
+  //   }
+  // }
   static async DeleteCategory(req, res) {
     try {
+      const categoryID = parseInt(req.params.id);
+
+      // ห้ามลบ categoryID = 0
+      if (categoryID === 0) {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          403,
+          "ไม่สามารถลบหมวดหมู่เริ่มต้นได้"
+        );
+      }
+
       const deletecate = await productCategory.findOne({
-        where: {
-          categoryID: req.params.id,
-        },
+        where: { categoryID: categoryID },
       });
+
       if (deletecate) {
         await productCategory.destroy({
-          where: {
-            categoryID: req.params.id,
-          },
+          where: { categoryID: categoryID },
         });
+
         return ResponseManager.SuccessResponse(
           req,
           res,
@@ -818,6 +860,31 @@ class ProductController {
     }
   }
 
+  // static async getCategory(req, res) {
+  //   try {
+  //     productCategory.belongsTo(Business, { foreignKey: "bus_id" });
+  //     Business.hasMany(productCategory, { foreignKey: "bus_id" });
+
+  //     const tokenData = await TokenManager.update_token(req);
+  //     if (!tokenData) {
+  //       return await ResponseManager.ErrorResponse(
+  //         req,
+  //         res,
+  //         401,
+  //         "Unauthorized: Invalid token data"
+  //       );
+  //     }
+
+  //     const { bus_id } = req.userData;
+
+  //     const category_list = await productCategory.findAll({
+  //       where: { bus_id: bus_id },
+  //     });
+  //     return ResponseManager.SuccessResponse(req, res, 200, category_list);
+  //   } catch (err) {
+  //     return ResponseManager.CatchResponse(req, res, err.message);
+  //   }
+  // }
   static async getCategory(req, res) {
     try {
       productCategory.belongsTo(Business, { foreignKey: "bus_id" });
@@ -835,9 +902,28 @@ class ProductController {
 
       const { bus_id } = req.userData;
 
+      // ตรวจสอบว่าหมวด categoryID = 0 มีหรือยัง
+      const defaultCategory = await productCategory.findOne({
+        where: {
+          bus_id: bus_id,
+          categoryID: 0,
+        },
+      });
+
+      // ถ้ายังไม่มี ให้สร้าง default category
+      if (!defaultCategory) {
+        await productCategory.create({
+          categoryID: 0,
+          categoryName: "ไม่มีหมวดหมู่",
+          bus_id: bus_id,
+        });
+      }
+
+      // ดึง category ทั้งหมด (รวมตัวที่เพิ่งสร้าง)
       const category_list = await productCategory.findAll({
         where: { bus_id: bus_id },
       });
+
       return ResponseManager.SuccessResponse(req, res, 200, category_list);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
