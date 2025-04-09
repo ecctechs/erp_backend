@@ -117,31 +117,60 @@ class MigrateController {
         return res.status(404).json({ error: "Table not found or empty" });
       }
 
-      const csvWriter = createCsvWriter({
-        path: `${__dirname}/../export/${tableName}.csv`,
-        header: Object.keys(data[0]).map((key) => ({ id: key, title: key })),
+      // รายชื่อ key ที่ต้องการลบ
+      const excludedKeys = [
+        "productID",
+        "productTypeID",
+        "categoryID",
+        "productImg",
+        "bus_id",
+      ];
+
+      // ลบคีย์ที่ไม่ต้องการออกจากข้อมูล
+      const cleanedData = data.map((row) => {
+        const newRow = { ...row };
+        excludedKeys.forEach((key) => delete newRow[key]);
+        return newRow;
       });
 
-      csvWriter
-        .writeRecords(data)
-        .then(() => {
-          res.download(
-            `${__dirname}/../export/${tableName}.csv`,
-            `${tableName}.csv`,
-            (err) => {
-              if (err) {
-                console.error("Error downloading CSV file:", err);
-                res.status(500).json({ error: "Internal Server Error" });
-              } else {
-                console.log("CSV file downloaded successfully");
-              }
-            }
-          );
-        })
-        .catch((error) => {
-          console.error("Error writing CSV records:", error);
+      // กำหนด header ตาม table (กรณี products)
+      let header = [];
+
+      if (tableName === "products") {
+        header = [
+          { id: "productname", title: "ชื่อสินค้า" },
+          { id: "productdetail", title: "รายละเอียด" },
+          { id: "amount", title: "จำนวน" },
+          { id: "price", title: "ราคาขาย" },
+          { id: "productcost", title: "ราคาทุน" },
+          { id: "product_date", title: "วันที่เพิ่มสินค้า" },
+          { id: "Status", title: "สถานะ" },
+        ];
+      } else {
+        // ถ้าไม่ใช่ products ให้ใช้ชื่อ field เดิม
+        header = Object.keys(cleanedData[0]).map((key) => ({
+          id: key,
+          title: key,
+        }));
+      }
+
+      const filePath = path.join(__dirname, `../export/${tableName}.csv`);
+
+      const csvWriter = createCsvWriter({
+        path: filePath,
+        header,
+      });
+
+      await csvWriter.writeRecords(cleanedData);
+
+      res.download(filePath, `${tableName}.csv`, (err) => {
+        if (err) {
+          console.error("Error downloading CSV file:", err);
           res.status(500).json({ error: "Internal Server Error" });
-        });
+        } else {
+          console.log("CSV file downloaded successfully");
+        }
+      });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ error: "Internal Server Error" });
