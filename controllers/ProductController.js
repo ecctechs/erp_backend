@@ -41,9 +41,11 @@ class ProductController {
 
       // ตรวจสอบและอัพเดท status หาก amount = 0
       for (const product of products) {
-        // if (product.amount === 0 && product.productTypeID === 1) {
-        //   await product.update({ Status: "Discontinued" });
-        // }
+        if (product.amount === 0 && product.productTypeID === 1) {
+          await product.update({ Status: "Discontinued" });
+        } else if (product.amount > 0 && product.productTypeID === 1) {
+          // await product.update({ Status: "active" });
+        }
         // else if (
         //   product.Status === "Discontinued" &&
         //   product.amount > 0 &&
@@ -424,8 +426,17 @@ class ProductController {
     try {
       const categoryID = parseInt(req.params.id);
 
+      const { bus_id } = req.userData;
+
+      const addcate = await productCategory.findOne({
+        where: {
+          categoryName: "ไม่มีหมวดหมู่",
+          bus_id: bus_id,
+        },
+      });
+
       // ห้ามลบ categoryID = 0
-      if (categoryID === 0) {
+      if (addcate) {
         return ResponseManager.ErrorResponse(
           req,
           res,
@@ -496,6 +507,7 @@ class ProductController {
           await Product.update(
             {
               amount: req.body.quantity + getProductByid.dataValues.amount,
+              Status: "active",
             },
             {
               where: {
@@ -906,14 +918,14 @@ class ProductController {
       const defaultCategory = await productCategory.findOne({
         where: {
           bus_id: bus_id,
-          categoryID: 0,
+          categoryName: "ไม่มีหมวดหมู่",
         },
       });
 
       // ถ้ายังไม่มี ให้สร้าง default category
       if (!defaultCategory) {
         await productCategory.create({
-          categoryID: 0,
+          // categoryID: 0,
           categoryName: "ไม่มีหมวดหมู่",
           bus_id: bus_id,
         });

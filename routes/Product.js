@@ -40,6 +40,7 @@ Route.post(
 Route.put(RouteName + "/EditCategory/:id", ProductController.EditCategory);
 Route.delete(
   RouteName + "/DeleteCategory/:id",
+  verifyTokenWithbus_id,
   ProductController.DeleteCategory
 );
 Route.post(RouteName + "/AddTransaction", ProductController.AddTransaction);
