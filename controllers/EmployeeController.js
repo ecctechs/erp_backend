@@ -1156,7 +1156,14 @@ class EmployeeController {
 
   static async getPosition(req, res) {
     try {
-      const Positions = await Position.findAll();
+      const { bus_id } = req.userData;
+
+      const Positions = await Position.findAll({
+        where: {
+          bus_id: bus_id, // กรองข้อมูลที่ bus_id ตรงกับที่ผู้ใช้มี
+        },
+      });
+
       return ResponseManager.SuccessResponse(req, res, 200, Positions);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);

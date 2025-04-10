@@ -70,7 +70,11 @@ Route.delete(
   RouteName + "/DeletePosition/:id",
   EmployeeController.DeletePosition
 );
-Route.get(RouteName + "/getPosition", EmployeeController.getPosition);
+Route.get(
+  RouteName + "/getPosition",
+  verifyTokenWithbus_id,
+  EmployeeController.getPosition
+);
 Route.post(
   RouteName + "/AddPayment",
   verifyTokenWithbus_id,
