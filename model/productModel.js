@@ -39,13 +39,13 @@ const Product = sequelize.define(
     product_date: {
       type: DataTypes.STRING,
     },
-    business_id: {
+    bus_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Status: {
+    Status:{
       type: DataTypes.STRING,
-    },
+    }
   },
   {
     timestamps: false,
@@ -82,7 +82,7 @@ const productCategory = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    business_id: {
+    bus_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

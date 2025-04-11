@@ -22,15 +22,15 @@ class EmployeeController {
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
 
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
-      const { business_id } = req.userData;
+      const { bus_id } = req.userData;
       // console.log("Testtttttttttttttttt",req.body.departmentID)
       var employees = await Employee.findAll({
         include: [{ model: Position }, { model: Department }],
         where: {
-          business_id: business_id,
+          bus_id: bus_id,
           F_name: {
             [Op.not]: "-",
           },
@@ -51,8 +51,8 @@ class EmployeeController {
 
   static async AddEmployee(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
@@ -67,7 +67,7 @@ class EmployeeController {
         );
       }
 
-      const { business_id } = req.userData;
+      const { bus_id } = req.userData;
 
       const esistingempNID = await Employee.findOne({
         where: {
@@ -142,7 +142,7 @@ class EmployeeController {
         bankAccountID: req.body.bankAccountID,
         PositionID: req.body.PositionID,
         departmentID: req.body.departmentID,
-        business_id: business_id,
+        bus_id: bus_id,
         Status: "active",
       });
       console.log(req.body);
@@ -159,8 +159,8 @@ class EmployeeController {
     Employee.belongsTo(Department, { foreignKey: "departmentID" });
     Department.hasMany(Employee, { foreignKey: "departmentID" });
 
-    Employee.belongsTo(Business, { foreignKey: "business_id" });
-    Business.hasMany(Employee, { foreignKey: "business_id" });
+    Employee.belongsTo(Business, { foreignKey: "bus_id" });
+    Business.hasMany(Employee, { foreignKey: "bus_id" });
 
     try {
       const editemp = await Employee.findOne({
@@ -321,8 +321,8 @@ class EmployeeController {
 
   static async AddDepartment(req, res) {
     try {
-      Department.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Department, { foreignKey: "business_id" });
+      Department.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Department, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -334,12 +334,12 @@ class EmployeeController {
         );
       }
 
-      const { business_id } = req.userData;
+      const { bus_id } = req.userData;
 
       const adddepart = await Department.findOne({
         where: {
           departmentName: req.body.departmentName,
-          business_id: business_id,
+          bus_id: bus_id,
         },
       });
       if (adddepart) {
@@ -352,7 +352,7 @@ class EmployeeController {
       } else {
         const insert_depart = await Department.create({
           departmentName: req.body.departmentName,
-          business_id: business_id,
+          bus_id: bus_id,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_depart);
@@ -492,8 +492,8 @@ class EmployeeController {
 
   static async getDepartment(req, res) {
     try {
-      Department.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Department, { foreignKey: "business_id" });
+      Department.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Department, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -505,10 +505,10 @@ class EmployeeController {
         );
       }
 
-      const { business_id } = req.userData;
+      const { bus_id } = req.userData;
       const departments = await Department.findAll({
         where: {
-          business_id: business_id,
+          bus_id: bus_id,
         },
       });
 
@@ -522,7 +522,7 @@ class EmployeeController {
         const employee = await Employee.findAll({
           where: {
             departmentID: departments[property].departmentID.toString(),
-            business_id: business_id,
+            bus_id: bus_id,
           },
         });
 
@@ -546,8 +546,8 @@ class EmployeeController {
       Department.hasMany(Employee, { foreignKey: "departmentID" });
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
 
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -558,16 +558,16 @@ class EmployeeController {
           "Unauthorized: Invalid token data"
         );
       }
-      const { role_name, user_id, email } = tokenData;
-      const { business_id } = req.userData;
+      const { RoleName, userID, userEmail } = tokenData;
+      const { bus_id } = req.userData;
 
       let result = [];
       let paymentslist = [];
 
-      if (role_name === "SUPERUSER") {
+      if (RoleName === "SUPERUSER") {
         paymentslist = await Salary_pay.findAll({
           include: [{ model: Employee, include: [Position, Department] }],
-          where: { business_id: business_id },
+          where: { bus_id: bus_id },
         });
         paymentslist.forEach((log) => {
           result.push({
@@ -582,18 +582,18 @@ class EmployeeController {
             salary: log.employee.Salary,
           });
         });
-      } else if (role_name === "SALE") {
+      } else if (RoleName === "SALE") {
         paymentslist = await Salary_pay.findAll({
           include: [
             {
               model: Employee,
               where: {
-                Email: email,
+                Email: userEmail,
               },
               include: [Position, Department],
             },
           ],
-          where: { business_id: business_id },
+          where: { bus_id: bus_id },
         });
         paymentslist.forEach((log) => {
           result.push({
@@ -606,10 +606,10 @@ class EmployeeController {
             salary: log.employee.Salary,
           });
         });
-      } else if (role_name === "MANAGER") {
+      } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            Email: email,
+            Email: userEmail,
           },
           include: [
             {
@@ -636,7 +636,7 @@ class EmployeeController {
               where: {
                 departmentID: userdepart,
                 Email: {
-                  [Op.ne]: email,
+                  [Op.ne]: userEmail,
                 },
               },
               include: [
@@ -652,7 +652,7 @@ class EmployeeController {
               ],
             },
           ],
-          where: { business_id: business_id },
+          where: { bus_id: bus_id },
         });
 
         paymentslist.forEach((log) => {
@@ -681,8 +681,8 @@ class EmployeeController {
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
 
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -693,16 +693,16 @@ class EmployeeController {
           "Unauthorized: Invalid token data"
         );
       }
-      const { role_name, user_id, email } = tokenData;
-      const { business_id } = req.userData;
+      const { RoleName, userID, userEmail } = tokenData;
+      const { bus_id } = req.userData;
 
       let result = [];
       let employeeslist = [];
 
-      if (role_name === "SUPERUSER") {
+      if (RoleName === "SUPERUSER") {
         employeeslist = await Employee.findAll({
           where: {
-            business_id: business_id,
+            bus_id: bus_id,
             F_name: {
               [Op.ne]: "-",
             },
@@ -726,11 +726,11 @@ class EmployeeController {
             salary: log.Salary,
           });
         });
-      } else if (role_name === "SALE") {
+      } else if (RoleName === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
-            Email: email,
-            business_id: business_id,
+            Email: userEmail,
+            bus_id: bus_id,
             F_name: {
               [Op.ne]: "-",
             },
@@ -754,10 +754,10 @@ class EmployeeController {
             salary: log.Salary,
           });
         });
-      } else if (role_name === "MANAGER") {
+      } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            Email: email,
+            Email: userEmail,
           },
           include: [
             {
@@ -780,9 +780,9 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           where: {
             departmentID: userdepart,
-            business_id: business_id,
+            bus_id: bus_id,
             Email: {
-              [Op.ne]: email,
+              [Op.ne]: userEmail,
             },
             F_name: {
               [Op.ne]: "-",
@@ -891,8 +891,8 @@ class EmployeeController {
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
 
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -903,15 +903,15 @@ class EmployeeController {
           "Unauthorized: Invalid token data"
         );
       }
-      const { role_name, user_id, email } = tokenData;
-      const { business_id } = req.userData;
+      const { RoleName, userID, userEmail } = tokenData;
+      const { bus_id } = req.userData;
       let result = [];
       let employeeslist = [];
 
-      if (role_name === "SUPERUSER") {
+      if (RoleName === "SUPERUSER") {
         employeeslist = await Employee.findAll({
           where: {
-            business_id: business_id,
+            bus_id: bus_id,
             F_name: {
               [Op.ne]: "-",
             },
@@ -936,11 +936,11 @@ class EmployeeController {
             salary: log.Salary,
           });
         });
-      } else if (role_name === "SALE") {
+      } else if (RoleName === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
-            Email: email,
-            business_id: business_id,
+            Email: userEmail,
+            bus_id: bus_id,
             F_name: {
               [Op.ne]: "-",
             },
@@ -964,10 +964,10 @@ class EmployeeController {
             salary: log.Salary,
           });
         });
-      } else if (role_name === "MANAGER") {
+      } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            Email: email,
+            Email: userEmail,
           },
           include: [
             {
@@ -990,9 +990,9 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           where: {
             departmentID: userdepart,
-            business_id: business_id,
+            bus_id: bus_id,
             Email: {
-              [Op.ne]: email,
+              [Op.ne]: userEmail,
             },
             F_name: {
               [Op.ne]: "-",
@@ -1027,8 +1027,8 @@ class EmployeeController {
   }
   static async AddPosition(req, res) {
     try {
-      Position.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Position, { foreignKey: "business_id" });
+      Position.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Position, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1040,12 +1040,12 @@ class EmployeeController {
         );
       }
 
-      const { business_id } = req.userData;
+      const { bus_id } = req.userData;
 
       const adddepart = await Position.findOne({
         where: {
           Position: req.body.Position,
-          business_id: business_id,
+          bus_id: bus_id,
         },
       });
       if (adddepart) {
@@ -1058,7 +1058,7 @@ class EmployeeController {
       } else {
         const insert_depart = await Position.create({
           Position: req.body.Position,
-          business_id: business_id,
+          bus_id: bus_id,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_depart);
@@ -1156,11 +1156,11 @@ class EmployeeController {
 
   static async getPosition(req, res) {
     try {
-      const { business_id } = req.userData;
+      const { bus_id } = req.userData;
 
       const Positions = await Position.findAll({
         where: {
-          business_id: business_id, // กรองข้อมูลที่ business_id ตรงกับที่ผู้ใช้มี
+          bus_id: bus_id, // กรองข้อมูลที่ bus_id ตรงกับที่ผู้ใช้มี
         },
       });
 
@@ -1172,8 +1172,8 @@ class EmployeeController {
 
   static async AddPayment(req, res) {
     try {
-      Salary_pay.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Salary_pay, { foreignKey: "business_id" });
+      Salary_pay.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Salary_pay, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1184,7 +1184,7 @@ class EmployeeController {
           "Unauthorized: Invalid token data"
         );
       }
-      const { business_id } = req.userData;
+      const { bus_id } = req.userData;
 
       let datalist = [];
       var data_arry = {};
@@ -1209,7 +1209,7 @@ class EmployeeController {
             round: payment.round,
             year: payment.year,
             employeeID: payment.employeeID,
-            business_id: business_id,
+            bus_id: bus_id,
           },
         });
 
@@ -1224,7 +1224,7 @@ class EmployeeController {
           round: payment.round,
           month: payment.month,
           year: payment.year,
-          business_id: business_id,
+          bus_id: bus_id,
         });
       });
 
@@ -1258,7 +1258,7 @@ class EmployeeController {
       //   data_arry.round = req.body.payments[i].round;
       //   data_arry.year = req.body.payments[i].year;
       //   data_arry.employeeID = req.body.payments[i].employeeID;
-      //   data_arry.business_id = business_id;
+      //   data_arry.bus_id = bus_id;
       //   datalist.push(data_arry);
 
       // const data = await Salary_pay.findOne({
@@ -1267,7 +1267,7 @@ class EmployeeController {
       //     round: parseInt(req.body.payments[i].round),
       //     year: req.body.payments[i].year,
       //     employeeID: parseInt(req.body.payments[i].employeeID),
-      //     business_id: business_id,
+      //     bus_id: bus_id,
       //   },
       // });
       // if (data) {
@@ -1284,7 +1284,7 @@ class EmployeeController {
       //   round: req.body.payments[i].round,
       //   month: req.body.payments[i].month,
       //   year: req.body.payments[i].year,
-      //   business_id: business_id,
+      //   bus_id: bus_id,
       // });
       // datalist.push(req.body.payments);
       // }
@@ -1298,7 +1298,7 @@ class EmployeeController {
       //     round: req.body.round,
       //     year: req.body.year,
       //     employeeID: req.body.employeeID,
-      //     business_id: business_id,
+      //     bus_id: bus_id,
       //   },
       // });
       // if (data) {
@@ -1315,7 +1315,7 @@ class EmployeeController {
       //     round: req.body.round,
       //     month: req.body.month,
       //     year: req.body.year,
-      //     business_id: business_id,
+      //     bus_id: bus_id,
       //   });
       //   console.log(req.body);
       //   return ResponseManager.SuccessResponse(req, res, 200, data_payment);
@@ -1326,8 +1326,8 @@ class EmployeeController {
   }
   static async AddPayment2(req, res) {
     try {
-      Salary_pay.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Salary_pay, { foreignKey: "business_id" });
+      Salary_pay.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Salary_pay, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1339,7 +1339,7 @@ class EmployeeController {
         );
       }
 
-      const { business_id } = req.userData;
+      const { bus_id } = req.userData;
 
       if (!req.body.payments || !Array.isArray(req.body.payments)) {
         return ResponseManager.ErrorResponse(
@@ -1363,7 +1363,7 @@ class EmployeeController {
             round: paymentData.round,
             year: paymentData.year,
             employeeID: paymentData.employeeID,
-            business_id: business_id,
+            bus_id: bus_id,
           },
         });
 
@@ -1382,7 +1382,7 @@ class EmployeeController {
               round: paymentData.round,
               month: paymentData.month,
               year: paymentData.year,
-              business_id: business_id,
+              bus_id: bus_id,
             })
           );
         }
@@ -1397,8 +1397,8 @@ class EmployeeController {
   }
   static async AddLeave(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1477,8 +1477,8 @@ class EmployeeController {
   }
   static async getLeave(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       Leaving.belongsTo(Employee, { foreignKey: "employeeID" });
       Employee.hasMany(Leaving, { foreignKey: "employeeID" });
@@ -1492,36 +1492,36 @@ class EmployeeController {
           "Unauthorized: Invalid token data"
         );
       }
-      const { role_name, user_id, email } = tokenData;
-      const { business_id } = req.userData;
+      const { RoleName, userID, userEmail } = tokenData;
+      const { bus_id } = req.userData;
       let data_leave;
 
-      if (role_name === "SUPERUSER") {
+      if (RoleName === "SUPERUSER") {
         data_leave = await Leaving.findAll({
           include: [
             {
               model: Employee,
-              where: { business_id: business_id },
+              where: { bus_id: bus_id },
             },
           ],
         });
-      } else if (role_name === "SALE") {
+      } else if (RoleName === "SALE") {
         data_leave = await Leaving.findAll({
           include: [
             {
               model: Employee,
               where: {
-                business_id: business_id,
-                Email: email,
+                bus_id: bus_id,
+                Email: userEmail,
               },
             },
           ],
         });
-      } else if (role_name === "MANAGER") {
+      } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            Email: email,
-            business_id: business_id,
+            Email: userEmail,
+            bus_id: bus_id,
           },
           include: [
             {
@@ -1547,9 +1547,9 @@ class EmployeeController {
               model: Employee,
               where: {
                 departmentID: userdepart,
-                business_id: business_id,
+                bus_id: bus_id,
                 Email: {
-                  [Op.ne]: email,
+                  [Op.ne]: userEmail,
                 },
               },
             },
@@ -1564,8 +1564,8 @@ class EmployeeController {
   }
   static async AddOvertime(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1608,8 +1608,8 @@ class EmployeeController {
   }
   static async getOvertime(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "business_id" });
-      Business.hasMany(Employee, { foreignKey: "business_id" });
+      Employee.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       Overtime.belongsTo(Employee, { foreignKey: "employeeID" });
       Employee.hasMany(Overtime, { foreignKey: "employeeID" });
@@ -1624,36 +1624,36 @@ class EmployeeController {
         );
       }
 
-      const { role_name, user_id, email } = tokenData;
-      const { business_id } = req.userData;
+      const { RoleName, userID, userEmail } = tokenData;
+      const { bus_id } = req.userData;
       let data_overtime;
 
-      if (role_name === "SUPERUSER") {
+      if (RoleName === "SUPERUSER") {
         data_overtime = await Overtime.findAll({
           include: [
             {
               model: Employee,
-              where: { business_id: business_id },
+              where: { bus_id: bus_id },
             },
           ],
         });
-      } else if (role_name === "SALE") {
+      } else if (RoleName === "SALE") {
         data_overtime = await Overtime.findAll({
           include: [
             {
               model: Employee,
               where: {
-                business_id: business_id,
-                Email: email,
+                bus_id: bus_id,
+                Email: userEmail,
               },
             },
           ],
         });
-      } else if (role_name === "MANAGER") {
+      } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            Email: email,
-            business_id: business_id,
+            Email: userEmail,
+            bus_id: bus_id,
           },
           include: [
             {
@@ -1679,9 +1679,9 @@ class EmployeeController {
               model: Employee,
               where: {
                 departmentID: userdepart,
-                business_id: business_id,
+                bus_id: bus_id,
                 Email: {
-                  [Op.ne]: email,
+                  [Op.ne]: userEmail,
                 },
               },
             },

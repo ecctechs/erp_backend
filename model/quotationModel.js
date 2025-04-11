@@ -4,7 +4,7 @@ const sequelize = require("../database");
 const Business = sequelize.define(
   "businesses",
   {
-    business_id: {
+    bus_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -100,7 +100,7 @@ const Customer = sequelize.define(
       type: DataTypes.STRING(40),
       allowNull: false,
     },
-    business_id: {
+    bus_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -142,7 +142,7 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.DOUBLE,
       allowNull: false,
     },
-    business_id: {
+    bus_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -341,7 +341,7 @@ const Company_person = sequelize.define(
       type: DataTypes.STRING(10),
       allowNull: false,
     },
-    business_id: {
+    bus_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

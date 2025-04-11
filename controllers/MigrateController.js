@@ -123,7 +123,7 @@ class MigrateController {
         "productTypeID",
         "categoryID",
         "productImg",
-        "business_id",
+        "bus_id",
       ];
 
       // ลบคีย์ที่ไม่ต้องการออกจากข้อมูล
