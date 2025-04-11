@@ -3,7 +3,7 @@ const Route = express.Router();
 const RouteName = "/Quotation";
 const {
   verifyTokenWithRole,
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
 } = require("../middleware/verifytokenwithrole");
 
 const QuotationSaleController = require("../controllers/QuotationSaleController");
@@ -15,12 +15,12 @@ var type = upload.single("file");
 Route.get(RouteName + "/getBusiness", QuotationSaleController.getBusiness);
 Route.get(
   RouteName + "/getCustomer",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.getCustomer
 );
 Route.post(
   RouteName + "/addCustomer",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.addCustomer
 );
 Route.put(
@@ -47,7 +47,7 @@ Route.post(
 Route.post(
   RouteName + "/addQuotationSale",
   upload.single("file"),
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.addQuotationSale
 );
 Route.put(
@@ -56,7 +56,7 @@ Route.put(
 );
 Route.get(
   RouteName + "/getQuotation",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.getQuotation
 );
 Route.delete(
@@ -66,7 +66,7 @@ Route.delete(
 Route.put(RouteName + "/editInvoice/:id", QuotationSaleController.editInvoice);
 Route.get(
   RouteName + "/getInvoice",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.getInvoice
 );
 Route.delete(
@@ -76,7 +76,7 @@ Route.delete(
 Route.put(RouteName + "/editBilling/:id", QuotationSaleController.editBilling);
 Route.get(
   RouteName + "/getBilling",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.getBilling
 );
 Route.delete(
@@ -85,13 +85,13 @@ Route.delete(
 );
 Route.get(
   RouteName + "/getBusinessByID",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.getBusinessByID
 );
 
 Route.get(
   RouteName + "/getBank",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.getBank
 );
 Route.put(
@@ -101,7 +101,7 @@ Route.put(
 );
 Route.get(
   RouteName + "/checkLastestQuotation",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.checkLastestQuotation
 );
 Route.get(
@@ -110,7 +110,7 @@ Route.get(
 );
 Route.post(
   RouteName + "/AddQuotation_img",
-  // verifyTokenWithbus_id,
+  // verifyTokenWithbusiness_id,
   type,
   QuotationSaleController.AddQuotation_img
 );
@@ -130,12 +130,12 @@ Route.put(
 
 Route.get(
   RouteName + "/getCompanyPerson",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.getCompanyPerson
 );
 Route.post(
   RouteName + "/addCustomer2",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   QuotationSaleController.addCustomer2
 );
 module.exports = Route;

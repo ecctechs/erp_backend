@@ -4,19 +4,19 @@ const RouteName = "/employee";
 const {
   verifyTokenWithRole,
   logUserActivity,
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
 } = require("../middleware/verifytokenwithrole");
 
 const EmployeeController = require("../controllers/EmployeeController");
 
 Route.get(
   RouteName + "/getEmployee",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.getEmployee
 );
 Route.post(
   RouteName + "/AddEmployee",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.AddEmployee
 );
 Route.put(RouteName + "/EditEmployee/:id", EmployeeController.EditEmployee);
@@ -26,7 +26,7 @@ Route.delete(
 );
 Route.post(
   RouteName + "/AddDepartment",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.AddDepartment
 );
 Route.put(RouteName + "/EditDepartment/:id", EmployeeController.EditDepartment);
@@ -36,18 +36,18 @@ Route.delete(
 );
 Route.get(
   RouteName + "/getDepartment",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.getDepartment
 );
 Route.get(
   RouteName + "/getPayment",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getPayment
 );
 Route.get(
   RouteName + "/getEmployeeSalary",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getEmployeeSalary
 );
@@ -56,13 +56,13 @@ Route.put(RouteName + "/EditSalary/:id", EmployeeController.EditSalary);
 Route.delete(RouteName + "/DeleteSalary/:id", EmployeeController.DeleteSalary);
 Route.get(
   RouteName + "/getEmployeeQuotation",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getEmployeeQuotation
 );
 Route.post(
   RouteName + "/AddPosition",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.AddPosition
 );
 Route.put(RouteName + "/EditPosition/:id", EmployeeController.EditPosition);
@@ -72,46 +72,46 @@ Route.delete(
 );
 Route.get(
   RouteName + "/getPosition",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.getPosition
 );
 Route.post(
   RouteName + "/AddPayment",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.AddPayment
 );
 Route.post(
   RouteName + "/AddPayment2",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.AddPayment2
 );
 
 Route.post(
   RouteName + "/AddLeave",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.AddLeave
 );
 Route.post(
   RouteName + "/EditLeave/:id",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.EditLeave
 );
 Route.delete(RouteName + "/DeleteLeave/:id", EmployeeController.DeleteLeave);
 Route.get(
   RouteName + "/getLeave",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getLeave
 );
 
 Route.post(
   RouteName + "/AddOvertime",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   EmployeeController.AddOvertime
 );
 Route.get(
   RouteName + "/getOvertime",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getOvertime
 );

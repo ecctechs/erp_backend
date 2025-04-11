@@ -5,7 +5,7 @@ const AuthController = require("../controllers/AuthController");
 const {
   verifyTokenWithRole,
   logUserActivity,
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
 } = require("../middleware/verifytokenwithrole");
 const { cloudinary } = require("../utils/cloudinary");
 const multer = require("multer");
@@ -18,7 +18,7 @@ Route.post(RouteName + "/getToken/:username", AuthController.getToken);
 Route.post(RouteName + "/checkAuthen", AuthController.checkAuthen);
 Route.post(
   RouteName + "/RegisterUsers",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   AuthController.RegisterUsers
 );
 Route.post(
@@ -35,7 +35,7 @@ Route.delete(RouteName + "/DeleteRole/:id", AuthController.DeleteRole);
 
 Route.get(
   RouteName + "/GetUsers",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   AuthController.GetUsers
 );
 Route.get(RouteName + "/GetUserByID/:id", AuthController.GetUserByID);

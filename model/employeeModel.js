@@ -70,7 +70,7 @@ const Employee = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    bus_id: {
+    business_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -96,7 +96,7 @@ const Position = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    bus_id: {
+    business_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -134,7 +134,7 @@ const Salary_pay = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    bus_id: {
+    business_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -224,7 +224,7 @@ const Department = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    bus_id: {
+    business_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -237,8 +237,8 @@ const Department = sequelize.define(
 Employee.belongsTo(Position, { foreignKey: "PositionID" });
 Position.hasMany(Employee, { foreignKey: "PositionID" });
 
-Employee.belongsTo(Business, { foreignKey: "bus_id" });
-Business.hasMany(Employee, { foreignKey: "bus_id" });
+Employee.belongsTo(Business, { foreignKey: "business_id" });
+Business.hasMany(Employee, { foreignKey: "business_id" });
 
 Employee.belongsTo(Position, { foreignKey: "PositionID" });
 Position.hasMany(Employee, { foreignKey: "PositionID" });

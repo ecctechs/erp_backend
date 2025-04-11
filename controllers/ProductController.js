@@ -19,8 +19,8 @@ class ProductController {
       Product.belongsTo(productType, { foreignKey: "productTypeID" });
       productType.hasMany(Product, { foreignKey: "productTypeID" });
 
-      Product.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Product, { foreignKey: "bus_id" });
+      Product.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Product, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -32,11 +32,11 @@ class ProductController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       var products = await Product.findAll({
         include: [productCategory, productType],
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
       });
 
       // ตรวจสอบและอัพเดท status หาก amount = 0
@@ -72,8 +72,8 @@ class ProductController {
   }
   static async getProductByProductType(req, res) {
     try {
-      Product.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Product, { foreignKey: "bus_id" });
+      Product.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Product, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -85,12 +85,12 @@ class ProductController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const ProductByProductType = await Product.findAll({
         where: {
           productTypeID: req.params.id,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       return ResponseManager.SuccessResponse(
@@ -106,8 +106,8 @@ class ProductController {
 
   static async AddProduct(req, res) {
     try {
-      Product.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Product, { foreignKey: "bus_id" });
+      Product.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Product, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -119,14 +119,14 @@ class ProductController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       console.log(req.body.productname);
 
       const addproduct = await Product.findOne({
         where: {
           productname: req.body.productname.trim(),
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -181,7 +181,7 @@ class ProductController {
           categoryID: req.body.categoryID,
           productImg: result.secure_url,
           product_date: DateString,
-          bus_id: bus_id,
+          business_id: business_id,
           Status: "active",
         });
 
@@ -296,8 +296,8 @@ class ProductController {
 
   static async AddCategory(req, res) {
     try {
-      productCategory.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(productCategory, { foreignKey: "bus_id" });
+      productCategory.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(productCategory, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -309,12 +309,12 @@ class ProductController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addcate = await productCategory.findOne({
         where: {
           categoryName: req.body.categoryName,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addcate) {
@@ -327,7 +327,7 @@ class ProductController {
       } else {
         const insert_cate = await productCategory.create({
           categoryName: req.body.categoryName,
-          bus_id: bus_id,
+          business_id: business_id,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -426,12 +426,12 @@ class ProductController {
     try {
       const categoryID = parseInt(req.params.id);
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addcate = await productCategory.findOne({
         where: {
           categoryName: "ไม่มีหมวดหมู่",
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -762,8 +762,8 @@ class ProductController {
       Transaction.belongsTo(Product, { foreignKey: "productID" });
       Product.hasMany(Transaction, { foreignKey: "productID" });
 
-      Product.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Product, { foreignKey: "bus_id" });
+      Product.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Product, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -775,7 +775,7 @@ class ProductController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       let result = [];
       let transaction_list = [];
@@ -784,7 +784,7 @@ class ProductController {
         include: [
           {
             model: Product,
-            where: { bus_id: bus_id },
+            where: { business_id: business_id },
           },
         ],
       });
@@ -874,8 +874,8 @@ class ProductController {
 
   // static async getCategory(req, res) {
   //   try {
-  //     productCategory.belongsTo(Business, { foreignKey: "bus_id" });
-  //     Business.hasMany(productCategory, { foreignKey: "bus_id" });
+  //     productCategory.belongsTo(Business, { foreignKey: "business_id" });
+  //     Business.hasMany(productCategory, { foreignKey: "business_id" });
 
   //     const tokenData = await TokenManager.update_token(req);
   //     if (!tokenData) {
@@ -887,10 +887,10 @@ class ProductController {
   //       );
   //     }
 
-  //     const { bus_id } = req.userData;
+  //     const { business_id } = req.userData;
 
   //     const category_list = await productCategory.findAll({
-  //       where: { bus_id: bus_id },
+  //       where: { business_id: business_id },
   //     });
   //     return ResponseManager.SuccessResponse(req, res, 200, category_list);
   //   } catch (err) {
@@ -899,8 +899,8 @@ class ProductController {
   // }
   static async getCategory(req, res) {
     try {
-      productCategory.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(productCategory, { foreignKey: "bus_id" });
+      productCategory.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(productCategory, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -912,12 +912,12 @@ class ProductController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       // ตรวจสอบว่าหมวด categoryID = 0 มีหรือยัง
       const defaultCategory = await productCategory.findOne({
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
           categoryName: "ไม่มีหมวดหมู่",
         },
       });
@@ -927,13 +927,13 @@ class ProductController {
         await productCategory.create({
           // categoryID: 0,
           categoryName: "ไม่มีหมวดหมู่",
-          bus_id: bus_id,
+          business_id: business_id,
         });
       }
 
       // ดึง category ทั้งหมด (รวมตัวที่เพิ่งสร้าง)
       const category_list = await productCategory.findAll({
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, category_list);

@@ -3,7 +3,7 @@ const Route = express.Router();
 const RouteName = "/product";
 const {
   verifyTokenWithRole,
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
 } = require("../middleware/verifytokenwithrole");
 
 const ProductController = require("../controllers/ProductController");
@@ -15,32 +15,32 @@ var type = upload.single("file");
 
 Route.get(
   RouteName + "/getProduct",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   ProductController.getProduct
 );
 Route.get(RouteName + "/getProductType", ProductController.getProductType);
 Route.post(
   RouteName + "/getProductByProductType/:id",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   ProductController.getProductByProductType
 );
 Route.post(
   RouteName + "/AddProduct",
   type,
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   ProductController.AddProduct
 );
 Route.put(RouteName + "/EditProduct/:id", type, ProductController.EditProduct);
 Route.delete(RouteName + "/DeleteProduct/:id", ProductController.DeleteProduct);
 Route.post(
   RouteName + "/AddCategory",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   ProductController.AddCategory
 );
 Route.put(RouteName + "/EditCategory/:id", ProductController.EditCategory);
 Route.delete(
   RouteName + "/DeleteCategory/:id",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   ProductController.DeleteCategory
 );
 Route.post(RouteName + "/AddTransaction", ProductController.AddTransaction);
@@ -55,12 +55,12 @@ Route.delete(
 );
 Route.get(
   RouteName + "/getCategory",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   ProductController.getCategory
 );
 Route.get(
   RouteName + "/getTransaction",
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
   ProductController.getTransaction
 );
 

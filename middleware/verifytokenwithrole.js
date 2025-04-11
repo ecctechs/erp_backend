@@ -20,9 +20,8 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
       return next();
     }
 
-    User.belongsTo(Role, { foreignKey: "RoleID" });
-    Role.hasMany(User, { foreignKey: "RoleID" });
-
+    User.belongsTo(Role, { foreignKey: "role_id" });
+    Role.hasMany(User, { foreignKey: "role_id" });
 
     console.log(requiredRoles);
 
@@ -31,15 +30,15 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
         {
           model: Role,
           where: {
-            RoleName: {
+            role_name: {
               [Op.in]: requiredRoles,
             },
           },
         },
       ],
       where: {
-        userID: decoded.userID,
-        accessToken: token,
+        user_id: decoded.user_id,
+        access_token: token,
       },
     })
       .then((users) => {
@@ -47,7 +46,7 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
           return next();
         }
 
-        const userRoles = users.map((u) => u.role.RoleName);
+        const userRoles = users.map((u) => u.role.role_name);
 
         if (!Array.isArray(userRoles)) {
           return next();
@@ -63,10 +62,11 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
 
         req.user = decoded;
 
-        req.userData = { 
+        req.userData = {
           ...req.userData,
-          userId: req.user.userID, 
-          role: req.user.userRole };
+          user_id: req.user.user_id,
+          role: req.user.userRole,
+        };
         next();
       })
       .catch((error) => {
@@ -88,15 +88,15 @@ const logUserActivity = (activityType, routeName) => {
       " " +
       dateObject.toLocaleTimeString("th");
 
-    const loggedUserId = (req.userData && req.userData.userId) || "unknown";
+    const loggeduser_id = (req.userData && req.userData.user_id) || "unknown";
     const role = (req.userData && req.userData.role) || "unknown";
 
     try {
       const bodyString = JSON.stringify(body);
 
-      if (loggedUserId === "unknown" || role === "unknown") {
+      if (loggeduser_id === "unknown" || role === "unknown") {
         await UserActivity.create({
-          userId: loggedUserId,
+          user_id: loggeduser_id,
           activityType: `${activityType}/${role}`,
           routeName: routeName,
           method: method,
@@ -104,15 +104,13 @@ const logUserActivity = (activityType, routeName) => {
           body: bodyString,
           timestamp: thaiDateString,
         });
-        await res
-          .status(401)
-          .json({
-            message:
-              "No token provided , Forbidden: Insufficient permissions , Unauthorized: Invalid data format in the database , Unauthorized: Invalid token",
-          });
+        await res.status(401).json({
+          message:
+            "No token provided , Forbidden: Insufficient permissions , Unauthorized: Invalid data format in the database , Unauthorized: Invalid token",
+        });
       } else {
         await UserActivity.create({
-          userId: loggedUserId,
+          user_id: loggeduser_id,
           activityType: `${activityType}/${role}`,
           routeName: routeName,
           method: method,
@@ -129,9 +127,9 @@ const logUserActivity = (activityType, routeName) => {
   };
 };
 
-const verifyTokenWithbus_id = async (req, res, next) => {
-  User.belongsTo(Business, { foreignKey: "bus_id" });
-  Business.hasMany(User, { foreignKey: "bus_id" });
+const verifyTokenWithbusiness_id = async (req, res, next) => {
+  User.belongsTo(Business, { foreignKey: "business_id" });
+  Business.hasMany(User, { foreignKey: "business_id" });
 
   try {
     if (!req.headers.authorization) {
@@ -147,19 +145,19 @@ const verifyTokenWithbus_id = async (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized: Invalid token" });
       }
 
-      const userIDFromToken = decoded.userID;
+      const user_idFromToken = decoded.user_id;
 
       try {
         const user = await User.findOne({
           include: [
             {
               model: Business,
-              attributes: ["bus_id", "bus_name"],
+              attributes: ["business_id", "bus_name"],
             },
           ],
           where: {
-            userID: userIDFromToken,
-            accessToken: token, 
+            user_id: user_idFromToken,
+            access_token: token,
           },
         });
 
@@ -171,14 +169,14 @@ const verifyTokenWithbus_id = async (req, res, next) => {
 
         req.userData = {
           ...req.userData,
-          userId: user.userID,
-          bus_id: user.business.bus_id, 
+          user_id: user.user_id,
+          business_id: user.business.business_id,
         };
 
         next();
       } catch (dbError) {
         console.error(
-          "Error checking token and bus_id in the database:",
+          "Error checking token and business_id in the database:",
           dbError
         );
         return res.status(500).json({ message: "Internal Server Error" });
@@ -194,5 +192,5 @@ const verifyTokenWithbus_id = async (req, res, next) => {
 module.exports = {
   verifyTokenWithRole,
   logUserActivity,
-  verifyTokenWithbus_id,
+  verifyTokenWithbusiness_id,
 };

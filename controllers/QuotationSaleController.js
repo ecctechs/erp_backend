@@ -44,8 +44,8 @@ class QuotationSaleController {
 
   static async getCustomer(req, res) {
     try {
-      Customer.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Customer, { foreignKey: "bus_id" });
+      Customer.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Customer, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -57,10 +57,10 @@ class QuotationSaleController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const customer = await Customer.findAll({
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, customer);
@@ -70,8 +70,8 @@ class QuotationSaleController {
   }
   static async addCustomer(req, res) {
     try {
-      Customer.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Customer, { foreignKey: "bus_id" });
+      Customer.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Customer, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -83,12 +83,12 @@ class QuotationSaleController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addCustomer = await Customer.findOne({
         where: {
           cus_name: req.body.cus_name,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addCustomer) {
@@ -103,7 +103,7 @@ class QuotationSaleController {
       const addCustomerPhone = await Customer.findOne({
         where: {
           cus_tel: req.body.cus_tel,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addCustomerPhone) {
@@ -118,7 +118,7 @@ class QuotationSaleController {
       const addCustomerTax = await Customer.findOne({
         where: {
           cus_tax: req.body.cus_tax,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addCustomerTax) {
@@ -136,7 +136,7 @@ class QuotationSaleController {
         cus_email: req.body.cus_email,
         cus_tax: req.body.cus_tax,
         cus_purchase: req.body.cus_purchase,
-        bus_id: bus_id,
+        business_id: business_id,
         Status: "active",
       });
 
@@ -447,7 +447,7 @@ class QuotationSaleController {
 
         await Business.update(productUpdateData, {
           where: {
-            bus_id: 1,
+            business_id: 1,
           },
         });
         await Bank.update(productUpdateData, {
@@ -489,7 +489,7 @@ class QuotationSaleController {
             credit_date_number: req.body.credit_date_number,
             credit_expired_date: req.body.credit_expired_date,
             sale_totalprice: req.body.sale_totalprice,
-            bus_id: req.body.bus_id,
+            business_id: req.body.business_id,
             cus_id: req.body.cus_id,
             employeeID: req.body.employeeID,
             discount_quotation: req.body.discount_quotation,
@@ -536,7 +536,7 @@ class QuotationSaleController {
               credit_date_number: req.body.credit_date_number,
               credit_expired_date: req.body.credit_expired_date,
               sale_totalprice: req.body.sale_totalprice,
-              bus_id: req.body.bus_id,
+              business_id: req.body.business_id,
               cus_id: req.body.cus_id,
               employeeID: req.body.employeeID,
               status: req.body.status,
@@ -562,8 +562,8 @@ class QuotationSaleController {
     console.log("Received sale_number:     ", req.body.sale_number);
     console.log("Received data:    ", req.body);
     try {
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+      Quotation_sale.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Quotation_sale, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -575,12 +575,12 @@ class QuotationSaleController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const existQuatationSale = await Quotation_sale.findOne({
         where: {
           sale_number: req.body.sale_number,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -596,7 +596,7 @@ class QuotationSaleController {
       const existCustomer = await Customer.findOne({
         where: {
           cus_id: req.body.cus_id,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -615,7 +615,7 @@ class QuotationSaleController {
         credit_date_number: req.body.credit_date_number,
         credit_expired_date: req.body.credit_expired_date,
         sale_totalprice: req.body.sale_totalprice,
-        bus_id: req.body.bus_id,
+        business_id: req.body.business_id,
         cus_id: req.body.cus_id,
         employeeID: req.body.employeeID,
         status: req.body.status,
@@ -705,7 +705,7 @@ class QuotationSaleController {
           credit_date_number: req.body.credit_date_number,
           credit_expired_date: req.body.credit_expired_date,
           sale_totalprice: req.body.sale_totalprice,
-          bus_id: req.body.bus_id,
+          business_id: req.body.business_id,
           cus_id: req.body.cus_id,
           employeeID: req.body.employeeID,
           status: req.body.status,
@@ -746,8 +746,8 @@ class QuotationSaleController {
         foreignKey: "sale_id",
       });
 
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+      Quotation_sale.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Quotation_sale, { foreignKey: "business_id" });
 
       Business.hasMany(Bank, { foreignKey: "bank_id" });
       Bank.belongsTo(Business, { foreignKey: "bank_id" });
@@ -771,7 +771,7 @@ class QuotationSaleController {
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       let result = [];
       let quotationslist = [];
@@ -784,7 +784,7 @@ class QuotationSaleController {
           { model: Business, include: [Bank] },
           { model: Invoice },
         ],
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
       });
       const today = new Date();
 
@@ -856,7 +856,7 @@ class QuotationSaleController {
         select * 
 from invoices
 Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
-Left join businesses on businesses.bus_id = quotation_sales.bus_id
+Left join businesses on businesses.business_id = quotation_sales.business_id
 Left join banks on banks.bank_id = businesses.bank_id
 Left join customers on quotation_sales.cus_id = customers.cus_id
 left join employees on employees."employeeID"  = quotation_sales."employeeID" 
@@ -943,8 +943,8 @@ from quotation_sale_details
   //       foreignKey: "sale_id",
   //     });
 
-  //     Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-  //     Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+  //     Quotation_sale.belongsTo(Business, { foreignKey: "business_id" });
+  //     Business.hasMany(Quotation_sale, { foreignKey: "business_id" });
 
   //     Business.hasMany(Bank, { foreignKey: "bank_id" });
   //     Bank.belongsTo(Business, { foreignKey: "bank_id" });
@@ -971,7 +971,7 @@ from quotation_sale_details
   //       );
   //     }
 
-  //     const { bus_id } = req.userData;
+  //     const { business_id } = req.userData;
 
   //     let result = [];
   //     let quotationslist = [];
@@ -986,7 +986,7 @@ from quotation_sale_details
   //       ],
   //       where: {
   //         status: "allowed",
-  //         bus_id: bus_id,
+  //         business_id: business_id,
   //       },
   //     });
   //     const today = new Date();
@@ -1152,8 +1152,8 @@ from quotation_sale_details
         foreignKey: "sale_id",
       });
 
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+      Quotation_sale.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Quotation_sale, { foreignKey: "business_id" });
 
       Business.hasMany(Bank, { foreignKey: "bank_id" });
       Bank.belongsTo(Business, { foreignKey: "bank_id" });
@@ -1180,7 +1180,7 @@ from quotation_sale_details
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       let result = [];
       let quotationslist = [];
@@ -1200,7 +1200,7 @@ from quotation_sale_details
           },
         ],
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       const today = new Date();
@@ -1410,8 +1410,8 @@ from quotation_sale_details
   }
   static async checkLastestQuotation(req, res) {
     try {
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+      Quotation_sale.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Quotation_sale, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1423,10 +1423,10 @@ from quotation_sale_details
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const lastestSale = await Quotation_sale.findOne({
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
         order: [["sale_number", "DESC"]],
       });
 
@@ -1447,8 +1447,8 @@ from quotation_sale_details
   static async getBusinessByID(req, res) {
     try {
       Business.hasMany(Bank, { foreignKey: "bank_id" });
-      Business.hasMany(User, { foreignKey: "bus_id" });
-      User.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(User, { foreignKey: "business_id" });
+      User.belongsTo(Business, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
 
@@ -1461,7 +1461,7 @@ from quotation_sale_details
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const business = await User.findOne({
         include: [
@@ -1475,7 +1475,7 @@ from quotation_sale_details
           },
         ],
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -1509,7 +1509,7 @@ from quotation_sale_details
     try {
       const editproduct = await Business.findOne({
         where: {
-          bus_id: req.params.id,
+          business_id: req.params.id,
         },
       });
 
@@ -1541,7 +1541,7 @@ from quotation_sale_details
 
           await Business.update(productUpdateData, {
             where: {
-              bus_id: req.params.id,
+              business_id: req.params.id,
             },
           });
           await Bank.update(productUpdateData, {
@@ -1603,7 +1603,7 @@ from quotation_sale_details
       //   );
       // }
 
-      // const { bus_id } = req.userData;
+      // const { business_id } = req.userData;
 
       const editproduct = await Quotation_img.findOne({
         where: {
@@ -1715,7 +1715,7 @@ from quotation_sale_details
         SELECT * 
         FROM company_people
         LEFT JOIN customers ON customers.cus_id = company_people.company_person_customer
-        LEFT JOIN businesses ON businesses.bus_id = company_people.bus_id
+        LEFT JOIN businesses ON businesses.business_id = company_people.business_id
         `,
         {
           type: sequelize.QueryTypes.SELECT,
@@ -1732,14 +1732,16 @@ from quotation_sale_details
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       // Use 'let' if you intend to modify the array
       let customer = log;
 
-      // If you want to filter by `bus_id`, you can add filtering logic here
-      if (bus_id) {
-        customer = customer.filter((person) => person.bus_id === bus_id);
+      // If you want to filter by `business_id`, you can add filtering logic here
+      if (business_id) {
+        customer = customer.filter(
+          (person) => person.business_id === business_id
+        );
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, customer);
@@ -1749,8 +1751,8 @@ from quotation_sale_details
   }
   static async addCustomer2(req, res) {
     try {
-      Customer.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Customer, { foreignKey: "bus_id" });
+      Customer.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(Customer, { foreignKey: "business_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1762,12 +1764,12 @@ from quotation_sale_details
         );
       }
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addCustomer = await Company_person.findOne({
         where: {
           company_person_name: req.body.company_person_name,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addCustomer) {
@@ -1786,7 +1788,7 @@ from quotation_sale_details
         company_person_email: req.body.company_person_email,
         company_person_customer: req.body.company_person_customer,
         company_person_status: "active",
-        bus_id: bus_id,
+        business_id: business_id,
         Status: "active",
       });
 
