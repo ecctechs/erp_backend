@@ -234,6 +234,7 @@ class AuthController {
     Business.hasMany(User, { foreignKey: "bus_id" });
 
     const { bus_id } = req.userData;
+    console.log("---->", req.body);
 
     try {
       const addemail = await User.findOne({
@@ -241,8 +242,9 @@ class AuthController {
           userEmail: req.body.userEmail,
         },
       });
+
       if (addemail) {
-        return ResponseManager.ErrorResponseResponse(
+        return ResponseManager.ErrorResponse(
           req,
           res,
           400,
@@ -250,20 +252,20 @@ class AuthController {
         );
       }
 
-      const checkPass = await User.findOne({
-        where: {
-          userPassword: req.body.userPassword,
-        },
-      });
+      // const checkPass = await User.findOne({
+      //   where: {
+      //     userPassword: req.body.userPassword,
+      //   },
+      // });
 
-      if (checkPass) {
-        return ResponseManager.ErrorResponseResponse(
-          req,
-          res,
-          400,
-          "Password already exists"
-        );
-      }
+      // if (checkPass) {
+      //   return ResponseManager.ErrorResponseResponse(
+      //     req,
+      //     res,
+      //     400,
+      //     "Password already exists"
+      //   );
+      // }
 
       const addName = await User.findOne({
         where: {
@@ -272,7 +274,7 @@ class AuthController {
         },
       });
       if (addName) {
-        return ResponseManager.SuccessResponse(
+        return ResponseManager.ErrorResponse(
           req,
           res,
           400,
@@ -286,7 +288,7 @@ class AuthController {
         },
       });
       if (addPhone) {
-        return ResponseManager.SuccessResponse(
+        return ResponseManager.ErrorResponse(
           req,
           res,
           400,
@@ -302,7 +304,7 @@ class AuthController {
         RoleID: req.body.RoleID,
         bus_id: bus_id,
       });
-      console.log(req.body);
+      console.log("---->", req.body);
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
