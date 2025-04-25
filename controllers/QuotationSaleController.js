@@ -639,6 +639,7 @@ class QuotationSaleController {
   }
   static async editQuotationSale(req, res) {
     try {
+      const { bus_id } = req.userData;
       const existQuatationSale = await Quotation_sale.findOne({
         where: {
           sale_id: req.params.id,
@@ -650,6 +651,7 @@ class QuotationSaleController {
           where: {
             sale_number: req.body.sale_number,
             sale_id: { [Op.ne]: req.params.id },
+            bus_id: bus_id,
           },
         });
 
@@ -668,7 +670,14 @@ class QuotationSaleController {
         const today = new Date();
         const invoiceDateStr = today.toISOString().split("T")[0];
 
+        // const lastInvoice = await Invoice.findOne({
+        //   order: [["invoice_number", "DESC"]],
+        // });
         const lastInvoice = await Invoice.findOne({
+          include: {
+            model: Quotation_sale,
+            where: { bus_id },
+          },
           order: [["invoice_number", "DESC"]],
         });
 
@@ -678,14 +687,36 @@ class QuotationSaleController {
           },
         });
 
-        let newInvoiceNumber;
+        // let newInvoiceNumber;
 
-        if (!lastInvoice) {
-          newInvoiceNumber = "IN-00000001";
+        // if (!lastInvoice) {
+        //   newInvoiceNumber = "IN-00000001";
+        // } else {
+        //   const lastNumber = parseInt(lastInvoice.invoice_number.slice(3));
+        //   const nextNumber = lastNumber + 1;
+        //   newInvoiceNumber = "IN-" + nextNumber.toString().padStart(8, "0");
+        // }
+        let newInvoiceNumber = "";
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const dd = String(now.getDate()).padStart(2, "0");
+        const todayPrefix = `${yy}${mm}${dd}`; // เช่น 250424
+
+        if (!lastInvoice || !lastInvoice.invoice_number) {
+          newInvoiceNumber = `IN-${todayPrefix}0001`;
         } else {
-          const lastNumber = parseInt(lastInvoice.invoice_number.slice(3));
-          const nextNumber = lastNumber + 1;
-          newInvoiceNumber = "IN-" + nextNumber.toString().padStart(8, "0");
+          const lastDatePart = lastInvoice.invoice_number.slice(3, 9);
+          const lastNumberPart = lastInvoice.invoice_number.slice(9);
+
+          let nextNumber = 1;
+
+          if (lastDatePart === todayPrefix) {
+            nextNumber = parseInt(lastNumberPart) + 1;
+          }
+
+          const nextNumberStr = String(nextNumber).padStart(4, "0");
+          newInvoiceNumber = `IN-${todayPrefix}${nextNumberStr}`;
         }
 
         if (!QuotationOfInvoice) {
@@ -717,6 +748,7 @@ class QuotationSaleController {
         {
           where: {
             sale_id: req.params.id,
+            bus_id: bus_id,
           },
         }
       );
@@ -851,6 +883,8 @@ class QuotationSaleController {
     try {
       let result = [];
 
+      const { bus_id } = req.userData;
+
       const log = await sequelize.query(
         `
         select * 
@@ -860,10 +894,12 @@ Left join businesses on businesses.bus_id = quotation_sales.bus_id
 Left join banks on banks.bank_id = businesses.bank_id
 Left join customers on quotation_sales.cus_id = customers.cus_id
 left join employees on employees."employeeID"  = quotation_sales."employeeID" 
-Left join billings on billings.invoice_id = invoices.invoice_id
+Left join billings on billings.invoice_id = invoices.invoice_id 
+WHERE quotation_sales.bus_id = :bus_id
       `,
         {
           type: sequelize.QueryTypes.SELECT,
+          replacements: { bus_id }, // <-- ปลอดภัยและสะอาด
         }
       );
 
@@ -1039,6 +1075,8 @@ from quotation_sale_details
   // }
   static async editInvoice(req, res) {
     try {
+      const { bus_id } = req.userData;
+
       const existQuatationSale = await Invoice.findOne({
         where: {
           invoice_id: req.params.id,
@@ -1050,6 +1088,10 @@ from quotation_sale_details
           where: {
             invoice_number: req.body.invoice_number,
             invoice_id: { [Op.ne]: req.params.id },
+          },
+          include: {
+            model: Quotation_sale,
+            where: { bus_id },
           },
         });
 
@@ -1068,9 +1110,18 @@ from quotation_sale_details
         const today = new Date();
         const BillingDateStr = today.toISOString().split("T")[0];
 
-        const lastBilling = await Billing.findOne({
-          order: [["billing_number", "DESC"]],
-        }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
+        // const lastBilling = await Billing.findOne({
+        //   order: [["billing_number", "DESC"]],
+        // }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
+        const [lastBilling] = await sequelize.query(`
+          SELECT billings.*
+          FROM billings
+          LEFT JOIN invoices ON invoices.invoice_id = billings.invoice_id
+          LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
+          WHERE quotation_sales.bus_id = '${bus_id}'
+          ORDER BY billings.billing_number DESC
+          LIMIT 1
+        `);
 
         const billingOfInvoice = await Billing.findOne({
           where: {
@@ -1078,15 +1129,34 @@ from quotation_sale_details
           },
         });
 
-        let newBillingNumber;
+        let newBillingNumber = "";
 
-        if (!lastBilling) {
-          // ถ้าไม่ใช้ billing เป็น null
-          newBillingNumber = "BI-00000001";
+        // สร้าง prefix วันที่แบบ yyMMdd
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const dd = String(now.getDate()).padStart(2, "0");
+        const todayPrefix = `${yy}${mm}${dd}`; // เช่น 250424
+
+        if (
+          !lastBilling ||
+          lastBilling.length === 0 ||
+          !lastBilling[0].billing_number
+        ) {
+          newBillingNumber = `BI-${todayPrefix}0001`;
         } else {
-          const lastNumber = parseInt(lastBilling.billing_number.slice(3));
-          const nextNumber = lastNumber + 1;
-          newBillingNumber = "BI-" + nextNumber.toString().padStart(8, "0");
+          const lastCode = lastBilling[0].billing_number; // เช่น BI-2504240003
+          const lastDatePart = lastCode.slice(3, 9);
+          const lastNumberPart = lastCode.slice(9);
+
+          let nextNumber = 1;
+
+          if (lastDatePart === todayPrefix) {
+            nextNumber = parseInt(lastNumberPart) + 1;
+          }
+
+          const nextNumberStr = String(nextNumber).padStart(4, "0");
+          newBillingNumber = `BI-${todayPrefix}${nextNumberStr}`;
         }
 
         if (!billingOfInvoice) {
@@ -1101,18 +1171,30 @@ from quotation_sale_details
         }
       }
 
-      await Invoice.update(
-        {
-          invoice_date: req.body.invoice_date,
-          invoice_status: req.body.invoice_status,
-          remark: req.body.remark,
-        },
-        {
-          where: {
-            invoice_id: req.params.id,
-          },
-        }
-      );
+      // await Invoice.update(
+      //   {
+      //     invoice_date: req.body.invoice_date,
+      //     invoice_status: req.body.invoice_status,
+      //     remark: req.body.remark,
+      //   },
+      //   {
+      //     where: {
+      //       invoice_id: req.params.id,
+      //     },
+      //   }
+      // );
+      // const { bus_id } = req.userData;
+
+      await sequelize.query(`
+        UPDATE invoices
+        SET invoice_date = '${req.body.invoice_date}',
+            invoice_status = '${req.body.invoice_status}',
+            remark = '${req.body.remark}'
+        FROM quotation_sales
+        WHERE invoices.invoice_id = '${req.params.id}'
+          AND quotation_sales.sale_id = invoices.sale_id
+          AND quotation_sales.bus_id = '${req.userData.bus_id}'
+      `);
 
       return ResponseManager.SuccessResponse(req, res, 200, "Invoice Saved");
     } catch (err) {
@@ -1254,6 +1336,8 @@ from quotation_sale_details
   }
   static async editBilling(req, res) {
     try {
+      const { bus_id } = req.userData;
+
       const existQuatationSale = await Billing.findOne({
         where: {
           billing_id: req.params.id,
@@ -1261,36 +1345,66 @@ from quotation_sale_details
       });
 
       if (existQuatationSale) {
-        const existingQuo = await Billing.findOne({
-          where: {
-            billing_number: req.body.billing_number,
-            billing_id: { [Op.ne]: req.params.id },
-          },
-        });
-
-        if (existingQuo) {
-          await ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Receipt already exists"
-          );
-          return;
-        }
+        // const existingQuo = await Billing.findOne({
+        //   where: {
+        //     billing_number: req.body.billing_number,
+        //     billing_id: { [Op.ne]: req.params.id },
+        //   },
+        //   include: [
+        //     {
+        //       model: Invoice,
+        //       include: [
+        //         {
+        //           model: Quotation_sale,
+        //           where: { bus_id }, // กรองตาม bus_id
+        //         },
+        //       ],
+        //     },
+        //   ],
+        // });
+        // const [existingQuo] = await sequelize.query(`
+        //   SELECT billings.*
+        //   FROM billings
+        //   LEFT JOIN invoices ON invoices.invoice_id = billings.invoice_id
+        //   LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
+        //   WHERE billings.billing_number = '${req.body.billing_number}'
+        //     AND billings.billing_id != '${req.params.id}'
+        //     AND quotation_sales.bus_id = '${req.userData.bus_id}'
+        // `);
+        // if (existingQuo) {
+        //   await ResponseManager.ErrorResponse(
+        //     req,
+        //     res,
+        //     400,
+        //     "Receipt already exists"
+        //   );
+        //   return;
+        // }
       }
 
-      await Billing.update(
-        {
-          billing_date: req.body.billing_date,
-          payments: req.body.payments,
-          remark: req.body.remark,
-        },
-        {
-          where: {
-            billing_id: req.params.id,
-          },
-        }
-      );
+      // await Billing.update(
+      //   {
+      //     billing_date: req.body.billing_date,
+      //     payments: req.body.payments,
+      //     remark: req.body.remark,
+      //   },
+      //   {
+      //     where: {
+      //       billing_id: req.params.id,
+      //     },
+      //   }
+      // );
+      await sequelize.query(`
+        UPDATE billings
+        SET billing_date = '${req.body.billing_date}',
+            payments = '${req.body.payments}',
+            remark = '${req.body.remark}'
+        FROM invoices
+        LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
+        WHERE billings.billing_id = '${req.params.id}'
+          AND invoices.invoice_id = billings.invoice_id
+          AND quotation_sales.bus_id = '${req.userData.bus_id}'
+      `);
 
       return ResponseManager.SuccessResponse(req, res, 200, "Receipt Saved");
     } catch (err) {
