@@ -52,6 +52,7 @@ Route.post(
 );
 Route.put(
   RouteName + "/editQuotationSale/:id",
+  verifyTokenWithbus_id,
   QuotationSaleController.editQuotationSale
 );
 Route.get(
@@ -63,7 +64,11 @@ Route.delete(
   RouteName + "/deleteQuotation/:id",
   QuotationSaleController.deleteQuotation
 );
-Route.put(RouteName + "/editInvoice/:id", QuotationSaleController.editInvoice);
+Route.put(
+  RouteName + "/editInvoice/:id",
+  verifyTokenWithbus_id,
+  QuotationSaleController.editInvoice
+);
 Route.get(
   RouteName + "/getInvoice",
   verifyTokenWithbus_id,
@@ -73,7 +78,11 @@ Route.delete(
   RouteName + "/deleteInvoice/:id",
   QuotationSaleController.deleteInvoice
 );
-Route.put(RouteName + "/editBilling/:id", QuotationSaleController.editBilling);
+Route.put(
+  RouteName + "/editBilling/:id",
+  verifyTokenWithbus_id,
+  QuotationSaleController.editBilling
+);
 Route.get(
   RouteName + "/getBilling",
   verifyTokenWithbus_id,
