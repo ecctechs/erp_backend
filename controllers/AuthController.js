@@ -7,6 +7,7 @@ const { Business, Bank } = require("../model/quotationModel");
 const logUserActivity = require("../middleware/UserActivity");
 const { Op } = require("sequelize");
 const { cloudinary } = require("../utils/cloudinary");
+const { Employee } = require("../model/employeeModel");
 
 class AuthController {
   static index(req, res) {
@@ -405,6 +406,7 @@ class AuthController {
 
       if (createdBusiness) {
         const insertUser = await User.create({
+          user_title: req.body.user_title,
           userF_name: req.body.userF_name,
           userL_name: req.body.userL_name,
           userPhone: req.body.userPhone,
@@ -413,6 +415,27 @@ class AuthController {
           RoleID: 1,
           bus_id: createdBusiness.bus_id,
         });
+
+        await Employee.create({
+          title: req.body.user_title,
+          F_name: req.body.userF_name,
+          L_name: req.body.userL_name,
+          Address: "", // ✅ ชื่อฟิลด์ถูกต้อง
+          Birthdate: "",
+          NID_num: "",
+          Phone_num: req.body.userPhone,
+          Email: req.body.userEmail,
+          start_working_date: "2020-01-11",
+          Salary: 0,
+          employeeType: "",
+          bankName: "",
+          bankAccountID: "",
+          PositionID: 1,
+          departmentID: 1,
+          bus_id: createdBusiness.bus_id,
+          Status: "active",
+        });
+
         console.log("User creation result:", insertUser);
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insertUser);

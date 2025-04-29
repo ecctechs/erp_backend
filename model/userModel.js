@@ -43,6 +43,10 @@ const User = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    user_title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     timestamps: false,
@@ -109,6 +113,5 @@ const UserActivity = sequelize.define(
     timestamps: false,
   }
 );
-
 
 module.exports = { User, Role, UserActivity };
