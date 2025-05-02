@@ -8,12 +8,20 @@ const {
   uploadAndExtractZip,
   deleteAllData,
 } = require("../controllers/uploadController");
+const {
+  verifyTokenWithRole,
+  verifyTokenWithbus_id,
+} = require("../middleware/verifytokenwithrole");
 
 Route.get(RouteName + "/deploydata", MigrateController.deploydata);
 
 Route.get(RouteName + "/tablelist", MigrateController.tablelist);
 
-Route.get(RouteName + "/export-csv/:tableName", MigrateController.exportCsv);
+Route.get(
+  RouteName + "/export-csv/:tableName",
+  verifyTokenWithbus_id,
+  MigrateController.exportCsv
+);
 
 Route.get(RouteName + "/export-all-csv", MigrateController.exportAllCsv);
 

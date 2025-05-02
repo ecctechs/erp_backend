@@ -109,9 +109,16 @@ class MigrateController {
   static async exportCsv(req, res) {
     try {
       const tableName = req.params.tableName;
-      const data = await sequelize.query(`SELECT * FROM ${tableName}`, {
-        type: Sequelize.QueryTypes.SELECT,
-      });
+
+      const { bus_id } = req.userData;
+
+      const data = await sequelize.query(
+        `SELECT * FROM ${tableName} WHERE bus_id = :bus_id`,
+        {
+          type: Sequelize.QueryTypes.SELECT,
+          replacements: { bus_id },
+        }
+      );
 
       if (data.length === 0) {
         return res.status(404).json({ error: "Table not found or empty" });
