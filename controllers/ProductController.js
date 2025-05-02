@@ -141,35 +141,39 @@ class ProductController {
           "Product already exists"
         );
       } else {
-        if (!req.file) {
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Please choose a product image file"
-          );
-        }
+        // if (!req.file) {
+        //   return ResponseManager.ErrorResponse(
+        //     req,
+        //     res,
+        //     400,
+        //     "Please choose a product image file"
+        //   );
+        // }
+        const result = [];
+        if (req.file) {
+          if (req.file.size > 5 * 1024 * 1024) {
+            return ResponseManager.ErrorResponse(
+              req,
+              res,
+              400,
+              "File size exceeds 5 MB limit"
+            );
+          }
 
-        if (req.file.size > 5 * 1024 * 1024) {
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "File size exceeds 5 MB limit"
-          );
-        }
+          const allowedMimeTypes = ["image/jpeg", "image/png"];
+          if (!allowedMimeTypes.includes(req.file.mimetype)) {
+            return ResponseManager.ErrorResponse(
+              req,
+              res,
+              400,
+              "Only JPEG and PNG image files are allowed"
+            );
+          }
 
-        const allowedMimeTypes = ["image/jpeg", "image/png"];
-        if (!allowedMimeTypes.includes(req.file.mimetype)) {
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Only JPEG and PNG image files are allowed"
-          );
+          result = await cloudinary.uploader.upload(req.file.path);
+        } else {
+          // result = [];
         }
-
-        const result = await cloudinary.uploader.upload(req.file.path);
 
         const insert_product = await Product.create({
           productTypeID: req.body.productTypeID,
@@ -432,6 +436,7 @@ class ProductController {
         where: {
           categoryName: "ไม่มีหมวดหมู่",
           bus_id: bus_id,
+          categoryID: categoryID,
         },
       });
 
