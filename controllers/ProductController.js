@@ -4,6 +4,7 @@ const {
   productType,
   productCategory,
   Transaction,
+  Expense,
 } = require("../model/productModel");
 const { Business } = require("../model/quotationModel");
 const { cloudinary } = require("../utils/cloudinary");
@@ -942,6 +943,122 @@ class ProductController {
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, category_list);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async getExpenses(req, res) {
+    try {
+      Expense.belongsTo(Business, { foreignKey: "bus_id" });
+      Business.hasMany(Expense, { foreignKey: "bus_id" });
+
+      const { bus_id } = req.userData;
+
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
+      }
+
+      const expenses = await Expense.findAll({
+        where: { bus_id },
+        include: [{ model: Business }],
+      });
+
+      return ResponseManager.SuccessResponse(req, res, 200, expenses);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async addExpenses(req, res) {
+    try {
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
+      }
+
+      const { bus_id } = req.userData;
+      const {
+        expense_date,
+        expense_category,
+        expense_amount,
+        quantity_remark,
+      } = req.body;
+
+      const newExpense = await Expense.create({
+        expense_date,
+        expense_category,
+        expense_amount,
+        quantity_remark,
+        bus_id,
+      });
+
+      return ResponseManager.SuccessResponse(req, res, 201, newExpense);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async editExpenses(req, res) {
+    try {
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
+      }
+
+      await Expense.update(
+        {
+          expense_date: req.body.expense_date,
+          expense_category: req.body.expense_category,
+          expense_amount: req.body.expense_amount,
+          quantity_remark: req.body.quantity_remark,
+        },
+        { where: { expense_id: req.params.id } }
+      );
+
+      return ResponseManager.SuccessResponse(req, res, 200, expense);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async deleteExpenses(req, res) {
+    try {
+      const tokenData = await TokenManager.update_token(req);
+      if (!tokenData) {
+        return await ResponseManager.ErrorResponse(
+          req,
+          res,
+          401,
+          "Unauthorized: Invalid token data"
+        );
+      }
+
+      await Expense.destroy({
+        where: {
+          expense_id: req.params.id,
+        },
+      });
+
+      return ResponseManager.SuccessResponse(req, res, 200, {
+        message: "Expense deleted successfully",
+      });
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }

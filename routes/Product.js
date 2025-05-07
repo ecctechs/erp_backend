@@ -64,4 +64,27 @@ Route.get(
   ProductController.getTransaction
 );
 
+Route.get(
+  RouteName + "/getExpenses",
+  verifyTokenWithbus_id,
+  ProductController.getExpenses
+);
+
+Route.post(
+  RouteName + "/addExpenses",
+  verifyTokenWithbus_id,
+  ProductController.addExpenses
+);
+
+Route.put(
+  RouteName + "/editExpenses/:id",
+  verifyTokenWithbus_id,
+  ProductController.editExpenses
+);
+
+Route.delete(
+  RouteName + "/deleteExpenses/:id",
+  verifyTokenWithbus_id,
+  ProductController.deleteExpenses
+);
 module.exports = Route;
