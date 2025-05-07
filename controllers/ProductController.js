@@ -996,12 +996,20 @@ class ProductController {
         quantity_remark,
       } = req.body;
 
+      // const newExpense = await Expense.create({
+      //   expense_date,
+      //   expense_category,
+      //   expense_amount,
+      //   quantity_remark,
+      //   bus_id,
+      // });
+
       const newExpense = await Expense.create({
-        expense_date,
-        expense_category,
-        expense_amount,
-        quantity_remark,
-        bus_id,
+        expense_date: req.body.expense_date,
+        expense_category: req.body.expense_category,
+        expense_amount: req.body.expense_amount,
+        quantity_remark: req.body.quantity_remark,
+        bus_id: bus_id,
       });
 
       return ResponseManager.SuccessResponse(req, res, 201, newExpense);
@@ -1022,7 +1030,7 @@ class ProductController {
         );
       }
 
-      await Expense.update(
+      const editExpense = await Expense.update(
         {
           expense_date: req.body.expense_date,
           expense_category: req.body.expense_category,
@@ -1032,7 +1040,7 @@ class ProductController {
         { where: { expense_id: req.params.id } }
       );
 
-      return ResponseManager.SuccessResponse(req, res, 200, expense);
+      return ResponseManager.SuccessResponse(req, res, 200, editExpense);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
