@@ -43,9 +43,9 @@ const Product = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Status:{
+    Status: {
       type: DataTypes.STRING,
-    }
+    },
   },
   {
     timestamps: false,
@@ -126,7 +126,47 @@ const Transaction = sequelize.define(
   }
 );
 
+const Expense = sequelize.define(
+  "expense",
+  {
+    expense_id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    expense_date: {
+      type: DataTypes.STRING(40),
+      allowNull: false,
+    },
+    expense_category: {
+      type: DataTypes.STRING(40),
+      allowNull: false,
+    },
+    expense_amount: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    },
+    quantity_remark: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    bus_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+  },
+  {
+    timestamps: false,
+  }
+);
+
 Product.belongsTo(productCategory, { foreignKey: "categoryID" });
 productCategory.hasMany(Product, { foreignKey: "categoryID" });
 
-module.exports = { Product, productType, productCategory, Transaction };
+module.exports = {
+  Product,
+  productType,
+  productCategory,
+  Transaction,
+  Expense,
+};
