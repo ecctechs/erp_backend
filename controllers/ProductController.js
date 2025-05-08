@@ -1012,6 +1012,8 @@ class ProductController {
         bus_id: bus_id,
       });
 
+      console.log("newExpense");
+
       return ResponseManager.SuccessResponse(req, res, 201, newExpense);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
