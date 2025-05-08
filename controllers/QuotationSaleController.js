@@ -1205,7 +1205,7 @@ from quotation_sale_details
     try {
       const deleteqto = await Invoice.findOne({
         where: {
-          invoice_id: req.params.id,
+          sale_id: req.params.id,
         },
       });
       if (deleteqto) {
