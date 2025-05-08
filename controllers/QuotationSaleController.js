@@ -1211,7 +1211,7 @@ from quotation_sale_details
       if (deleteqto) {
         await Invoice.destroy({
           where: {
-            invoice_id: req.params.id,
+            sale_id: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(
