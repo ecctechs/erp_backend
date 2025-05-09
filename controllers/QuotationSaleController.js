@@ -9,6 +9,7 @@ const {
   Billing,
   Quotation_img,
   Company_person,
+  TaxInvoice,
 } = require("../model/quotationModel");
 const {
   Employee,
@@ -889,6 +890,102 @@ class QuotationSaleController {
         `
         select * 
 from invoices
+Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
+Left join businesses on businesses.bus_id = quotation_sales.bus_id
+Left join banks on banks.bank_id = businesses.bank_id
+Left join customers on quotation_sales.cus_id = customers.cus_id
+left join employees on employees."employeeID"  = quotation_sales."employeeID" 
+Left join billings on billings.invoice_id = invoices.invoice_id 
+WHERE quotation_sales.bus_id = :bus_id
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: { bus_id }, // <-- ปลอดภัยและสะอาด
+        }
+      );
+
+      const product_detail = await sequelize.query(
+        `
+select * 
+from quotation_sale_details
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
+
+      log.forEach((sale) => {
+        const saleData = {
+          sale_id: sale.sale_id,
+          quotation_num: sale.sale_number,
+          status: sale.status,
+          employeeID: sale.employeeID,
+          employee_name: `${sale.F_name} ${sale.L_name}`,
+          cus_id: sale.cus_id,
+          cus_name: sale.cus_name,
+          cus_address: sale.cus_address,
+          cus_tel: sale.cus_tel,
+          cus_email: sale.cus_email,
+          cus_tax: sale.cus_tax,
+          cus_purchase: sale.cus_purchase,
+          quotation_start_date: sale.sale_date,
+          credit_date: sale.credit_date_number,
+          quotation_expired_date: sale.credit_expired_date,
+          sale_totalprice: sale.sale_totalprice,
+          invoice_id: sale.invoice_id,
+          invoice_number: sale.invoice_number,
+          invoice_status: sale.invoice_status,
+          invoice_date: sale.invoice_date,
+          invoice_remark: sale.remark,
+          vatType: sale.vatType,
+          discount_quotation: sale.discount_quotation,
+          billing:
+            sale.invoice_status !== "Issue a receipt"
+              ? "Pending"
+              : sale.billing_number,
+          details: [],
+        };
+
+        // Filter product details for the current sale
+        const saleDetails = product_detail.filter(
+          (detail) => detail.sale_id === sale.sale_id
+        );
+        saleDetails.forEach((detail) => {
+          saleData.details.push({
+            sale_id: detail.sale_id,
+            productID: detail.productID,
+            sale_price: detail.sale_price,
+            discounttype: detail.discounttype,
+            sale_discount: detail.sale_discount,
+            sale_qty: detail.sale_qty,
+            product_detail: detail.product_detail,
+            pro_unti: detail.pro_unti,
+          });
+        });
+
+        // Add the complete sale data to the result
+        result.push(saleData);
+      });
+
+      return ResponseManager.SuccessResponse(req, res, 200, result);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async getTaxInvoice(req, res) {
+    return ResponseManager.SuccessResponse(200, "result");
+    return false;
+    try {
+      let result = [];
+
+      const { bus_id } = req.userData;
+
+      const log = await sequelize.query(
+        `
+        select * 
+from tax_invoices
+Left join invoices on invoices.invoice_id = tax_invoices.invoice_id
 Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
 Left join businesses on businesses.bus_id = quotation_sales.bus_id
 Left join banks on banks.bank_id = businesses.bank_id

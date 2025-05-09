@@ -255,6 +255,44 @@ const Invoice = sequelize.define(
   }
 );
 
+const TaxInvoice = sequelize.define(
+  "tax_invoices",
+  {
+    tax_invoice_id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    tax_invoice_number: {
+      type: DataTypes.STRING(40),
+      allowNull: false,
+    },
+    tax_invoice_date: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    tax_invoice_status: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+    },
+    tax_invoice_remark: {
+      type: DataTypes.STRING(355),
+      allowNull: true,
+    },
+    invoice_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    sale_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+  },
+  {
+    timestamps: false,
+  }
+);
+
 const Billing = sequelize.define(
   "billings",
   {
@@ -365,4 +403,5 @@ module.exports = {
   Billing,
   Quotation_img,
   Company_person,
+  TaxInvoice,
 };
