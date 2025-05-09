@@ -1214,6 +1214,17 @@ from quotation_sale_details
             sale_id: req.params.id,
           },
         });
+
+        await Quotation_sale.update(
+          {
+            Pending: "Pending",
+          },
+          {
+            where: {
+              sale_id: req.params.id,
+            },
+          }
+        );
         return ResponseManager.SuccessResponse(
           req,
           res,
