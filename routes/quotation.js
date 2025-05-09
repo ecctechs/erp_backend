@@ -80,6 +80,10 @@ Route.get(
   QuotationSaleController.getTaxInvoice
 );
 Route.delete(
+  RouteName + "/deleteTaxInvoice/:id",
+  QuotationSaleController.deleteTaxInvoice
+);
+Route.delete(
   RouteName + "/deleteInvoice/:id",
   QuotationSaleController.deleteInvoice
 );
