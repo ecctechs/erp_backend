@@ -1012,6 +1012,10 @@ from quotation_sale_details
         const saleData = {
           sale_id: sale.sale_id,
           quotation_num: sale.sale_number,
+          tax_invoice_number: sale.tax_invoice_number,
+          tax_invoice_date: sale.tax_invoice_date,
+          tax_invoice_status: sale.tax_invoice_status,
+          tax_invoice_remark: sale.tax_invoice_remark,
           status: sale.status,
           employeeID: sale.employeeID,
           employee_name: `${sale.F_name} ${sale.L_name}`,
@@ -1199,13 +1203,13 @@ from quotation_sale_details
     try {
       const deleteqto = await TaxInvoice.findOne({
         where: {
-          sale_id: req.params.id,
+          invoice_id: req.params.id,
         },
       });
       if (deleteqto) {
         await TaxInvoice.destroy({
           where: {
-            sale_id: req.params.id,
+            invoice_id: req.params.id,
           },
         });
 
@@ -1215,7 +1219,7 @@ from quotation_sale_details
           },
           {
             where: {
-              sale_id: req.params.id,
+              invoice_id: req.params.id,
             },
           }
         );
@@ -1408,11 +1412,11 @@ from quotation_sale_details
         if (
           !lastBilling ||
           lastBilling.length === 0 ||
-          !lastBilling[0].billing_number
+          !lastBilling[0].tax_invoice_number
         ) {
           newBillingNumber = `IV-${todayPrefix}0001`;
         } else {
-          const lastCode = lastBilling[0].billing_number; // เช่น BI-2504240003
+          const lastCode = lastBilling[0].tax_invoice_number; // เช่น BI-2504240003
           const lastDatePart = lastCode.slice(3, 9);
           const lastNumberPart = lastCode.slice(9);
 
@@ -1434,6 +1438,139 @@ from quotation_sale_details
             tax_invoice_remark: "",
             invoice_id: req.params.id,
             sale_id: Invoice_quotataion.sale_id,
+          });
+        }
+      }
+
+      // await Invoice.update(
+      //   {
+      //     invoice_date: req.body.invoice_date,
+      //     invoice_status: req.body.invoice_status,
+      //     remark: req.body.remark,
+      //   },
+      //   {
+      //     where: {
+      //       invoice_id: req.params.id,
+      //     },
+      //   }
+      // );
+      // const { bus_id } = req.userData;
+
+      await sequelize.query(`
+        UPDATE invoices
+        SET invoice_date = '${req.body.invoice_date}',
+            invoice_status = '${req.body.invoice_status}',
+            remark = '${req.body.remark}'
+        FROM quotation_sales
+        WHERE invoices.invoice_id = '${req.params.id}'
+          AND quotation_sales.sale_id = invoices.sale_id
+          AND quotation_sales.bus_id = '${req.userData.bus_id}'
+      `);
+
+      return ResponseManager.SuccessResponse(req, res, 200, "Invoice Saved");
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async editTaxInvoice(req, res) {
+    try {
+      const { bus_id } = req.userData;
+
+      const existQuatationSale = await TaxInvoice.findOne({
+        where: {
+          invoice_id: req.params.id,
+        },
+      });
+
+      if (existQuatationSale) {
+        const existingQuo = await TaxInvoice.findOne({
+          where: {
+            invoice_number: req.body.invoice_number,
+            invoice_id: { [Op.ne]: req.params.id },
+          },
+          include: {
+            model: Quotation_sale,
+            where: { bus_id },
+          },
+        });
+
+        if (existingQuo) {
+          await ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Invoice already exists"
+          );
+          return;
+        }
+      }
+
+      if (req.body.invoice_status === "Issue a receipt") {
+        const today = new Date();
+        const BillingDateStr = today.toISOString().split("T")[0];
+
+        // const lastBilling = await Billing.findOne({
+        //   order: [["billing_number", "DESC"]],
+        // }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
+        const [lastBilling] = await sequelize.query(`
+         SELECT billings.*
+          FROM billings
+          LEFT JOIN invoices ON invoices.invoice_id = billings.invoice_id
+          LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
+          WHERE quotation_sales.bus_id = '${bus_id}'
+          ORDER BY billings.billing_number DESC
+          LIMIT 1
+        `);
+
+        const billingOfInvoice = await TaxInvoice.findOne({
+          where: {
+            invoice_id: req.params.id,
+          },
+        });
+
+        const Invoice_quotataion = await Invoice.findOne({
+          where: {
+            invoice_id: req.params.id,
+          },
+        });
+
+        let newBillingNumber = "";
+
+        // สร้าง prefix วันที่แบบ yyMMdd
+        const now = new Date();
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const dd = String(now.getDate()).padStart(2, "0");
+        const todayPrefix = `${yy}${mm}${dd}`; // เช่น 250424
+
+        if (
+          !lastBilling ||
+          lastBilling.length === 0 ||
+          !lastBilling[0].tax_invoice_number
+        ) {
+          newBillingNumber = `BI-${todayPrefix}0001`;
+        } else {
+          const lastCode = lastBilling[0].tax_invoice_number; // เช่น BI-2504240003
+          const lastDatePart = lastCode.slice(3, 9);
+          const lastNumberPart = lastCode.slice(9);
+
+          let nextNumber = 1;
+
+          if (lastDatePart === todayPrefix) {
+            nextNumber = parseInt(lastNumberPart) + 1;
+          }
+
+          const nextNumberStr = String(nextNumber).padStart(4, "0");
+          newBillingNumber = `BI-${todayPrefix}${nextNumberStr}`;
+        }
+
+        if (!billingOfInvoice) {
+          await Billing.create({
+            billing_number: newBillingNumber,
+            billing_date: BillingDateStr,
+            billing_status: "Complete",
+            payments: "Cash",
+            remark: "",
           });
         }
       }

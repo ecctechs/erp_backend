@@ -79,6 +79,11 @@ Route.get(
   verifyTokenWithbus_id,
   QuotationSaleController.getTaxInvoice
 );
+Route.put(
+  RouteName + "/editTaxInvoice/:id",
+  verifyTokenWithbus_id,
+  QuotationSaleController.editTaxInvoice
+);
 Route.delete(
   RouteName + "/deleteTaxInvoice/:id",
   QuotationSaleController.deleteTaxInvoice
