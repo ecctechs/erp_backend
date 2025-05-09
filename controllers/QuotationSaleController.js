@@ -1217,7 +1217,7 @@ from quotation_sale_details
 
         await Quotation_sale.update(
           {
-            Pending: "Pending",
+            status: "Pending",
           },
           {
             where: {
