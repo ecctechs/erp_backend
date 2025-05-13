@@ -325,6 +325,14 @@ const Billing = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    tax_invoice_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    sale_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     timestamps: false,
