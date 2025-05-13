@@ -818,6 +818,7 @@ class QuotationSaleController {
           { model: Invoice },
         ],
         where: { bus_id: bus_id },
+        order: [["sale_number", "ASC"]], // <-- เรียงจากน้อยไปมาก
       });
       const today = new Date();
 
@@ -897,6 +898,7 @@ Left join customers on quotation_sales.cus_id = customers.cus_id
 left join employees on employees."employeeID"  = quotation_sales."employeeID" 
 Left join billings on billings.invoice_id = invoices.invoice_id 
 WHERE quotation_sales.bus_id = :bus_id
+ORDER BY invoices.invoice_number ASC;
       `,
         {
           type: sequelize.QueryTypes.SELECT,
@@ -981,8 +983,12 @@ from quotation_sale_details
 
       const log = await sequelize.query(
         `
-        select * 
-from tax_invoices
+  SELECT 
+  tax_invoices.tax_invoice_id AS tax_id_alias,
+  tax_invoices.sale_id AS sale_id_alias,
+  tax_invoices.invoice_id AS invoice_id_alias,
+  * 
+FROM tax_invoices
 Left join invoices on invoices.invoice_id = tax_invoices.invoice_id
 Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
 Left join businesses on businesses.bus_id = quotation_sales.bus_id
@@ -991,6 +997,7 @@ Left join customers on quotation_sales.cus_id = customers.cus_id
 left join employees on employees."employeeID"  = quotation_sales."employeeID" 
 Left join billings on billings.invoice_id = invoices.invoice_id 
 WHERE quotation_sales.bus_id = :bus_id
+ORDER BY tax_invoices.tax_invoice_number ASC;
       `,
         {
           type: sequelize.QueryTypes.SELECT,
@@ -1010,7 +1017,8 @@ from quotation_sale_details
 
       log.forEach((sale) => {
         const saleData = {
-          sale_id: sale.sale_id,
+          tax_invoice_id: sale.tax_id_alias,
+          sale_id: sale.sale_id_alias,
           quotation_num: sale.sale_number,
           tax_invoice_number: sale.tax_invoice_number,
           tax_invoice_date: sale.tax_invoice_date,
@@ -1030,7 +1038,7 @@ from quotation_sale_details
           credit_date: sale.credit_date_number,
           quotation_expired_date: sale.credit_expired_date,
           sale_totalprice: sale.sale_totalprice,
-          invoice_id: sale.invoice_id,
+          invoice_id: sale.invoice_id_alias,
           invoice_number: sale.invoice_number,
           invoice_status: sale.invoice_status,
           invoice_date: sale.invoice_date,
@@ -1060,7 +1068,7 @@ from quotation_sale_details
             pro_unti: detail.pro_unti,
           });
         });
-
+        console.log(log);
         // Add the complete sale data to the result
         result.push(saleData);
       });
@@ -1081,30 +1089,32 @@ from quotation_sale_details
         },
       });
 
-      if (existQuatationSale) {
-        const existingQuo = await TaxInvoice.findOne({
-          where: {
-            invoice_number: req.body.invoice_number,
-            invoice_id: { [Op.ne]: req.params.id },
-          },
-          include: {
-            model: Quotation_sale,
-            where: { bus_id },
-          },
-        });
+      // if (existQuatationSale) {
+      //   const existingQuo = await TaxInvoice.findOne({
+      //     where: {
+      //       invoice_number: req.body.invoice_number,
+      //       invoice_id: { [Op.ne]: req.params.id },
+      //     },
+      //     include: {
+      //       model: Quotation_sale,
+      //       where: { bus_id },
+      //     },
+      //   });
 
-        if (existingQuo) {
-          await ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Invoice already exists"
-          );
-          return;
-        }
-      }
+      //   if (existingQuo) {
+      //     await ResponseManager.ErrorResponse(
+      //       req,
+      //       res,
+      //       400,
+      //       "Invoice already exists"
+      //     );
+      //     return;
+      //   }
+      // }
+      // console.log("req.body.tax_invoice_status", req.body.invoice_status);
 
-      if (req.body.tax_invoice_status === "Issue a receipt") {
+      // console.log("-------------->>billingOfInvoice", billingOfInvoice);
+      if (req.body.invoice_status === "Issue a receipt") {
         const today = new Date();
         const BillingDateStr = today.toISOString().split("T")[0];
 
@@ -1165,6 +1175,8 @@ from quotation_sale_details
             payments: "Cash",
             remark: "",
             invoice_id: req.params.id,
+            tax_invoice_id: req.body.tax_invoice_id,
+            sale_id: req.body.sale_id,
           });
         }
       }
@@ -1182,15 +1194,16 @@ from quotation_sale_details
       //   }
       // );
       // const { bus_id } = req.userData;
+      console.log("-------------->", req.params.id);
 
       await sequelize.query(`
-        UPDATE invoices
-        SET invoice_date = '${req.body.invoice_date}',
-            invoice_status = '${req.body.invoice_status}',
-            remark = '${req.body.remark}'
+        UPDATE tax_invoices
+        SET tax_invoice_date = '${req.body.invoice_date}',
+            tax_invoice_status = '${req.body.invoice_status}',
+            tax_invoice_remark = '${req.body.remark}'
         FROM quotation_sales
-        WHERE invoices.invoice_id = '${req.params.id}'
-          AND quotation_sales.sale_id = invoices.sale_id
+        WHERE tax_invoices.invoice_id = '${req.params.id}'
+          AND quotation_sales.sale_id = tax_invoices.sale_id
           AND quotation_sales.bus_id = '${req.userData.bus_id}'
       `);
 
@@ -1212,10 +1225,15 @@ from quotation_sale_details
             invoice_id: req.params.id,
           },
         });
+        await Billing.destroy({
+          where: {
+            invoice_id: req.params.id,
+          },
+        });
 
         await Invoice.update(
           {
-            status: "Pending",
+            invoice_status: "Pending",
           },
           {
             where: {
@@ -1472,139 +1490,139 @@ from quotation_sale_details
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-  static async editTaxInvoice(req, res) {
-    try {
-      const { bus_id } = req.userData;
+  // static async editTaxInvoice(req, res) {
+  //   try {
+  //     const { bus_id } = req.userData;
 
-      const existQuatationSale = await TaxInvoice.findOne({
-        where: {
-          invoice_id: req.params.id,
-        },
-      });
+  //     const existQuatationSale = await TaxInvoice.findOne({
+  //       where: {
+  //         invoice_id: req.params.id,
+  //       },
+  //     });
 
-      if (existQuatationSale) {
-        const existingQuo = await TaxInvoice.findOne({
-          where: {
-            invoice_number: req.body.invoice_number,
-            invoice_id: { [Op.ne]: req.params.id },
-          },
-          include: {
-            model: Quotation_sale,
-            where: { bus_id },
-          },
-        });
+  //     if (existQuatationSale) {
+  //       const existingQuo = await TaxInvoice.findOne({
+  //         where: {
+  //           invoice_number: req.body.invoice_number,
+  //           invoice_id: { [Op.ne]: req.params.id },
+  //         },
+  //         include: {
+  //           model: Quotation_sale,
+  //           where: { bus_id },
+  //         },
+  //       });
 
-        if (existingQuo) {
-          await ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Invoice already exists"
-          );
-          return;
-        }
-      }
+  //       if (existingQuo) {
+  //         await ResponseManager.ErrorResponse(
+  //           req,
+  //           res,
+  //           400,
+  //           "Invoice already exists"
+  //         );
+  //         return;
+  //       }
+  //     }
 
-      if (req.body.invoice_status === "Issue a receipt") {
-        const today = new Date();
-        const BillingDateStr = today.toISOString().split("T")[0];
+  //     if (req.body.invoice_status === "Issue a receipt") {
+  //       const today = new Date();
+  //       const BillingDateStr = today.toISOString().split("T")[0];
 
-        // const lastBilling = await Billing.findOne({
-        //   order: [["billing_number", "DESC"]],
-        // }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
-        const [lastBilling] = await sequelize.query(`
-         SELECT billings.*
-          FROM billings
-          LEFT JOIN invoices ON invoices.invoice_id = billings.invoice_id
-          LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
-          WHERE quotation_sales.bus_id = '${bus_id}'
-          ORDER BY billings.billing_number DESC
-          LIMIT 1
-        `);
+  //       // const lastBilling = await Billing.findOne({
+  //       //   order: [["billing_number", "DESC"]],
+  //       // }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
+  //       const [lastBilling] = await sequelize.query(`
+  //        SELECT billings.*
+  //         FROM billings
+  //         LEFT JOIN invoices ON invoices.invoice_id = billings.invoice_id
+  //         LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
+  //         WHERE quotation_sales.bus_id = '${bus_id}'
+  //         ORDER BY billings.billing_number DESC
+  //         LIMIT 1
+  //       `);
 
-        const billingOfInvoice = await TaxInvoice.findOne({
-          where: {
-            invoice_id: req.params.id,
-          },
-        });
+  //       const billingOfInvoice = await TaxInvoice.findOne({
+  //         where: {
+  //           invoice_id: req.params.id,
+  //         },
+  //       });
 
-        const Invoice_quotataion = await Invoice.findOne({
-          where: {
-            invoice_id: req.params.id,
-          },
-        });
+  //       const Invoice_quotataion = await Invoice.findOne({
+  //         where: {
+  //           invoice_id: req.params.id,
+  //         },
+  //       });
 
-        let newBillingNumber = "";
+  //       let newBillingNumber = "";
 
-        // สร้าง prefix วันที่แบบ yyMMdd
-        const now = new Date();
-        const yy = String(now.getFullYear()).slice(-2);
-        const mm = String(now.getMonth() + 1).padStart(2, "0");
-        const dd = String(now.getDate()).padStart(2, "0");
-        const todayPrefix = `${yy}${mm}${dd}`; // เช่น 250424
+  //       // สร้าง prefix วันที่แบบ yyMMdd
+  //       const now = new Date();
+  //       const yy = String(now.getFullYear()).slice(-2);
+  //       const mm = String(now.getMonth() + 1).padStart(2, "0");
+  //       const dd = String(now.getDate()).padStart(2, "0");
+  //       const todayPrefix = `${yy}${mm}${dd}`; // เช่น 250424
 
-        if (
-          !lastBilling ||
-          lastBilling.length === 0 ||
-          !lastBilling[0].tax_invoice_number
-        ) {
-          newBillingNumber = `BI-${todayPrefix}0001`;
-        } else {
-          const lastCode = lastBilling[0].tax_invoice_number; // เช่น BI-2504240003
-          const lastDatePart = lastCode.slice(3, 9);
-          const lastNumberPart = lastCode.slice(9);
+  //       if (
+  //         !lastBilling ||
+  //         lastBilling.length === 0 ||
+  //         !lastBilling[0].tax_invoice_number
+  //       ) {
+  //         newBillingNumber = `BI-${todayPrefix}0001`;
+  //       } else {
+  //         const lastCode = lastBilling[0].tax_invoice_number; // เช่น BI-2504240003
+  //         const lastDatePart = lastCode.slice(3, 9);
+  //         const lastNumberPart = lastCode.slice(9);
 
-          let nextNumber = 1;
+  //         let nextNumber = 1;
 
-          if (lastDatePart === todayPrefix) {
-            nextNumber = parseInt(lastNumberPart) + 1;
-          }
+  //         if (lastDatePart === todayPrefix) {
+  //           nextNumber = parseInt(lastNumberPart) + 1;
+  //         }
 
-          const nextNumberStr = String(nextNumber).padStart(4, "0");
-          newBillingNumber = `BI-${todayPrefix}${nextNumberStr}`;
-        }
+  //         const nextNumberStr = String(nextNumber).padStart(4, "0");
+  //         newBillingNumber = `BI-${todayPrefix}${nextNumberStr}`;
+  //       }
 
-        if (!billingOfInvoice) {
-          await Billing.create({
-            billing_number: newBillingNumber,
-            billing_date: BillingDateStr,
-            billing_status: "Complete",
-            payments: "Cash",
-            remark: "",
-          });
-        }
-      }
+  //       if (!billingOfInvoice) {
+  //         await Billing.create({
+  //           billing_number: newBillingNumber,
+  //           billing_date: BillingDateStr,
+  //           billing_status: "Complete",
+  //           payments: "Cash",
+  //           remark: "",
+  //         });
+  //       }
+  //     }
 
-      // await Invoice.update(
-      //   {
-      //     invoice_date: req.body.invoice_date,
-      //     invoice_status: req.body.invoice_status,
-      //     remark: req.body.remark,
-      //   },
-      //   {
-      //     where: {
-      //       invoice_id: req.params.id,
-      //     },
-      //   }
-      // );
-      // const { bus_id } = req.userData;
+  //     // await Invoice.update(
+  //     //   {
+  //     //     invoice_date: req.body.invoice_date,
+  //     //     invoice_status: req.body.invoice_status,
+  //     //     remark: req.body.remark,
+  //     //   },
+  //     //   {
+  //     //     where: {
+  //     //       invoice_id: req.params.id,
+  //     //     },
+  //     //   }
+  //     // );
+  //     // const { bus_id } = req.userData;
 
-      await sequelize.query(`
-        UPDATE invoices
-        SET invoice_date = '${req.body.invoice_date}',
-            invoice_status = '${req.body.invoice_status}',
-            remark = '${req.body.remark}'
-        FROM quotation_sales
-        WHERE invoices.invoice_id = '${req.params.id}'
-          AND quotation_sales.sale_id = invoices.sale_id
-          AND quotation_sales.bus_id = '${req.userData.bus_id}'
-      `);
+  //     await sequelize.query(`
+  //       UPDATE invoices
+  //       SET invoice_date = '${req.body.invoice_date}',
+  //           invoice_status = '${req.body.invoice_status}',
+  //           remark = '${req.body.remark}'
+  //       FROM quotation_sales
+  //       WHERE invoices.invoice_id = '${req.params.id}'
+  //         AND quotation_sales.sale_id = invoices.sale_id
+  //         AND quotation_sales.bus_id = '${req.userData.bus_id}'
+  //     `);
 
-      return ResponseManager.SuccessResponse(req, res, 200, "Invoice Saved");
-    } catch (err) {
-      return ResponseManager.CatchResponse(req, res, err.message);
-    }
-  }
+  //     return ResponseManager.SuccessResponse(req, res, 200, "Invoice Saved");
+  //   } catch (err) {
+  //     return ResponseManager.CatchResponse(req, res, err.message);
+  //   }
+  // }
   static async deleteInvoice(req, res) {
     try {
       const deleteqto = await Invoice.findOne({
@@ -1614,6 +1632,16 @@ from quotation_sale_details
       });
       if (deleteqto) {
         await Invoice.destroy({
+          where: {
+            sale_id: req.params.id,
+          },
+        });
+        await TaxInvoice.destroy({
+          where: {
+            sale_id: req.params.id,
+          },
+        });
+        await Billing.destroy({
           where: {
             sale_id: req.params.id,
           },
@@ -1644,94 +1672,87 @@ from quotation_sale_details
   }
   static async getBilling(req, res) {
     try {
-      Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
-      Quotation_sale_detail.belongsTo(Quotation_sale, {
-        foreignKey: "sale_id",
-      });
-
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
-
-      Business.hasMany(Bank, { foreignKey: "bank_id" });
-      Bank.belongsTo(Business, { foreignKey: "bank_id" });
-
-      Quotation_sale.belongsTo(Employee, { foreignKey: "employeeID" });
-      Employee.hasMany(Quotation_sale, { foreignKey: "employeeID" });
-
-      Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
-      Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
-
-      Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
-      Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
-
-      Invoice.hasOne(Billing, { foreignKey: "invoice_id" });
-      Billing.belongsTo(Invoice, { foreignKey: "invoice_id" });
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
+      let result = [];
 
       const { bus_id } = req.userData;
 
-      let result = [];
-      let quotationslist = [];
+      const log = await sequelize.query(
+        `
+        SELECT 
+  billings.*,
+  tax_invoices.*,
+  invoices.*,
+  quotation_sales.*,
+  employees.*,
+  customers.*
+FROM billings
+LEFT JOIN tax_invoices ON billings.tax_invoice_id = tax_invoices.tax_invoice_id
+LEFT JOIN invoices ON billings.invoice_id = invoices.invoice_id
+LEFT JOIN quotation_sales ON billings.sale_id = quotation_sales.sale_id
+Left join customers on quotation_sales.cus_id = customers.cus_id
+left join employees on employees."employeeID"  = quotation_sales."employeeID" 
+WHERE quotation_sales.bus_id = :bus_id
+ORDER BY invoices.invoice_number ASC;
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: { bus_id }, // <-- ปลอดภัยและสะอาด
+        }
+      );
 
-      quotationslist = await Quotation_sale.findAll({
-        include: [
-          { model: Quotation_sale_detail },
-          { model: Employee },
-          { model: Customer },
-          { model: Business, include: [Bank] },
-          {
-            model: Invoice,
-            where: {
-              invoice_status: "Issue a receipt",
-            },
-            include: [Billing],
-          },
-        ],
-        where: {
-          bus_id: bus_id,
-        },
-      });
-      const today = new Date();
+      const product_detail = await sequelize.query(
+        `
+select * 
+from quotation_sale_details
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
 
-      for (let log of quotationslist) {
-        result.push({
-          sale_id: log.sale_id,
-          quotation_num: log.sale_number,
-          status: log.status,
-          employeeID: log.employeeID,
-          employee_name: log.employee.F_name + " " + log.employee.L_name,
-          cus_id: log.cus_id,
-          cus_name: log.customer.cus_name,
-          cus_address: log.customer.cus_address,
-          cus_tel: log.customer.cus_tel,
-          cus_email: log.customer.cus_email,
-          cus_tax: log.customer.cus_tax,
-          cus_purchase: log.customer.cus_purchase,
-          quotation_start_date: log.sale_date,
-          credit_date: log.credit_date_number,
-          quotation_expired_date: log.credit_expired_date,
-          sale_totalprice: log.sale_totalprice,
-          invoice_id: log.invoice.invoice_id,
-          invoice_number: log.invoice.invoice_number,
-          invoice_status: log.invoice.invoice_status,
-          invoice_date: log.invoice.invoice_date,
-          billing_id: log.invoice.billing.billing_id,
-          billing_number: log.invoice.billing.billing_number,
-          billing_date: log.invoice.billing.billing_date,
-          billing_status: log.invoice.billing.billing_status,
-          payments: log.invoice.billing.payments,
-          remark: log.invoice.billing.remark,
-          vatType: log.vatType,
-          details: log.quotation_sale_details.map((detail) => ({
+      log.forEach((sale) => {
+        const saleData = {
+          billing_id: sale.billing_id,
+          sale_id: sale.sale_id,
+          tax_invoice_number: sale.tax_invoice_number,
+          quotation_num: sale.sale_number,
+          status: sale.status,
+          employeeID: sale.employeeID,
+          employee_name: `${sale.F_name} ${sale.L_name}`,
+          cus_id: sale.cus_id,
+          cus_name: sale.cus_name,
+          cus_address: sale.cus_address,
+          cus_tel: sale.cus_tel,
+          cus_email: sale.cus_email,
+          cus_tax: sale.cus_tax,
+          cus_purchase: sale.cus_purchase,
+          quotation_start_date: sale.sale_date,
+          credit_date: sale.credit_date_number,
+          quotation_expired_date: sale.credit_expired_date,
+          sale_totalprice: sale.sale_totalprice,
+          invoice_id: sale.invoice_id,
+          invoice_number: sale.invoice_number,
+          invoice_status: sale.invoice_status,
+          invoice_date: sale.invoice_date,
+          billing_date: sale.billing_date,
+          billing_status: sale.billing_status,
+          payments: sale.payments,
+          remark: sale.remark,
+          vatType: sale.vatType,
+          discount_quotation: sale.discount_quotation,
+          billing:
+            sale.invoice_status !== "Issue a receipt"
+              ? "Pending"
+              : sale.billing_number,
+          details: [],
+        };
+
+        // Filter product details for the current sale
+        const saleDetails = product_detail.filter(
+          (detail) => detail.sale_id === sale.sale_id
+        );
+        saleDetails.forEach((detail) => {
+          saleData.details.push({
             sale_id: detail.sale_id,
             productID: detail.productID,
             sale_price: detail.sale_price,
@@ -1740,15 +1761,126 @@ from quotation_sale_details
             sale_qty: detail.sale_qty,
             product_detail: detail.product_detail,
             pro_unti: detail.pro_unti,
-          })),
+          });
         });
-      }
+
+        // Add the complete sale data to the result
+        result.push(saleData);
+        console.log(saleData);
+      });
 
       return ResponseManager.SuccessResponse(req, res, 200, result);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+  // static async getBilling(req, res) {
+  //   try {
+  //     Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
+  //     Quotation_sale_detail.belongsTo(Quotation_sale, {
+  //       foreignKey: "sale_id",
+  //     });
+
+  //     Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
+  //     Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
+
+  //     Business.hasMany(Bank, { foreignKey: "bank_id" });
+  //     Bank.belongsTo(Business, { foreignKey: "bank_id" });
+
+  //     Quotation_sale.belongsTo(Employee, { foreignKey: "employeeID" });
+  //     Employee.hasMany(Quotation_sale, { foreignKey: "employeeID" });
+
+  //     Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
+  //     Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
+
+  //     Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
+  //     Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
+
+  //     Invoice.hasOne(Billing, { foreignKey: "invoice_id" });
+  //     Billing.belongsTo(Invoice, { foreignKey: "invoice_id" });
+
+  //     const tokenData = await TokenManager.update_token(req);
+  //     if (!tokenData) {
+  //       return await ResponseManager.ErrorResponse(
+  //         req,
+  //         res,
+  //         401,
+  //         "Unauthorized: Invalid token data"
+  //       );
+  //     }
+
+  //     const { bus_id } = req.userData;
+
+  //     let result = [];
+  //     let quotationslist = [];
+
+  //     quotationslist = await Quotation_sale.findAll({
+  //       include: [
+  //         { model: Quotation_sale_detail },
+  //         { model: Employee },
+  //         { model: Customer },
+  //         { model: Business, include: [Bank] },
+  //         {
+  //           model: Invoice,
+  //           where: {
+  //             invoice_status: "Issue a receipt",
+  //           },
+  //           include: [Billing],
+  //         },
+  //       ],
+  //       where: {
+  //         bus_id: bus_id,
+  //       },
+  //     });
+  //     const today = new Date();
+
+  //     for (let log of quotationslist) {
+  //       result.push({
+  //         sale_id: log.sale_id,
+  //         quotation_num: log.sale_number,
+  //         status: log.status,
+  //         employeeID: log.employeeID,
+  //         employee_name: log.employee.F_name + " " + log.employee.L_name,
+  //         cus_id: log.cus_id,
+  //         cus_name: log.customer.cus_name,
+  //         cus_address: log.customer.cus_address,
+  //         cus_tel: log.customer.cus_tel,
+  //         cus_email: log.customer.cus_email,
+  //         cus_tax: log.customer.cus_tax,
+  //         cus_purchase: log.customer.cus_purchase,
+  //         quotation_start_date: log.sale_date,
+  //         credit_date: log.credit_date_number,
+  //         quotation_expired_date: log.credit_expired_date,
+  //         sale_totalprice: log.sale_totalprice,
+  //         invoice_id: log.invoice.invoice_id,
+  //         invoice_number: log.invoice.invoice_number,
+  //         invoice_status: log.invoice.invoice_status,
+  //         invoice_date: log.invoice.invoice_date,
+  //         billing_id: log.invoice?.billing?.billing_id,
+  //         billing_number: log.invoice?.billing?.billing_number,
+  //         billing_date: log.invoice?.billing?.billing_date,
+  //         billing_status: log.invoice?.billing?.billing_status,
+  //         payments: log.invoice?.billing?.payments,
+  //         remark: log.invoice?.billing?.remark,
+  //         vatType: log.vatType,
+  //         details: log.quotation_sale_details.map((detail) => ({
+  //           sale_id: detail.sale_id,
+  //           productID: detail.productID,
+  //           sale_price: detail.sale_price,
+  //           discounttype: detail.discounttype,
+  //           sale_discount: detail.sale_discount,
+  //           sale_qty: detail.sale_qty,
+  //           product_detail: detail.product_detail,
+  //           pro_unti: detail.pro_unti,
+  //         })),
+  //       });
+  //     }
+
+  //     return ResponseManager.SuccessResponse(req, res, 200, result);
+  //   } catch (err) {
+  //     return ResponseManager.CatchResponse(req, res, err.message);
+  //   }
+  // }
   static async editBilling(req, res) {
     try {
       const { bus_id } = req.userData;
@@ -1828,44 +1960,39 @@ from quotation_sale_details
   }
   static async deleteBilling(req, res) {
     try {
-      const deleteqto = await Billing.findOne({
+      // const deleteqto = await Billing.findOne({
+      //   where: {
+      //     billing_id: req.params.id,
+      //   },
+      // });
+      // if (deleteqto) {
+      //   const data_Billing = await Billing.findOne({
+      //     where: {
+      //       billing_id: req.params.id,
+      //     },
+      //   });
+      //   const invoice_updated = await TaxInvoice.update(
+      //     {
+      //       tax_invoice_status: "Pending",
+      //     },
+      //     {
+      //       where: {
+      //         invoice_id: data_Billing.invoice_id,
+      //       },
+      //     }
+      //   );
+      //   if (invoice_updated) {
+      await Billing.destroy({
         where: {
-          billing_id: req.params.id,
+          invoice_id: req.params.id,
         },
       });
-      if (deleteqto) {
-        const data_Billing = await Billing.findOne({
-          where: {
-            billing_id: req.params.id,
-          },
-        });
-        const invoice_updated = await Invoice.update(
-          {
-            invoice_status: "Pending",
-          },
-          {
-            where: {
-              invoice_id: data_Billing.invoice_id,
-            },
-          }
-        );
-        if (invoice_updated) {
-          await Billing.destroy({
-            where: {
-              billing_id: req.params.id,
-            },
-          });
-        }
+      // }
 
-        return ResponseManager.SuccessResponse(
-          req,
-          res,
-          200,
-          "Billing Deleted "
-        );
-      } else {
-        return ResponseManager.ErrorResponse(req, res, 400, "No Billing found");
-      }
+      return ResponseManager.SuccessResponse(req, res, 200, "Billing Deleted ");
+      // } else {
+      //   return ResponseManager.ErrorResponse(req, res, 400, "No Billing found");
+      // }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
@@ -1883,7 +2010,22 @@ from quotation_sale_details
             sale_id: req.params.id,
           },
         });
-        await Quotation_sale_detail.destroy({
+        await Quotation_sale.destroy({
+          where: {
+            sale_id: req.params.id,
+          },
+        });
+        await Invoice.destroy({
+          where: {
+            sale_id: req.params.id,
+          },
+        });
+        await TaxInvoice.destroy({
+          where: {
+            sale_id: req.params.id,
+          },
+        });
+        await Billing.destroy({
           where: {
             sale_id: req.params.id,
           },
