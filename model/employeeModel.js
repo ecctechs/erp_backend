@@ -44,7 +44,7 @@ const Employee = sequelize.define(
     },
     start_working_date: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     Salary: {
       type: DataTypes.FLOAT,
@@ -64,11 +64,11 @@ const Employee = sequelize.define(
     },
     PositionID: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     departmentID: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     bus_id: {
       type: DataTypes.INTEGER,
