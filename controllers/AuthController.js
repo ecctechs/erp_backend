@@ -70,8 +70,10 @@ class AuthController {
         const user = users[0];
         const storedPassword = user.userPassword;
 
-        // ตรวจสอบรหัสผ่าน
-        if (userPassword === storedPassword) {
+        const isMatch = await bcrypt.compare(userPassword, storedPassword);
+
+        if (isMatch) {
+          // if (userPassword === storedPassword) {
           let token = user.accessToken;
 
           // หากไม่มี Token เดิมในฐานข้อมูล ให้สร้างใหม่
@@ -296,12 +298,15 @@ class AuthController {
           "User phone number already exists"
         );
       }
+
+      const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
       const insert_cate = await User.create({
+        user_title: "Mr.",
         userF_name: req.body.userF_name,
         userL_name: req.body.userL_name,
         userPhone: req.body.userPhone,
         userEmail: req.body.userEmail,
-        userPassword: req.body.userPassword,
+        userPassword: hashedPassword,
         RoleID: req.body.RoleID,
         bus_id: bus_id,
       });
@@ -405,13 +410,16 @@ class AuthController {
       }
 
       if (createdBusiness) {
+        // Hash password ก่อนบันทึก
+        const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
+
         const insertUser = await User.create({
           user_title: req.body.user_title,
           userF_name: req.body.userF_name,
           userL_name: req.body.userL_name,
           userPhone: req.body.userPhone,
           userEmail: req.body.userEmail,
-          userPassword: req.body.userPassword,
+          userPassword: hashedPassword, // เก็บรหัสผ่านแบบ hash
           RoleID: 1,
           bus_id: createdBusiness.bus_id,
         });
@@ -491,14 +499,14 @@ class AuthController {
             "Email,UserName,LastName,Password already exists"
           );
         }
-
+        const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
         await User.update(
           {
             userF_name: req.body.userF_name,
             userL_name: req.body.userL_name,
             userPhone: req.body.userPhone,
             userEmail: req.body.userEmail,
-            userPassword: req.body.userPassword,
+            userPassword: hashedPassword,
             RoleID: req.body.RoleID,
           },
           {

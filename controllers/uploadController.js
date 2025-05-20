@@ -29,8 +29,6 @@ exports.deleteAllData = async () => {
 
 exports.uploadAndExtractZip = async (zipFilePath) => {
   try {
-    console.log("Data deleted successfully.");
-
     fs.createReadStream(zipFilePath)
       .pipe(unzipper.Parse())
       .on("entry", (entry) => {
@@ -42,19 +40,29 @@ exports.uploadAndExtractZip = async (zipFilePath) => {
           const Model = sequelize.models[tableName];
 
           if (Model) {
+            const rows = [];
+
             entry
               .pipe(csv())
               .on("data", (row) => {
-                Model.destroy({ truncate: true });
-                Model.create(row)
-                  .then(() => console.log("Data inserted successfully"))
-                  .catch((err) => console.error("Error inserting data:", err));
+                rows.push(row);
+              })
+              .on("end", async () => {
+                try {
+                  await Model.destroy({ truncate: true });
+                  await Model.bulkCreate(rows);
+                  console.log(
+                    `Data inserted into ${tableName} (${rows.length} rows)`
+                  );
+                } catch (err) {
+                  console.error("Error inserting data:", err);
+                }
               })
               .on("error", (err) => {
                 console.error("Error reading CSV file:", err);
               });
           } else {
-            console.warn(`Table ${tableName} not found in the database.`);
+            console.warn(`Table ${tableName} not found in sequelize models.`);
             entry.autodrain();
           }
         } else {
@@ -68,7 +76,7 @@ exports.uploadAndExtractZip = async (zipFilePath) => {
         console.error("Error processing zip file:", err);
       });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Unexpected error:", error);
     throw error;
   }
 };
