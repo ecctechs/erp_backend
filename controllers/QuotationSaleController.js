@@ -1987,7 +1987,15 @@ from quotation_sale_details
           invoice_id: req.params.id,
         },
       });
-      // }
+
+      await TaxInvoice.update(
+        { tax_invoice_status: "Pending" },
+        {
+          where: {
+            invoice_id: req.params.id,
+          },
+        }
+      );
 
       return ResponseManager.SuccessResponse(req, res, 200, "Billing Deleted ");
       // } else {
@@ -2132,7 +2140,7 @@ from quotation_sale_details
         );
       }
 
-      const { bus_id } = req.userData;
+      const { bus_id, userId } = req.userData;
 
       const business = await User.findOne({
         include: [
@@ -2147,8 +2155,10 @@ from quotation_sale_details
         ],
         where: {
           bus_id: bus_id,
+          userID: userId,
         },
       });
+      // console.log(userId);
 
       return ResponseManager.SuccessResponse(req, res, 200, business);
     } catch (err) {
