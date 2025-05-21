@@ -728,6 +728,8 @@ class QuotationSaleController {
             remark: "",
             sale_id: req.params.id,
           });
+
+        
         }
       }
 
@@ -774,6 +776,7 @@ class QuotationSaleController {
   }
   static async getQuotation(req, res) {
     try {
+  
       Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
       Quotation_sale_detail.belongsTo(Quotation_sale, {
         foreignKey: "sale_id",
@@ -793,6 +796,8 @@ class QuotationSaleController {
 
       Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
       Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
+
+
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -821,6 +826,9 @@ class QuotationSaleController {
         order: [["sale_number", "ASC"]], // <-- เรียงจากน้อยไปมาก
       });
       const today = new Date();
+      console.log("-----------------------------------------")
+        console.log(quotationslist)
+        // return false
 
       for (let log of quotationslist) {
         const expiredDate = new Date(log.credit_expired_date);
@@ -833,7 +841,7 @@ class QuotationSaleController {
             { where: { sale_id: log.sale_id } }
           );
         }
-        console.log(log)
+    
 
         result.push({
           sale_id: log.sale_id,
@@ -857,7 +865,7 @@ class QuotationSaleController {
           discount_quotation: log.discount_quotation,
           vatType: log.vatType,
           vat: log.vat,
-          DeleteAt:log.DeleteAt,
+          deleted_at:log.deleted_at,
           // bank_id: log.bank_id,
           invoice:
             !log.invoice || log.status !== "Allowed"
@@ -2020,6 +2028,7 @@ from quotation_sale_details
             sale_id: req.params.id,
           },
         });
+
         await Quotation_sale.destroy({
           where: {
             sale_id: req.params.id,
