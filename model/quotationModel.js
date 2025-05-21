@@ -174,9 +174,9 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-      DeleteAt: {
+      deleted_at: {
     type: DataTypes.STRING(10),
-      allowNull: false,
+      allowNull: true,
     }
   },
   {
@@ -253,9 +253,9 @@ const Invoice = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-          DeleteAt: {
+          deleted_at: {
   type: DataTypes.STRING(10),
-      allowNull: false,
+      allowNull: true,
     }
   },
   {
@@ -295,9 +295,9 @@ const TaxInvoice = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-          DeleteAt: {
+          deleted_at: {
     type: DataTypes.STRING(10),
-      allowNull: false,
+      allowNull: true,
     }
   },
   {
@@ -345,9 +345,9 @@ const Billing = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-          DeleteAt: {
+          deleted_at: {
      type: DataTypes.STRING(10),
-      allowNull: false,
+      allowNull: true,
     }
   },
   {
