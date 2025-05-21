@@ -729,6 +729,18 @@ class QuotationSaleController {
             sale_id: req.params.id,
           });
 
+await Quotation_sale.update(
+  {
+    deleted_at: new Date().toISOString()
+  },
+  {
+    where: {
+      sale_id: req.params.id,
+      bus_id: bus_id,
+    },
+  }
+);
+      
         
         }
       }
@@ -899,7 +911,8 @@ class QuotationSaleController {
 
       const log = await sequelize.query(
         `
-        select * 
+        select   *, 
+  invoices.deleted_at AS invoice_deleted_at
 from invoices
 Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
 Left join businesses on businesses.bus_id = quotation_sales.bus_id
@@ -951,6 +964,7 @@ from quotation_sale_details
           invoice_remark: sale.remark,
           vatType: sale.vatType,
           discount_quotation: sale.discount_quotation,
+          deleted_at:sale.invoice_deleted_at,
           billing:
             sale.invoice_status !== "Issue a receipt"
               ? "Pending"
@@ -997,6 +1011,7 @@ from quotation_sale_details
   tax_invoices.tax_invoice_id AS tax_id_alias,
   tax_invoices.sale_id AS sale_id_alias,
   tax_invoices.invoice_id AS invoice_id_alias,
+  tax_invoices.deleted_at AS tax_invoice_deleted_at,
   * 
 FROM tax_invoices
 Left join invoices on invoices.invoice_id = tax_invoices.invoice_id
@@ -1054,6 +1069,7 @@ from quotation_sale_details
           invoice_date: sale.invoice_date,
           invoice_remark: sale.remark,
           vatType: sale.vatType,
+          deleted_at:sale.tax_invoice_deleted_at,
           discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "Issue a receipt"
@@ -1188,6 +1204,17 @@ from quotation_sale_details
             tax_invoice_id: req.body.tax_invoice_id,
             sale_id: req.body.sale_id,
           });
+
+          await TaxInvoice.update(
+  {
+    deleted_at: new Date().toISOString()
+  },
+  {
+    where: {
+      invoice_id: req.params.id,
+    },
+  }
+);
         }
       }
 
@@ -1244,6 +1271,7 @@ from quotation_sale_details
         await Invoice.update(
           {
             invoice_status: "Pending",
+            deleted_at:""
           },
           {
             where: {
@@ -1467,6 +1495,19 @@ from quotation_sale_details
             invoice_id: req.params.id,
             sale_id: Invoice_quotataion.sale_id,
           });
+          
+await Invoice.update(
+  {
+    deleted_at: new Date().toISOString()
+  },
+  {
+    where: {
+      invoice_id: req.params.id,
+    },
+  }
+);
+
+
         }
       }
 
@@ -1660,6 +1701,7 @@ from quotation_sale_details
         await Quotation_sale.update(
           {
             status: "Pending",
+            deleted_at:""
           },
           {
             where: {
@@ -1749,6 +1791,7 @@ from quotation_sale_details
           payments: sale.payments,
           remark: sale.remark,
           vatType: sale.vatType,
+          deleted_at:sale.deleted_at,
           discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "Issue a receipt"
@@ -1999,7 +2042,7 @@ from quotation_sale_details
       });
 
       await TaxInvoice.update(
-        { tax_invoice_status: "Pending" },
+        { tax_invoice_status: "Pending",deleted_at : "" },
         {
           where: {
             invoice_id: req.params.id,
