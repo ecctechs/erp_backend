@@ -833,6 +833,7 @@ class QuotationSaleController {
             { where: { sale_id: log.sale_id } }
           );
         }
+        console.log(log)
 
         result.push({
           sale_id: log.sale_id,
@@ -856,6 +857,7 @@ class QuotationSaleController {
           discount_quotation: log.discount_quotation,
           vatType: log.vatType,
           vat: log.vat,
+          DeleteAt:log.DeleteAt,
           // bank_id: log.bank_id,
           invoice:
             !log.invoice || log.status !== "Allowed"
