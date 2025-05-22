@@ -111,20 +111,20 @@ class EmployeeController {
         );
       }
 
-      const existingempBankID = await Employee.findOne({
-        where: {
-          bankAccountID: req.body.bankAccountID,
-        },
-      });
+      // const existingempBankID = await Employee.findOne({
+      //   where: {
+      //     bankAccountID: req.body.bankAccountID,
+      //   },
+      // });
 
-      if (existingempBankID) {
-        return ResponseManager.ErrorResponse(
-          req,
-          res,
-          400,
-          "Bank Account ID is already exist"
-        );
-      }
+      // if (existingempBankID) {
+      //   return ResponseManager.ErrorResponse(
+      //     req,
+      //     res,
+      //     400,
+      //     "Bank Account ID is already exist"
+      //   );
+      // }
 
       const insert_emp = await Employee.create({
         title: req.body.title,
@@ -136,7 +136,7 @@ class EmployeeController {
         Phone_num: req.body.Phone_num,
         Email: req.body.Email,
         start_working_date: req.body.start_working_date,
-        Salary: req.body.Salary,
+        Salary: req.body.Salary || "0",
         employeeType: req.body.employeeType,
         bankName: req.body.bankName,
         bankAccountID: req.body.bankAccountID,
@@ -202,21 +202,21 @@ class EmployeeController {
           return;
         }
 
-        const existingempBankID = await Employee.findOne({
-          where: {
-            bankAccountID: req.body.bankAccountID,
-            employeeID: { [Op.ne]: req.params.id },
-          },
-        });
+        // const existingempBankID = await Employee.findOne({
+        //   where: {
+        //     bankAccountID: req.body.bankAccountID,
+        //     employeeID: { [Op.ne]: req.params.id },
+        //   },
+        // });
 
-        if (existingempBankID) {
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Bank Account ID is already exist"
-          );
-        }
+        // if (existingempBankID) {
+        //   return ResponseManager.ErrorResponse(
+        //     req,
+        //     res,
+        //     400,
+        //     "Bank Account ID is already exist"
+        //   );
+        // }
 
         const updatedData = {
           title: req.body.title,
@@ -957,7 +957,7 @@ class EmployeeController {
             employeeType: log.employeeType,
             phone: log.Phone_num,
             email: log.Email,
-             department: log.department ? log.department.departmentName : "",
+            department: log.department ? log.department.departmentName : "",
             position: log.position ? log.position.Position : "",
             bankName: log.bankName,
             bankAccountID: log.bankAccountID,

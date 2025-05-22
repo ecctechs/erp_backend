@@ -114,6 +114,7 @@ class AuthController {
             userEmail: user.userEmail,
             RoleID: user.RoleID,
             RoleName: user.role.RoleName,
+            TokenCreate: user.TokenCreate,
           });
         } else {
           return ResponseManager.ErrorResponse(
@@ -346,19 +347,19 @@ class AuthController {
         );
       }
 
-      const existingBus = await Business.findOne({
-        where: {
-          bus_name: req.body.bus_name,
-        },
-      });
-      if (existingBus) {
-        return ResponseManager.SuccessResponse(
-          req,
-          res,
-          400,
-          "Business already exists"
-        );
-      }
+      // const existingBus = await Business.findOne({
+      //   where: {
+      //     bus_name: req.body.bus_name,
+      //   },
+      // });
+      // if (existingBus) {
+      //   return ResponseManager.SuccessResponse(
+      //     req,
+      //     res,
+      //     400,
+      //     "Business already exists"
+      //   );
+      // }
 
       // if (!req.file) {
       //   return ResponseManager.ErrorResponse(req, res, 400, "No file uploaded");
@@ -400,7 +401,7 @@ class AuthController {
         createdBusiness = await Business.create({
           bus_name: req.body.bus_name,
           bus_address: req.body.bus_address,
-          bus_website: req.body.bus_website,
+          bus_website: req.body.bus_website || "",
           bus_tel: req.body.bus_tel,
           bus_tax: req.body.bus_tax,
           bus_logo: result.secure_url,
