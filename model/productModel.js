@@ -148,7 +148,7 @@ const Expense = sequelize.define(
     },
     quantity_remark: {
       type: DataTypes.STRING(100),
-      allowNull: false,
+      allowNull: true,
     },
     bus_id: {
       type: DataTypes.INTEGER,
