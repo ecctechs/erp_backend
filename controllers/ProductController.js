@@ -150,7 +150,7 @@ class ProductController {
         //     "Please choose a product image file"
         //   );
         // }
-        const result = [];
+        let result = [];
         if (req.file) {
           if (req.file.size > 5 * 1024 * 1024) {
             return ResponseManager.ErrorResponse(
