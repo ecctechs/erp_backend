@@ -91,7 +91,7 @@ class AuthController {
             await User.update(
               {
                 accessToken: token,
-                TokenCreate: thaiDateString,
+                //TokenCreate: thaiDateString,
               },
               { where: { userID: user.userID } }
             );
@@ -300,8 +300,15 @@ class AuthController {
         );
       }
 
-      // const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
-      const hashedPassword = req.body.userPassword
+      // Find the oldest user with the same bus_id
+      const oldestUser = await User.findOne({
+        where: {
+          bus_id: bus_id,
+        },
+        order: [['TokenCreate', 'ASC']],
+      });
+
+      const hashedPassword = req.body.userPassword;
       const insert_cate = await User.create({
         user_title: "Mr.",
         userF_name: req.body.userF_name,
@@ -311,6 +318,7 @@ class AuthController {
         userPassword: hashedPassword,
         RoleID: req.body.RoleID,
         bus_id: bus_id,
+        TokenCreate: oldestUser ? oldestUser.TokenCreate : null,
       });
       console.log("---->", req.body);
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -418,6 +426,12 @@ class AuthController {
         // Hash password ก่อนบันทึก
         // const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
         const hashedPassword = req.body.userPassword;
+        const timestamp = Date.now();
+        const dateObject = new Date(timestamp);
+        const thaiDateString =
+          dateObject.toLocaleDateString("th") +
+          " " +
+          dateObject.toLocaleTimeString("th");
 
         const insertUser = await User.create({
           user_title: req.body.user_title,
@@ -428,6 +442,7 @@ class AuthController {
           userPassword: hashedPassword, // เก็บรหัสผ่านแบบ hash
           RoleID: 1,
           bus_id: createdBusiness.bus_id,
+          TokenCreate: thaiDateString,
         });
 
         await Employee.create({
