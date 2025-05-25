@@ -300,7 +300,8 @@ class AuthController {
         );
       }
 
-      const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
+      // const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
+      const hashedPassword = req.body.userPassword
       const insert_cate = await User.create({
         user_title: "Mr.",
         userF_name: req.body.userF_name,
