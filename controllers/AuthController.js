@@ -364,7 +364,8 @@ class AuthController {
       // if (!req.file) {
       //   return ResponseManager.ErrorResponse(req, res, 400, "No file uploaded");
       // }
-      const result = [];
+      
+      let result = [];
       if (req.file) {
         const allowedMimeTypes = ["image/jpeg", "image/png"];
         if (req.file && !allowedMimeTypes.includes(req.file.mimetype)) {
@@ -386,8 +387,10 @@ class AuthController {
 
         result = await cloudinary.uploader.upload(req.file.path);
       }
+        // return false;
+      
       console.log("Cloudinary upload result:", result);
-
+  
       const createbank = await Bank.create({
         bank_name: req.body.bank_name,
         bank_account: req.body.bank_account,
