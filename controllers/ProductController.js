@@ -43,7 +43,7 @@ class ProductController {
       // ตรวจสอบและอัพเดท status หาก amount = 0
       for (const product of products) {
         if (product.amount === 0 && product.productTypeID === 1) {
-          await product.update({ Status: "Discontinued" });
+          // await product.update({ Status: "Discontinued" });
         } else if (product.amount > 0 && product.productTypeID === 1) {
           // await product.update({ Status: "active" });
         }
@@ -187,7 +187,7 @@ class ProductController {
           productImg: result.secure_url,
           product_date: DateString,
           bus_id: bus_id,
-          Status: "active",
+          Status: "Discontinued",
         });
 
         return ResponseManager.SuccessResponse(req, res, 200, insert_product);
@@ -552,6 +552,22 @@ class ProductController {
               }
             );
 
+            // อัปเดตจำนวนสินค้าในตาราง Product
+            const updatedAmount =
+              getProductByid.dataValues.amount - req.body.quantity;
+
+            // หากจำนวนสินค้าเหลือ 0 ให้อัปเดตสถานะเป็น Discontinued
+            if (updatedAmount === 0) {
+              await Product.update(
+                { Status: "Discontinued" },
+                {
+                  where: {
+                    productID: req.body.productID,
+                  },
+                }
+              );
+            }
+
             return ResponseManager.SuccessResponse(
               req,
               res,
@@ -611,6 +627,18 @@ class ProductController {
             { where: { productID: req.body.productID } }
           );
 
+          // อัปเดตสถานะหากจำนวนสินค้าหลังอัปเดตเหลือ 0
+          const updatedProduct = await Product.findOne({
+            where: { productID: req.body.productID },
+          });
+
+          if (updatedProduct.amount === 0) {
+            await Product.update(
+              { Status: "Discontinued" },
+              { where: { productID: req.body.productID } }
+            );
+          }
+
           // อัปเดต Transaction เป็น receive
           await Transaction.update(
             {
@@ -642,6 +670,21 @@ class ProductController {
             },
             { where: { productID: req.body.productID } }
           );
+
+          // อัปเดตสถานะให้กลับมาใช้งานได้หากจำนวนสินค้ากลายเป็นมากกว่า 0
+          const updatedProduct = await Product.findOne({
+            where: { productID: req.body.productID },
+          });
+
+          if (
+            updatedProduct.amount > 0 &&
+            updatedProduct.Status === "Discontinued"
+          ) {
+            await Product.update(
+              { Status: "active" },
+              { where: { productID: req.body.productID } }
+            );
+          }
 
           // อัปเดต Transaction เป็น receive
           await Transaction.update(

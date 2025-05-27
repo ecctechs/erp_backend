@@ -729,19 +729,17 @@ class QuotationSaleController {
             sale_id: req.params.id,
           });
 
-await Quotation_sale.update(
-  {
-    deleted_at: new Date().toISOString()
-  },
-  {
-    where: {
-      sale_id: req.params.id,
-      bus_id: bus_id,
-    },
-  }
-);
-      
-        
+          await Quotation_sale.update(
+            {
+              deleted_at: new Date().toISOString(),
+            },
+            {
+              where: {
+                sale_id: req.params.id,
+                bus_id: bus_id,
+              },
+            }
+          );
         }
       }
 
@@ -788,7 +786,6 @@ await Quotation_sale.update(
   }
   static async getQuotation(req, res) {
     try {
-  
       Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
       Quotation_sale_detail.belongsTo(Quotation_sale, {
         foreignKey: "sale_id",
@@ -808,8 +805,6 @@ await Quotation_sale.update(
 
       Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
       Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
-
-
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -838,9 +833,9 @@ await Quotation_sale.update(
         order: [["sale_number", "ASC"]], // <-- เรียงจากน้อยไปมาก
       });
       const today = new Date();
-      console.log("-----------------------------------------")
-        console.log(quotationslist)
-        // return false
+      console.log("-----------------------------------------");
+      console.log(quotationslist);
+      // return false
 
       for (let log of quotationslist) {
         const expiredDate = new Date(log.credit_expired_date);
@@ -853,7 +848,6 @@ await Quotation_sale.update(
             { where: { sale_id: log.sale_id } }
           );
         }
-    
 
         result.push({
           sale_id: log.sale_id,
@@ -877,7 +871,7 @@ await Quotation_sale.update(
           discount_quotation: log.discount_quotation,
           vatType: log.vatType,
           vat: log.vat,
-          deleted_at:log.deleted_at,
+          deleted_at: log.deleted_at,
           // bank_id: log.bank_id,
           invoice:
             !log.invoice || log.status !== "Allowed"
@@ -964,7 +958,7 @@ from quotation_sale_details
           invoice_remark: sale.remark,
           vatType: sale.vatType,
           discount_quotation: sale.discount_quotation,
-          deleted_at:sale.invoice_deleted_at,
+          deleted_at: sale.invoice_deleted_at,
           billing:
             sale.invoice_status !== "Issue a receipt"
               ? "Pending"
@@ -1069,7 +1063,7 @@ from quotation_sale_details
           invoice_date: sale.invoice_date,
           invoice_remark: sale.remark,
           vatType: sale.vatType,
-          deleted_at:sale.tax_invoice_deleted_at,
+          deleted_at: sale.tax_invoice_deleted_at,
           discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "Issue a receipt"
@@ -1206,15 +1200,15 @@ from quotation_sale_details
           });
 
           await TaxInvoice.update(
-  {
-    deleted_at: new Date().toISOString()
-  },
-  {
-    where: {
-      invoice_id: req.params.id,
-    },
-  }
-);
+            {
+              deleted_at: new Date().toISOString(),
+            },
+            {
+              where: {
+                invoice_id: req.params.id,
+              },
+            }
+          );
         }
       }
 
@@ -1271,7 +1265,7 @@ from quotation_sale_details
         await Invoice.update(
           {
             invoice_status: "Pending",
-            deleted_at:""
+            deleted_at: "",
           },
           {
             where: {
@@ -1495,19 +1489,17 @@ from quotation_sale_details
             invoice_id: req.params.id,
             sale_id: Invoice_quotataion.sale_id,
           });
-          
-await Invoice.update(
-  {
-    deleted_at: new Date().toISOString()
-  },
-  {
-    where: {
-      invoice_id: req.params.id,
-    },
-  }
-);
 
-
+          await Invoice.update(
+            {
+              deleted_at: new Date().toISOString(),
+            },
+            {
+              where: {
+                invoice_id: req.params.id,
+              },
+            }
+          );
         }
       }
 
@@ -1701,7 +1693,7 @@ await Invoice.update(
         await Quotation_sale.update(
           {
             status: "Pending",
-            deleted_at:""
+            deleted_at: "",
           },
           {
             where: {
@@ -1791,7 +1783,7 @@ from quotation_sale_details
           payments: sale.payments,
           remark: sale.remark,
           vatType: sale.vatType,
-          deleted_at:sale.deleted_at,
+          deleted_at: sale.deleted_at,
           discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "Issue a receipt"
@@ -2042,7 +2034,7 @@ from quotation_sale_details
       });
 
       await TaxInvoice.update(
-        { tax_invoice_status: "Pending",deleted_at : "" },
+        { tax_invoice_status: "Pending", deleted_at: "" },
         {
           where: {
             invoice_id: req.params.id,
