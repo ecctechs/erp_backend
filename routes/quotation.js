@@ -161,4 +161,25 @@ Route.post(
   verifyTokenWithbus_id,
   QuotationSaleController.addCustomer2
 );
+
+Route.post(
+  RouteName + "/get_sale_report_product_type",
+  verifyTokenWithbus_id,
+  QuotationSaleController.GetSaleReportByProductType
+);
+Route.post(
+  RouteName + "/get_sale_report_category",
+  verifyTokenWithbus_id,
+  QuotationSaleController.GetSaleReportByCategory
+);
+Route.post(
+  RouteName + "/get_sale_report_product_rank",
+  verifyTokenWithbus_id,
+  QuotationSaleController.GetSaleReportByProdcutRank
+);
+Route.post(
+  RouteName + "/get_sale_report_service",
+  verifyTokenWithbus_id,
+  QuotationSaleController.GetSaleReportByService
+);
 module.exports = Route;

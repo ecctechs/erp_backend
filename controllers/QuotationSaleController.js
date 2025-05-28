@@ -2522,6 +2522,193 @@ from quotation_sale_details
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+
+  static async GetSaleReportByProductType(req, res) {
+    try {
+      const { bus_id } = req.userData;
+      const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
+
+      const log = await sequelize.query(
+        `
+      SELECT 
+    CASE 
+        WHEN products."productTypeID" = 1 THEN 'สินค้า'
+        WHEN products."productTypeID" = 2 THEN 'บริการ'
+        ELSE 'Other'
+    END AS product_type,
+    SUM(quotation_sale_details."sale_price") AS total_sale_price
+FROM 
+    public.quotation_sale_details
+LEFT JOIN 
+    public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
+LEFT JOIN 
+    public.products ON public.products."productID" = public.quotation_sale_details."productID"
+LEFT JOIN 
+    public.product_categories ON public.products."categoryID" = public.product_categories."categoryID"
+WHERE 
+    public.products."bus_id" = :bus_id
+    AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
+GROUP BY 
+    product_type;
+
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: { bus_id, startDate, endDate }, // ส่ง bus_id ผ่าน replacements เพื่อป้องกัน SQL Injection
+        }
+      );
+
+      // ส่งผลลัพธ์กลับไปยัง client
+      return ResponseManager.SuccessResponse(req, res, 200, log);
+    } catch (err) {
+      // ส่งข้อผิดพลาดหากเกิดปัญหา
+      console.error("Error in GetSaleReportByProductType:", err);
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async GetSaleReportByCategory(req, res) {
+    try {
+      const { bus_id } = req.userData;
+      const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
+
+      const log = await sequelize.query(
+        `
+SELECT 
+    public.product_categories."categoryName",
+    SUM(public.quotation_sale_details."sale_price") AS total_sale_price
+FROM 
+    public.quotation_sale_details
+LEFT JOIN 
+    public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
+LEFT JOIN 
+    public.products ON public.products."productID" = public.quotation_sale_details."productID"
+LEFT JOIN 
+    public.product_categories ON public.products."categoryID" = public.product_categories."categoryID"
+WHERE 
+    public.products."bus_id" = :bus_id
+    AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
+GROUP BY 
+    public.product_categories."categoryName";
+
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: { bus_id, startDate, endDate }, // ส่ง bus_id ผ่าน replacements เพื่อป้องกัน SQL Injection
+        }
+      );
+
+      // ส่งผลลัพธ์กลับไปยัง client
+      return ResponseManager.SuccessResponse(req, res, 200, log);
+    } catch (err) {
+      // ส่งข้อผิดพลาดหากเกิดปัญหา
+      console.error("Error in GetSaleReportByProductType:", err);
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async GetSaleReportByProdcutRank(req, res) {
+    try {
+      const { bus_id } = req.userData;
+      const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
+
+      const log = await sequelize.query(
+        `
+WITH RankedProducts AS (
+    SELECT 
+        public.products."productname",
+        SUM(public.quotation_sale_details."sale_price") AS total_sale_price,
+        ROW_NUMBER() OVER (ORDER BY SUM(public.quotation_sale_details."sale_price") DESC) AS rank
+    FROM 
+        public.quotation_sale_details
+    LEFT JOIN 
+        public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
+    LEFT JOIN 
+        public.products ON public.products."productID" = public.quotation_sale_details."productID"
+    WHERE 
+        public.products."bus_id" = :bus_id
+        AND public.products."productTypeID" != 2
+           AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
+    GROUP BY 
+        public.products."productname"
+),
+AggregatedProducts AS (
+    SELECT 
+        CASE 
+            WHEN rank <= 7 THEN "productname"
+            ELSE 'Others'
+        END AS product,
+        SUM(total_sale_price) AS total_sale_price
+    FROM RankedProducts
+    GROUP BY 
+        CASE 
+            WHEN rank <= 7 THEN "productname"
+            ELSE 'Others'
+        END
+)
+SELECT 
+    product,
+    total_sale_price
+FROM 
+    AggregatedProducts
+ORDER BY 
+    total_sale_price DESC;
+
+
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: { bus_id, startDate, endDate }, // ส่ง bus_id ผ่าน replacements เพื่อป้องกัน SQL Injection
+        }
+      );
+
+      // ส่งผลลัพธ์กลับไปยัง client
+      return ResponseManager.SuccessResponse(req, res, 200, log);
+    } catch (err) {
+      // ส่งข้อผิดพลาดหากเกิดปัญหา
+      console.error("Error in GetSaleReportByProductType:", err);
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+  static async GetSaleReportByService(req, res) {
+    try {
+      const { bus_id } = req.userData;
+      const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
+
+      const log = await sequelize.query(
+        `
+SELECT 
+    public.products.productname AS product_name,
+    SUM(public.quotation_sale_details."sale_price") AS total_sale_price
+FROM 
+    public.quotation_sale_details
+LEFT JOIN 
+    public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
+LEFT JOIN 
+    public.products ON public.products."productID" = public.quotation_sale_details."productID"
+WHERE 
+    public.products."bus_id" = :bus_id
+    AND public.products."productTypeID" = 2
+    AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
+	GROUP BY 
+    public.products."productname"
+ORDER BY 
+    total_sale_price DESC;
+
+
+      `,
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: { bus_id, startDate, endDate }, // ส่ง bus_id ผ่าน replacements เพื่อป้องกัน SQL Injection
+        }
+      );
+
+      // ส่งผลลัพธ์กลับไปยัง client
+      return ResponseManager.SuccessResponse(req, res, 200, log);
+    } catch (err) {
+      // ส่งข้อผิดพลาดหากเกิดปัญหา
+      console.error("Error in GetSaleReportByProductType:", err);
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
 }
 
 module.exports = QuotationSaleController;
