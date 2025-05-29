@@ -2446,13 +2446,14 @@ from quotation_sale_details
         let productUpdateData = {};
         const result = await cloudinary.uploader.upload(req.file.path);
         productUpdateData.expense_image = result.secure_url;
+
+        await Expense.update(productUpdateData, {
+          where: {
+            expense_id: req.body.expense_id,
+          },
+        });
       }
 
-      await Expense.update(productUpdateData, {
-        where: {
-          expense_id: req.body.expense_id,
-        },
-      });
       return ResponseManager.SuccessResponse(req, res, 200, insert_product);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, req.body);
