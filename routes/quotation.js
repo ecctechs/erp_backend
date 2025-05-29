@@ -182,4 +182,10 @@ Route.post(
   verifyTokenWithbus_id,
   QuotationSaleController.GetSaleReportByService
 );
+
+Route.post(
+  RouteName + "/AddExpense_img",
+  upload.single("file"),
+  QuotationSaleController.AddExpense_img
+);
 module.exports = Route;

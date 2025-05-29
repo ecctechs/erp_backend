@@ -23,6 +23,7 @@ const { Op } = require("sequelize");
 const TokenManager = require("../middleware/tokenManager");
 
 const sequelize = require("../database");
+const { Expense } = require("../model/productModel");
 
 class QuotationSaleController {
   static async getBusiness(req, res) {
@@ -2380,6 +2381,77 @@ from quotation_sale_details
       const insert_product = await Quotation_img.create({
         quotation_id: req.body.quotation_id,
         quotation_img: result.secure_url,
+      });
+      return ResponseManager.SuccessResponse(req, res, 200, insert_product);
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, req.body);
+    }
+  }
+
+  static async AddExpense_img(req, res) {
+    try {
+      // return ResponseManager.SuccessResponse(req, res, 200);
+
+      console.log("File received:", req.file);
+      console.log("Request body:", req.body);
+
+      const today = new Date();
+      const DateString = today.toISOString().split("T")[0];
+
+      // const editproduct = await Expense.findOne({
+      //   where: {
+      //     expense_id: req.body.expense_id,
+      //   },
+      // });
+
+      // if (editproduct) {
+      //   await Quotation_img.destroy({
+      //     where: {
+      //       quotation_id: req.body.quotation_id,
+      //     },
+      //   });
+      // }
+      // return false;
+
+      if (!req.file) {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Please choose a product image file"
+        );
+      }
+
+      if (req.file.size > 5 * 1024 * 1024) {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "File size exceeds 5 MB limit"
+        );
+      }
+      const allowedMimeTypes = ["image/jpeg", "image/png"];
+      if (!allowedMimeTypes.includes(req.file.mimetype)) {
+        return ResponseManager.ErrorResponse(
+          req,
+          res,
+          400,
+          "Only JPEG and PNG image files are allowed"
+        );
+      }
+
+      // const result = await cloudinary.uploader.upload(req.file.path);
+
+      if (req.file) {
+        let productUpdateData = {};
+        const result = await cloudinary.uploader.upload(req.file.path);
+        productUpdateData.expense_image = result.secure_url;
+      }
+
+      await Expense.update(productUpdateData, {
+        where: {
+          expense_id: req.body.expense_id,
+        },
       });
       return ResponseManager.SuccessResponse(req, res, 200, insert_product);
     } catch (err) {
