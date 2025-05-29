@@ -1085,7 +1085,7 @@ class ProductController {
         { where: { expense_id: req.params.id } }
       );
 
-      return ResponseManager.SuccessResponse(req, res, 200, editExpense);
+      return ResponseManager.SuccessResponse(req, res, 200, req.params.id);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
