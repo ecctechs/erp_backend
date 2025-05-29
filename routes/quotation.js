@@ -182,4 +182,14 @@ Route.post(
   verifyTokenWithbus_id,
   QuotationSaleController.GetSaleReportByService
 );
+<<<<<<< Updated upstream
+=======
+
+Route.post(
+  RouteName + "/AddExpense_img",
+  upload.single("file"),
+  QuotationSaleController.AddExpense_img
+);
+
+>>>>>>> Stashed changes
 module.exports = Route;
