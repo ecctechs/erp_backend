@@ -23,6 +23,7 @@ const { Op } = require("sequelize");
 const TokenManager = require("../middleware/tokenManager");
 
 const sequelize = require("../database");
+const { Expense } = require("../model/productModel");
 
 class QuotationSaleController {
   static async getBusiness(req, res) {
@@ -2387,8 +2388,6 @@ from quotation_sale_details
     }
   }
 
-<<<<<<< Updated upstream
-=======
   static async AddExpense_img(req, res) {
     try {
       // return ResponseManager.SuccessResponse(req, res, 200);
@@ -2398,6 +2397,21 @@ from quotation_sale_details
 
       const today = new Date();
       const DateString = today.toISOString().split("T")[0];
+
+      // const editproduct = await Expense.findOne({
+      //   where: {
+      //     expense_id: req.body.expense_id,
+      //   },
+      // });
+
+      // if (editproduct) {
+      //   await Quotation_img.destroy({
+      //     where: {
+      //       quotation_id: req.body.quotation_id,
+      //     },
+      //   });
+      // }
+      // return false;
 
       if (!req.file) {
         return ResponseManager.ErrorResponse(
@@ -2432,21 +2446,19 @@ from quotation_sale_details
         let productUpdateData = {};
         const result = await cloudinary.uploader.upload(req.file.path);
         productUpdateData.expense_image = result.secure_url;
-
-        await Expense.update(productUpdateData, {
-          where: {
-            expense_id: req.body.expense_id,
-          },
-        });
       }
 
-      return ResponseManager.SuccessResponse(req, res, 200);
+      await Expense.update(productUpdateData, {
+        where: {
+          expense_id: req.body.expense_id,
+        },
+      });
+      return ResponseManager.SuccessResponse(req, res, 200, insert_product);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, req.body);
     }
   }
 
->>>>>>> Stashed changes
   static async getQuotation_img(req, res) {
     try {
       const business = await Quotation_img.findAll();
