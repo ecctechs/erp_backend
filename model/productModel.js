@@ -150,6 +150,10 @@ const Expense = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: true,
     },
+    expense_image: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
     bus_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
