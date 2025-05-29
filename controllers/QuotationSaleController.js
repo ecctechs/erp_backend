@@ -2453,6 +2453,7 @@ from quotation_sale_details
           },
         });
       }
+
       return ResponseManager.SuccessResponse(req, res, 200, insert_product);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, req.body);
