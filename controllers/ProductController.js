@@ -210,21 +210,21 @@ class ProductController {
           res.status(400).json({ error: "File size exceeds 5 MB limit" });
         }
 
-        const existingProduct = await Product.findOne({
-          where: {
-            productname: req.body.productname,
-            productID: { [Op.ne]: req.params.id },
-          },
-        });
+        // const existingProduct = await Product.findOne({
+        //   where: {
+        //     productname: req.body.productname,
+        //     productID: { [Op.ne]: req.params.id },
+        //   },
+        // });
 
-        if (existingProduct) {
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Product already exists"
-          );
-        }
+        // if (existingProduct) {
+        //   return ResponseManager.ErrorResponse(
+        //     req,
+        //     res,
+        //     400,
+        //     "Product already exists"
+        //   );
+        // }
 
         let productUpdateData = {
           productTypeID: req.body.productTypeID,
