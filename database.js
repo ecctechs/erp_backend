@@ -3,7 +3,7 @@ require("dotenv").config();
 const { Sequelize } = require("sequelize");
 
 // // // // in Sequelize(database name, username, password)
-// const sequelize = new Sequelize("ERP_DB", "postgres", "1234", {
+// const sequelize = new Sequelize("ERP_DB_LOCAL", "postgres", "1234", {
 //   host: "localhost",
 //   dialect: "postgres",
 //   port: 5432,
