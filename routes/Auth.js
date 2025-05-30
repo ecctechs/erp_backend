@@ -27,7 +27,11 @@ Route.post(
   AuthController.RegisterNewUsers
 );
 Route.delete(RouteName + "/DeleteUsers/:id", AuthController.DeleteUsers);
-Route.put(RouteName + "/EditUsers/:id", AuthController.EditUsers);
+Route.put(
+  RouteName + "/EditUsers/:id",
+  verifyTokenWithbus_id,
+  AuthController.EditUsers
+);
 Route.get(RouteName + "/GetRole", AuthController.GetRole);
 Route.post(RouteName + "/AddRole", AuthController.AddRole);
 Route.put(RouteName + "/EditRole/:id", AuthController.EditRole);
