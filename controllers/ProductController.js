@@ -124,74 +124,67 @@ class ProductController {
 
       console.log(req.body.productname);
 
-      const addproduct = await Product.findOne({
-        where: {
-          productname: req.body.productname.trim(),
-          bus_id: bus_id,
-        },
-      });
-
       const today = new Date();
       const DateString = today.toISOString().split("T")[0];
 
-      if (addproduct) {
-        return ResponseManager.ErrorResponse(
-          req,
-          res,
-          400,
-          "Product already exists"
-        );
-      } else {
-        // if (!req.file) {
-        //   return ResponseManager.ErrorResponse(
-        //     req,
-        //     res,
-        //     400,
-        //     "Please choose a product image file"
-        //   );
-        // }
-        let result = [];
-        if (req.file) {
-          if (req.file.size > 5 * 1024 * 1024) {
-            return ResponseManager.ErrorResponse(
-              req,
-              res,
-              400,
-              "File size exceeds 5 MB limit"
-            );
-          }
-
-          const allowedMimeTypes = ["image/jpeg", "image/png"];
-          if (!allowedMimeTypes.includes(req.file.mimetype)) {
-            return ResponseManager.ErrorResponse(
-              req,
-              res,
-              400,
-              "Only JPEG and PNG image files are allowed"
-            );
-          }
-
-          result = await cloudinary.uploader.upload(req.file.path);
-        } else {
-          // result = [];
+      // if (addproduct) {
+      //   return ResponseManager.ErrorResponse(
+      //     req,
+      //     res,
+      //     400,
+      //     "Product already exists"
+      //   );
+      // } else {
+      // if (!req.file) {
+      //   return ResponseManager.ErrorResponse(
+      //     req,
+      //     res,
+      //     400,
+      //     "Please choose a product image file"
+      //   );
+      // }
+      let result = [];
+      if (req.file) {
+        if (req.file.size > 5 * 1024 * 1024) {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "File size exceeds 5 MB limit"
+          );
         }
 
-        const insert_product = await Product.create({
-          productTypeID: req.body.productTypeID,
-          productname: req.body.productname,
-          productdetail: req.body.productdetail,
-          amount: req.body.amount,
-          price: req.body.price,
-          productcost: req.body.productcost,
-          categoryID: req.body.categoryID,
-          productImg: result.secure_url,
-          product_date: DateString,
-          bus_id: bus_id,
-          Status: "Discontinued",
-        });
+        const allowedMimeTypes = ["image/jpeg", "image/png"];
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+          return ResponseManager.ErrorResponse(
+            req,
+            res,
+            400,
+            "Only JPEG and PNG image files are allowed"
+          );
+        }
 
-        return ResponseManager.SuccessResponse(req, res, 200, insert_product);
+        result = await cloudinary.uploader.upload(req.file.path);
+      } else {
+        // result = [];
       }
+
+      const insert_product = await Product.create({
+        productTypeID: req.body.productTypeID,
+        productname: req.body.productname,
+        productdetail: req.body.productdetail,
+        amount: req.body.amount,
+        price: req.body.price,
+        productcost: req.body.productcost,
+        categoryID: req.body.categoryID,
+        productImg: result.secure_url,
+        product_date: DateString,
+        bus_id: bus_id,
+        Status: "Discontinued",
+      });
+
+      return ResponseManager.SuccessResponse(req, res, 200, insert_product);
+      // }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
