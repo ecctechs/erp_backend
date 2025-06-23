@@ -1729,7 +1729,8 @@ from quotation_sale_details
   invoices.*,
   quotation_sales.*,
   employees.*,
-  customers.*
+  customers.*,
+  billings.deleted_at AS billings_deleted_at
 FROM billings
 LEFT JOIN tax_invoices ON billings.tax_invoice_id = tax_invoices.tax_invoice_id
 LEFT JOIN invoices ON billings.invoice_id = invoices.invoice_id
@@ -1784,7 +1785,7 @@ from quotation_sale_details
           payments: sale.payments,
           remark: sale.remark,
           vatType: sale.vatType,
-          deleted_at: sale.deleted_at,
+          deleted_at: sale.billings_deleted_at,
           discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "Issue a receipt"
