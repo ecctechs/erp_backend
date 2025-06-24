@@ -1133,14 +1133,6 @@ class ProductController {
           "Product not found"
         );
       }
-      if (product.amount < quantity) {
-        return ResponseManager.FailureResponse(
-          req,
-          res,
-          400,
-          "Insufficient stock"
-        );
-      }
 
       let newAmount;
       let billingStatus;
@@ -1149,6 +1141,14 @@ class ProductController {
         newAmount = product.amount + quantity;
         billingStatus = "";
       } else {
+        if (product.amount < quantity) {
+          return ResponseManager.FailureResponse(
+            req,
+            res,
+            400,
+            "Insufficient stock"
+          );
+        }
         newAmount = product.amount - quantity;
         billingStatus = new Date().toISOString();
       }
