@@ -6,7 +6,7 @@ const {
   Transaction,
   Expense,
 } = require("../model/productModel");
-const { Business } = require("../model/quotationModel");
+const { Business, Billing } = require("../model/quotationModel");
 const { cloudinary } = require("../utils/cloudinary");
 const { Op } = require("sequelize");
 const moment = require("moment");
@@ -1112,6 +1112,62 @@ class ProductController {
       return ResponseManager.SuccessResponse(req, res, 200, {
         message: "Expense deleted successfully",
       });
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async CutStock(req, res) {
+    try {
+      const { id, quantity, transactionType } = req.body;
+
+      const product = await Product.findOne({
+        where: { productID: id },
+      });
+
+      if (!product) {
+        return ResponseManager.FailureResponse(
+          req,
+          res,
+          404,
+          "Product not found"
+        );
+      }
+
+      let newAmount;
+      let billingStatus;
+
+      if (transactionType === "Receive") {
+        newAmount = product.amount + quantity;
+        billingStatus = "";
+      } else {
+        if (product.amount < quantity) {
+          return ResponseManager.FailureResponse(
+            req,
+            res,
+            400,
+            "Insufficient stock"
+          );
+        }
+        newAmount = product.amount - quantity;
+        billingStatus = new Date().toISOString();
+      }
+
+      await Product.update(
+        { amount: newAmount },
+        {
+          where: { productID: id },
+        }
+      );
+
+      await Billing.update(
+        { deleted_at: billingStatus },
+        {
+          where: { billing_number: req.body.billing_number },
+        }
+      );
+
+      return ResponseManager.SuccessResponse(req, res, 200, "Product Updated");
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }

@@ -87,4 +87,6 @@ Route.delete(
   verifyTokenWithbus_id,
   ProductController.deleteExpenses
 );
+
+Route.put(RouteName + "/cut_strock_product", type, ProductController.CutStock);
 module.exports = Route;

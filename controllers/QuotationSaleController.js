@@ -907,7 +907,8 @@ class QuotationSaleController {
       const log = await sequelize.query(
         `
         select   *, 
-  invoices.deleted_at AS invoice_deleted_at
+  invoices.deleted_at AS invoice_deleted_at,
+  invoices.remark AS invoices_remark
 from invoices
 Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
 Left join businesses on businesses.bus_id = quotation_sales.bus_id
@@ -956,7 +957,7 @@ from quotation_sale_details
           invoice_number: sale.invoice_number,
           invoice_status: sale.invoice_status,
           invoice_date: sale.invoice_date,
-          invoice_remark: sale.remark,
+          invoice_remark: sale.invoices_remark,
           vatType: sale.vatType,
           discount_quotation: sale.discount_quotation,
           deleted_at: sale.invoice_deleted_at,
@@ -1729,7 +1730,9 @@ from quotation_sale_details
   invoices.*,
   quotation_sales.*,
   employees.*,
-  customers.*
+  customers.*,
+  billings.deleted_at AS billings_deleted_at,
+  billings.remark AS billings_remark
 FROM billings
 LEFT JOIN tax_invoices ON billings.tax_invoice_id = tax_invoices.tax_invoice_id
 LEFT JOIN invoices ON billings.invoice_id = invoices.invoice_id
@@ -1782,9 +1785,9 @@ from quotation_sale_details
           billing_date: sale.billing_date,
           billing_status: sale.billing_status,
           payments: sale.payments,
-          remark: sale.remark,
+          remark: sale.billings_remark,
           vatType: sale.vatType,
-          deleted_at: sale.deleted_at,
+          deleted_at: sale.billings_deleted_at,
           discount_quotation: sale.discount_quotation,
           billing:
             sale.invoice_status !== "Issue a receipt"
