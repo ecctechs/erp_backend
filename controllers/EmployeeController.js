@@ -11,6 +11,7 @@ const {
   Leaving,
   Overtime,
 } = require("../model/employeeModel");
+const create_employee_rows = require('../helpers/collection_helper');
 const { Business } = require("../model/quotationModel");
 
 class EmployeeController {
@@ -192,31 +193,7 @@ class EmployeeController {
           },
         });
 
-        // if (existingEmail) {
-        //   await ResponseManager.ErrorResponse(
-        //     req,
-        //     res,
-        //     400,
-        //     "Employee's email already exists"
-        //   );
-        //   return;
-        // }
 
-        // const existingempBankID = await Employee.findOne({
-        //   where: {
-        //     bankAccountID: req.body.bankAccountID,
-        //     employeeID: { [Op.ne]: req.params.id },
-        //   },
-        // });
-
-        // if (existingempBankID) {
-        //   return ResponseManager.ErrorResponse(
-        //     req,
-        //     res,
-        //     400,
-        //     "Bank Account ID is already exist"
-        //   );
-        // }
 
         const updatedData = {
           title: req.body.title,
@@ -921,21 +898,9 @@ class EmployeeController {
           },
           include: [{ model: Position }, { model: Department }],
         });
-
-        employeeslist.forEach((log) => {
-          result.push({
-            employeeID: log.employeeID,
-            name: log.F_name + " " + log.L_name,
-            employeeType: log.employeeType,
-            phone: log.Phone_num,
-            email: log.Email,
-            department: log.department ? log.department.departmentName : "",
-            position: log.position ? log.position.Position : "",
-            bankName: log.bankName,
-            bankAccountID: log.bankAccountID,
-            salary: log.Salary,
-          });
-        });
+        
+        result = create_employee_rows(employeeslist);
+        
       } else if (RoleName === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
@@ -1388,7 +1353,7 @@ class EmployeeController {
         }
       }
       return ResponseManager.SuccessResponse(req, res, 200, "success payment ");
-
+      
       // const createdPayments = await Promise.all(paymentCreationPromises);
       // return ResponseManager.SuccessResponse(req, res, 200, createdPayments);
     } catch (err) {
@@ -1413,7 +1378,7 @@ class EmployeeController {
       const data = await Leaving.findOne({
         where: {
           employeeID: req.body.employeeID,
-          date: req.body.date,
+          date_start: req.body.date_start,
         },
       });
       if (data) {
@@ -1424,13 +1389,14 @@ class EmployeeController {
           "Leaving date already exists"
         );
       } else {
+        
         const data_leaving = await Leaving.create({
           employeeID: req.body.employeeID,
-          date: req.body.date,
-          dateEnd: req.body.dateEnd,
+          date_start: req.body.date_start, // TODO1 fix frontend req.body.date to req.body.date_start
+          date_end: req.body.date_end, // TODO2 fix frontend req.body.dateEnd to req.body.date_end
           detail: req.body.detail,
         });
-        console.log(req.body);
+
         return ResponseManager.SuccessResponse(req, res, 200, data_leaving);
       }
     } catch (err) {
@@ -1454,8 +1420,8 @@ class EmployeeController {
         );
       } else {
         const body = {
-          date: req.body.date,
-          dateEnd: req.body.dateEnd,
+          date_start: req.body.date, // TODO1
+          date_end: req.body.dateEnd, // TODO2
           detail: req.body.detail,
           employeeID: req.body.employeeID,
         };

@@ -152,12 +152,12 @@ const Leaving = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    date: {
-      type: DataTypes.STRING,
+    date_start: {
+      type: 'timestamp without time zone',
       allowNull: false,
     },
-    dateEnd: {
-      type: DataTypes.STRING,
+    date_end: {
+      type: 'timestamp without time zone',
       allowNull: false,
     },
     detail: {
