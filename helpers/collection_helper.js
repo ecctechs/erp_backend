@@ -5,14 +5,14 @@ function create_employee_rows(employeeslist) {
         result.push({
           employee_id: log.employee_id,
           name: log.first_name + " " + log.last_name,
-          employeeType: log.employeeType,
+          employee_type: log.employee_type,
           phone: log.phone_number,
           email: log.email,
           department: log.department ? log.department.departmentName : "",
           position: log.position ? log.position.Position : "",
-          bankName: log.bankName,
+          bank_name: log.bank_name,
           bankAccountID: log.bankAccountID,
-          salary: log.Salary,
+          salary: log.salary,
         });
       });
 
@@ -32,7 +32,7 @@ function create_payment_rows(paymentslist) {
             employee_id: log.employee.employee_id,
             employeeName: log.employee.first_name + " " + log.employee.last_name,
             position: log.employee.position,
-            salary: log.employee.Salary,
+            salary: log.employee.salary,
           });
         });
 

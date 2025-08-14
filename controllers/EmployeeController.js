@@ -122,9 +122,9 @@ class EmployeeController {
         phone_number: req.body.phone_number,
         email: req.body.email,
         start_working_date: req.body.start_working_date,
-        Salary: req.body.Salary || "0",
-        employeeType: req.body.employeeType,
-        bankName: req.body.bankName,
+        salary: req.body.salary || "0",
+        employee_type: req.body.employee_type,
+        bank_name: req.body.bank_name,
         bankAccountID: req.body.bankAccountID,
         PositionID: req.body.PositionID,
         departmentID: req.body.departmentID,
@@ -188,9 +188,9 @@ class EmployeeController {
           phone_number: req.body.phone_number,
           email: req.body.email,
           start_working_date: req.body.start_working_date,
-          Salary: req.body.Salary,
-          employeeType: req.body.employeeType,
-          bankName: req.body.bankName,
+          salary: req.body.salary,
+          employee_type: req.body.employee_type,
+          bank_name: req.body.bank_name,
           bankAccountID: req.body.bankAccountID,
           PositionID: req.body.PositionID,
           departmentID: req.body.departmentID,
@@ -664,7 +664,7 @@ class EmployeeController {
             req,
             res,
             400,
-            "Salary already exists"
+            "salary already exists"
           );
           return;
         }
@@ -682,9 +682,9 @@ class EmployeeController {
             },
           }
         );
-        return ResponseManager.SuccessResponse(req, res, 200, "Salary Updated");
+        return ResponseManager.SuccessResponse(req, res, 200, "salary Updated");
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, "No Salary found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No salary found");
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -703,9 +703,9 @@ class EmployeeController {
             payment_id: req.params.id,
           },
         });
-        return ResponseManager.SuccessResponse(req, res, 200, "Salary Deleted");
+        return ResponseManager.SuccessResponse(req, res, 200, "salary Deleted");
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, "No Salary found");
+        return ResponseManager.ErrorResponse(req, res, 400, "No salary found");
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);

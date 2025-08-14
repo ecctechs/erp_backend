@@ -46,15 +46,15 @@ const Employee = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
-    Salary: {
+    salary: {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    employeeType: {
+    employee_type: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    bankName: {
+    bank_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
