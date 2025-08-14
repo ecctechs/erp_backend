@@ -5,7 +5,7 @@ const { Business } = require("./quotationModel");
 const Employee = sequelize.define(
   "employees",
   {
-    employeeID: {
+    employee_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -130,7 +130,7 @@ const Salary_pay = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    employeeID: {
+    employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -164,7 +164,7 @@ const Leaving = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    employeeID: {
+    employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -190,7 +190,7 @@ const Overtime = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    employeeID: {
+    employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

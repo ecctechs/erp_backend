@@ -493,7 +493,7 @@ class QuotationSaleController {
             sale_totalprice: req.body.sale_totalprice,
             bus_id: req.body.bus_id,
             cus_id: req.body.cus_id,
-            employeeID: req.body.employeeID,
+            employee_id: req.body.employee_id,
             discount_quotation: req.body.discount_quotation,
           });
 
@@ -540,7 +540,7 @@ class QuotationSaleController {
               sale_totalprice: req.body.sale_totalprice,
               bus_id: req.body.bus_id,
               cus_id: req.body.cus_id,
-              employeeID: req.body.employeeID,
+              employee_id: req.body.employee_id,
               status: req.body.status,
             });
 
@@ -619,7 +619,7 @@ class QuotationSaleController {
         sale_totalprice: req.body.sale_totalprice,
         bus_id: req.body.bus_id,
         cus_id: req.body.cus_id,
-        employeeID: req.body.employeeID,
+        employee_id: req.body.employee_id,
         status: req.body.status,
         remark: req.body.remark,
         remarkInfernal: req.body.remarkInfernal,
@@ -752,7 +752,7 @@ class QuotationSaleController {
           sale_totalprice: req.body.sale_totalprice,
           bus_id: req.body.bus_id,
           cus_id: req.body.cus_id,
-          employeeID: req.body.employeeID,
+          employee_id: req.body.employee_id,
           status: req.body.status,
           remark: req.body.remark,
           remarkInfernal: req.body.remarkInfernal,
@@ -798,8 +798,8 @@ class QuotationSaleController {
       Business.hasMany(Bank, { foreignKey: "bank_id" });
       Bank.belongsTo(Business, { foreignKey: "bank_id" });
 
-      Quotation_sale.belongsTo(Employee, { foreignKey: "employeeID" });
-      Employee.hasMany(Quotation_sale, { foreignKey: "employeeID" });
+      Quotation_sale.belongsTo(Employee, { foreignKey: "employee_id" });
+      Employee.hasMany(Quotation_sale, { foreignKey: "employee_id" });
 
       Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
       Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
@@ -835,7 +835,7 @@ class QuotationSaleController {
       });
       const today = new Date();
       console.log("-----------------------------------------");
-      console.log(quotationslist);
+      console.log("quotationslist",quotationslist);
       // return false
 
       for (let log of quotationslist) {
@@ -854,7 +854,7 @@ class QuotationSaleController {
           sale_id: log.sale_id,
           quotation_num: log.sale_number,
           status: log.status,
-          employeeID: log.employeeID,
+          employee_id: log.employee_id,
           employee_name: log.employee.F_name + " " + log.employee.L_name,
           cus_id: log.cus_id,
           cus_name: log.customer.cus_name,
@@ -914,7 +914,7 @@ Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
 Left join businesses on businesses.bus_id = quotation_sales.bus_id
 Left join banks on banks.bank_id = businesses.bank_id
 Left join customers on quotation_sales.cus_id = customers.cus_id
-left join employees on employees."employeeID"  = quotation_sales."employeeID" 
+left join employees on employees."employee_id"  = quotation_sales."employee_id" 
 Left join billings on billings.invoice_id = invoices.invoice_id 
 WHERE quotation_sales.bus_id = :bus_id
 ORDER BY invoices.invoice_number ASC;
@@ -940,7 +940,7 @@ from quotation_sale_details
           sale_id: sale.sale_id,
           quotation_num: sale.sale_number,
           status: sale.status,
-          employeeID: sale.employeeID,
+          employee_id: sale.employee_id,
           employee_name: `${sale.F_name} ${sale.L_name}`,
           cus_id: sale.cus_id,
           cus_name: sale.cus_name,
@@ -1015,7 +1015,7 @@ Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
 Left join businesses on businesses.bus_id = quotation_sales.bus_id
 Left join banks on banks.bank_id = businesses.bank_id
 Left join customers on quotation_sales.cus_id = customers.cus_id
-left join employees on employees."employeeID"  = quotation_sales."employeeID" 
+left join employees on employees."employee_id"  = quotation_sales."employee_id" 
 Left join billings on billings.invoice_id = invoices.invoice_id 
 WHERE quotation_sales.bus_id = :bus_id
 ORDER BY tax_invoices.tax_invoice_number ASC;
@@ -1046,7 +1046,7 @@ from quotation_sale_details
           tax_invoice_status: sale.tax_invoice_status,
           tax_invoice_remark: sale.tax_invoice_remark,
           status: sale.status,
-          employeeID: sale.employeeID,
+          employee_id: sale.employee_id,
           employee_name: `${sale.F_name} ${sale.L_name}`,
           cus_id: sale.cus_id,
           cus_name: sale.cus_name,
@@ -1289,107 +1289,6 @@ from quotation_sale_details
     }
   }
 
-  // static async getInvoice(req, res) {
-  //   try {
-  //     Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
-  //     Quotation_sale_detail.belongsTo(Quotation_sale, {
-  //       foreignKey: "sale_id",
-  //     });
-
-  //     Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-  //     Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
-
-  //     Business.hasMany(Bank, { foreignKey: "bank_id" });
-  //     Bank.belongsTo(Business, { foreignKey: "bank_id" });
-
-  //     Quotation_sale.belongsTo(Employee, { foreignKey: "employeeID" });
-  //     Employee.hasMany(Quotation_sale, { foreignKey: "employeeID" });
-
-  //     Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
-  //     Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
-
-  //     Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
-  //     Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
-
-  //     Invoice.hasOne(Billing, { foreignKey: "invoice_id" });
-  //     Billing.belongsTo(Invoice, { foreignKey: "invoice_id" });
-
-  //     const tokenData = await TokenManager.update_token(req);
-  //     if (!tokenData) {
-  //       return await ResponseManager.ErrorResponse(
-  //         req,
-  //         res,
-  //         401,
-  //         "Unauthorized: Invalid token data"
-  //       );
-  //     }
-
-  //     const { bus_id } = req.userData;
-
-  //     let result = [];
-  //     let quotationslist = [];
-
-  //     quotationslist = await Quotation_sale.findAll({
-  //       include: [
-  //         { model: Quotation_sale_detail },
-  //         { model: Employee },
-  //         { model: Customer },
-  //         { model: Business, include: [Bank] },
-  //         { model: Invoice, include: [Billing] },
-  //       ],
-  //       where: {
-  //         status: "allowed",
-  //         bus_id: bus_id,
-  //       },
-  //     });
-  //     const today = new Date();
-
-  //     for (let log of quotationslist) {
-  //       // console.log("Invoice Date: ", log.invoice.invoice_date);
-  //       // const expiredDate = new Date(log.invoice.invoice_date);
-
-  //       result.push({
-  //         sale_id: log.sale_id,
-  //         quotation_num: log.sale_number,
-  //         status: log.status,
-  //         employeeID: log.employeeID,
-  //         employee_name: log.employee.F_name + " " + log.employee.L_name,
-  //         cus_id: log.cus_id,
-  //         cus_name: log.customer.cus_name,
-  //         cus_address: log.customer.cus_address,
-  //         cus_tel: log.customer.cus_tel,
-  //         cus_email: log.customer.cus_email,
-  //         cus_tax: log.customer.cus_tax,
-  //         cus_purchase: log.customer.cus_purchase,
-  //         quotation_start_date: log.sale_date,
-  //         credit_date: log.credit_date_number,
-  //         quotation_expired_date: log.credit_expired_date,
-  //         sale_totalprice: log.sale_totalprice,
-  //         invoice_id: log.invoice.invoice_id,
-  //         invoice_number: log.invoice.invoice_number,
-  //         invoice_status: log.invoice.invoice_status,
-  //         invoice_date: log.invoice.invoice_date,
-  //         invoice_remark: log.invoice.remark,
-  //         billing:
-  //           !log.invoice.billing ||
-  //           log.invoice.invoice_status !== "issue a receipt"
-  //             ? "pending"
-  //             : log.invoice.billing.billing_number,
-  //         details: log.quotation_sale_details.map((detail) => ({
-  //           sale_id: detail.sale_id,
-  //           productID: detail.productID,
-  //           sale_price: detail.sale_price,
-  //           sale_discount: detail.sale_discount,
-  //           sale_qty: detail.sale_qty,
-  //         })),
-  //       });
-  //     }
-
-  //     return ResponseManager.SuccessResponse(req, res, 200, result);
-  //   } catch (err) {
-  //     return ResponseManager.CatchResponse(req, res, err.message);
-  //   }
-  // }
   static async editInvoice(req, res) {
     try {
       const { bus_id } = req.userData;
@@ -1738,7 +1637,7 @@ LEFT JOIN tax_invoices ON billings.tax_invoice_id = tax_invoices.tax_invoice_id
 LEFT JOIN invoices ON billings.invoice_id = invoices.invoice_id
 LEFT JOIN quotation_sales ON billings.sale_id = quotation_sales.sale_id
 Left join customers on quotation_sales.cus_id = customers.cus_id
-left join employees on employees."employeeID"  = quotation_sales."employeeID" 
+left join employees on employees."employee_id"  = quotation_sales."employee_id" 
 WHERE quotation_sales.bus_id = :bus_id
 ORDER BY invoices.invoice_number ASC;
       `,
@@ -1765,7 +1664,7 @@ from quotation_sale_details
           tax_invoice_number: sale.tax_invoice_number,
           quotation_num: sale.sale_number,
           status: sale.status,
-          employeeID: sale.employeeID,
+          employee_id: sale.employee_id,
           employee_name: `${sale.F_name} ${sale.L_name}`,
           cus_id: sale.cus_id,
           cus_name: sale.cus_name,
@@ -1823,113 +1722,7 @@ from quotation_sale_details
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-  // static async getBilling(req, res) {
-  //   try {
-  //     Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
-  //     Quotation_sale_detail.belongsTo(Quotation_sale, {
-  //       foreignKey: "sale_id",
-  //     });
 
-  //     Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-  //     Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
-
-  //     Business.hasMany(Bank, { foreignKey: "bank_id" });
-  //     Bank.belongsTo(Business, { foreignKey: "bank_id" });
-
-  //     Quotation_sale.belongsTo(Employee, { foreignKey: "employeeID" });
-  //     Employee.hasMany(Quotation_sale, { foreignKey: "employeeID" });
-
-  //     Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
-  //     Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
-
-  //     Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
-  //     Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
-
-  //     Invoice.hasOne(Billing, { foreignKey: "invoice_id" });
-  //     Billing.belongsTo(Invoice, { foreignKey: "invoice_id" });
-
-  //     const tokenData = await TokenManager.update_token(req);
-  //     if (!tokenData) {
-  //       return await ResponseManager.ErrorResponse(
-  //         req,
-  //         res,
-  //         401,
-  //         "Unauthorized: Invalid token data"
-  //       );
-  //     }
-
-  //     const { bus_id } = req.userData;
-
-  //     let result = [];
-  //     let quotationslist = [];
-
-  //     quotationslist = await Quotation_sale.findAll({
-  //       include: [
-  //         { model: Quotation_sale_detail },
-  //         { model: Employee },
-  //         { model: Customer },
-  //         { model: Business, include: [Bank] },
-  //         {
-  //           model: Invoice,
-  //           where: {
-  //             invoice_status: "Issue a receipt",
-  //           },
-  //           include: [Billing],
-  //         },
-  //       ],
-  //       where: {
-  //         bus_id: bus_id,
-  //       },
-  //     });
-  //     const today = new Date();
-
-  //     for (let log of quotationslist) {
-  //       result.push({
-  //         sale_id: log.sale_id,
-  //         quotation_num: log.sale_number,
-  //         status: log.status,
-  //         employeeID: log.employeeID,
-  //         employee_name: log.employee.F_name + " " + log.employee.L_name,
-  //         cus_id: log.cus_id,
-  //         cus_name: log.customer.cus_name,
-  //         cus_address: log.customer.cus_address,
-  //         cus_tel: log.customer.cus_tel,
-  //         cus_email: log.customer.cus_email,
-  //         cus_tax: log.customer.cus_tax,
-  //         cus_purchase: log.customer.cus_purchase,
-  //         quotation_start_date: log.sale_date,
-  //         credit_date: log.credit_date_number,
-  //         quotation_expired_date: log.credit_expired_date,
-  //         sale_totalprice: log.sale_totalprice,
-  //         invoice_id: log.invoice.invoice_id,
-  //         invoice_number: log.invoice.invoice_number,
-  //         invoice_status: log.invoice.invoice_status,
-  //         invoice_date: log.invoice.invoice_date,
-  //         billing_id: log.invoice?.billing?.billing_id,
-  //         billing_number: log.invoice?.billing?.billing_number,
-  //         billing_date: log.invoice?.billing?.billing_date,
-  //         billing_status: log.invoice?.billing?.billing_status,
-  //         payments: log.invoice?.billing?.payments,
-  //         remark: log.invoice?.billing?.remark,
-  //         vatType: log.vatType,
-  //         details: log.quotation_sale_details.map((detail) => ({
-  //           sale_id: detail.sale_id,
-  //           productID: detail.productID,
-  //           sale_price: detail.sale_price,
-  //           discounttype: detail.discounttype,
-  //           sale_discount: detail.sale_discount,
-  //           sale_qty: detail.sale_qty,
-  //           product_detail: detail.product_detail,
-  //           pro_unti: detail.pro_unti,
-  //         })),
-  //       });
-  //     }
-
-  //     return ResponseManager.SuccessResponse(req, res, 200, result);
-  //   } catch (err) {
-  //     return ResponseManager.CatchResponse(req, res, err.message);
-  //   }
-  // }
   static async editBilling(req, res) {
     try {
       const { bus_id } = req.userData;
@@ -1941,55 +1734,8 @@ from quotation_sale_details
       });
 
       if (existQuatationSale) {
-        // const existingQuo = await Billing.findOne({
-        //   where: {
-        //     billing_number: req.body.billing_number,
-        //     billing_id: { [Op.ne]: req.params.id },
-        //   },
-        //   include: [
-        //     {
-        //       model: Invoice,
-        //       include: [
-        //         {
-        //           model: Quotation_sale,
-        //           where: { bus_id }, // กรองตาม bus_id
-        //         },
-        //       ],
-        //     },
-        //   ],
-        // });
-        // const [existingQuo] = await sequelize.query(`
-        //   SELECT billings.*
-        //   FROM billings
-        //   LEFT JOIN invoices ON invoices.invoice_id = billings.invoice_id
-        //   LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
-        //   WHERE billings.billing_number = '${req.body.billing_number}'
-        //     AND billings.billing_id != '${req.params.id}'
-        //     AND quotation_sales.bus_id = '${req.userData.bus_id}'
-        // `);
-        // if (existingQuo) {
-        //   await ResponseManager.ErrorResponse(
-        //     req,
-        //     res,
-        //     400,
-        //     "Receipt already exists"
-        //   );
-        //   return;
-        // }
       }
 
-      // await Billing.update(
-      //   {
-      //     billing_date: req.body.billing_date,
-      //     payments: req.body.payments,
-      //     remark: req.body.remark,
-      //   },
-      //   {
-      //     where: {
-      //       billing_id: req.params.id,
-      //     },
-      //   }
-      // );
       await sequelize.query(`
         UPDATE billings
         SET billing_date = '${req.body.billing_date}',

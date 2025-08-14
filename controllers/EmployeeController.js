@@ -151,14 +151,14 @@ class EmployeeController {
     try {
       const editemp = await Employee.findOne({
         where: {
-          employeeID: req.params.id,
+          employee_id: req.params.id,
         },
       });
       if (editemp) {
         const existingNID = await Employee.findOne({
           where: {
             NID_num: req.body.NID_num,
-            employeeID: { [Op.ne]: req.params.id },
+            employee_id: { [Op.ne]: req.params.id },
           },
         });
 
@@ -174,7 +174,7 @@ class EmployeeController {
         const existingEmail = await Employee.findOne({
           where: {
             Email: req.body.Email,
-            employeeID: { [Op.ne]: req.params.id }, // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+            employee_id: { [Op.ne]: req.params.id }, // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
           },
         });
 
@@ -200,7 +200,7 @@ class EmployeeController {
 
         await Employee.update(updatedData, {
           where: {
-            employeeID: req.params.id,
+            employee_id: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(
@@ -229,7 +229,7 @@ class EmployeeController {
     try {
       const employee = await Employee.findOne({
         where: {
-          employeeID: req.params.id,
+          employee_id: req.params.id,
         },
       });
 
@@ -240,7 +240,7 @@ class EmployeeController {
 
         await Employee.update(updatedData, {
           where: {
-            employeeID: req.params.id,
+            employee_id: req.params.id,
           },
         });
 
@@ -478,8 +478,8 @@ class EmployeeController {
 
   static async getPayment(req, res) {
     try {
-      Employee.hasMany(Salary_pay, { foreignKey: "employeeID" });
-      Salary_pay.belongsTo(Employee, { foreignKey: "employeeID" });
+      Employee.hasMany(Salary_pay, { foreignKey: "employee_id" });
+      Salary_pay.belongsTo(Employee, { foreignKey: "employee_id" });
 
       Employee.hasMany(Position, { foreignKey: "PositionID" });
       Position.belongsTo(Employee, { foreignKey: "PositionID" });
@@ -1001,7 +1001,7 @@ class EmployeeController {
             month: payment.month,
             round: payment.round,
             year: payment.year,
-            employeeID: payment.employeeID,
+            employee_id: payment.employee_id,
             bus_id: bus_id,
           },
         });
@@ -1012,7 +1012,7 @@ class EmployeeController {
 
         // Create a new payment record
         await Salary_pay.create({
-          employeeID: payment.employeeID,
+          employee_id: payment.employee_id,
           Date: payment.Date,
           round: payment.round,
           month: payment.month,
@@ -1071,7 +1071,7 @@ class EmployeeController {
             month: paymentData.month,
             round: paymentData.round,
             year: paymentData.year,
-            employeeID: paymentData.employeeID,
+            employee_id: paymentData.employee_id,
             bus_id: bus_id,
           },
         });
@@ -1086,7 +1086,7 @@ class EmployeeController {
         } else {
           paymentCreationPromises.push(
             Salary_pay.create({
-              employeeID: paymentData.employeeID,
+              employee_id: paymentData.employee_id,
               Date: paymentData.Date,
               round: paymentData.round,
               month: paymentData.month,
@@ -1118,7 +1118,7 @@ class EmployeeController {
 
       const data = await Leaving.findOne({
         where: {
-          employeeID: req.body.employeeID,
+          employee_id: req.body.employee_id,
           date_start: req.body.date_start,
         },
       });
@@ -1132,7 +1132,7 @@ class EmployeeController {
       } else {
         
         const data_leaving = await Leaving.create({
-          employeeID: req.body.employeeID,
+          employee_id: req.body.employee_id,
           date_start: req.body.date_start, // TODO1 fix frontend req.body.date to req.body.date_start
           date_end: req.body.date_end, // TODO2 fix frontend req.body.dateEnd to req.body.date_end
           detail: req.body.detail,
@@ -1164,7 +1164,7 @@ class EmployeeController {
           date_start: req.body.date, // TODO1
           date_end: req.body.dateEnd, // TODO2
           detail: req.body.detail,
-          employeeID: req.body.employeeID,
+          employee_id: req.body.employee_id,
         };
         await Leaving.update(body, {
           where: {
@@ -1187,8 +1187,8 @@ class EmployeeController {
       Employee.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Employee, { foreignKey: "bus_id" });
 
-      Leaving.belongsTo(Employee, { foreignKey: "employeeID" });
-      Employee.hasMany(Leaving, { foreignKey: "employeeID" });
+      Leaving.belongsTo(Employee, { foreignKey: "employee_id" });
+      Employee.hasMany(Leaving, { foreignKey: "employee_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1286,7 +1286,7 @@ class EmployeeController {
 
       const data = await Overtime.findOne({
         where: {
-          employeeID: req.body.employeeID,
+          employee_id: req.body.employee_id,
           date: req.body.date,
         },
       });
@@ -1299,7 +1299,7 @@ class EmployeeController {
         );
       } else {
         const data_overtime = await Overtime.create({
-          employeeID: req.body.employeeID,
+          employee_id: req.body.employee_id,
           date: req.body.date,
           detail: req.body.detail,
           hours: req.body.hours,
@@ -1318,8 +1318,8 @@ class EmployeeController {
       Employee.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Employee, { foreignKey: "bus_id" });
 
-      Overtime.belongsTo(Employee, { foreignKey: "employeeID" });
-      Employee.hasMany(Overtime, { foreignKey: "employeeID" });
+      Overtime.belongsTo(Employee, { foreignKey: "employee_id" });
+      Employee.hasMany(Overtime, { foreignKey: "employee_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {

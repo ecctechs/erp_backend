@@ -150,7 +150,7 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    employeeID: {
+    employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
