@@ -22,23 +22,23 @@ const Employee = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    Address: {
+    address: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    Birthdate: {
+    birth_date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+    },
+    national_id_number: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    NID_num: {
+    phone_number: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    Phone_num: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    Email: {
+    email: {
       type: DataTypes.STRING,
       allowNull: false,
     },

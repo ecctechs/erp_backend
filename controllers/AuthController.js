@@ -49,7 +49,7 @@ class AuthController {
 
       const { userEmail, userPassword } = req.body;
 
-      // ตรวจสอบว่ามี Email และ Password
+      // ตรวจสอบว่ามี email และ Password
       if (!userEmail || !userPassword) {
         return ResponseManager.ErrorResponse(
           req,
@@ -449,11 +449,11 @@ class AuthController {
           title: req.body.user_title,
           first_name: req.body.userF_name,
           last_name: req.body.userL_name,
-          Address: "",
-          Birthdate: "",
-          NID_num: "",
-          Phone_num: req.body.userPhone,
-          Email: req.body.userEmail,
+          address: "",
+          birth_date: "",
+          national_id_number: "",
+          phone_number: req.body.userPhone,
+          email: req.body.userEmail,
           start_working_date: null,
           Salary: 0,
           employeeType: "",
@@ -524,7 +524,7 @@ class AuthController {
             req,
             res,
             400,
-            "Email,UserName,LastName,Password already exists"
+            "email,UserName,LastName,Password already exists"
           );
         }
         // const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
@@ -671,7 +671,7 @@ class AuthController {
           );
         }
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, `Email not found`);
+        return ResponseManager.ErrorResponse(req, res, 400, `email not found`);
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -688,7 +688,7 @@ class AuthController {
       if (editemp) {
         return ResponseManager.SuccessResponse(req, res, 200, "correct email");
       } else {
-        return ResponseManager.ErrorResponse(req, res, 400, `Email not found`);
+        return ResponseManager.ErrorResponse(req, res, 400, `email not found`);
       }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -740,7 +740,7 @@ class AuthController {
   //         req,
   //         res,
   //         400,
-  //         `Email ${user_email} not found`
+  //         `email ${user_email} not found`
   //       );
   //     }
   //   } catch (err) {

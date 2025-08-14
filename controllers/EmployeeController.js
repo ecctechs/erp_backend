@@ -38,7 +38,7 @@ class EmployeeController {
           last_name: {
             [Op.not]: "-",
           },
-          Email: {
+          email: {
             [Op.not]: "-",
           },
         },
@@ -72,12 +72,12 @@ class EmployeeController {
 
       const esistingempNID = await Employee.findOne({
         where: {
-          NID_num: req.body.NID_num,
+          national_id_number: req.body.national_id_number,
         },
       });
       const checkphoneDup = await Employee.findOne({
         where: {
-          Phone_num: req.body.Phone_num,
+          phone_number: req.body.phone_number,
         },
       });
       if (esistingempNID) {
@@ -99,7 +99,7 @@ class EmployeeController {
 
       const esistingempEmail = await Employee.findOne({
         where: {
-          Email: req.body.Email,
+          email: req.body.email,
         },
       });
 
@@ -108,7 +108,7 @@ class EmployeeController {
           req,
           res,
           400,
-          "Email is already exist"
+          "email is already exist"
         );
       }
 
@@ -116,11 +116,11 @@ class EmployeeController {
         title: req.body.title,
         first_name: req.body.first_name,
         last_name: req.body.last_name,
-        Address: req.body.Address,
-        Birthdate: req.body.Birthdate,
-        NID_num: req.body.NID_num,
-        Phone_num: req.body.Phone_num,
-        Email: req.body.Email,
+        address: req.body.address,
+        birth_date: req.body.birth_date,
+        national_id_number: req.body.national_id_number,
+        phone_number: req.body.phone_number,
+        email: req.body.email,
         start_working_date: req.body.start_working_date,
         Salary: req.body.Salary || "0",
         employeeType: req.body.employeeType,
@@ -157,7 +157,7 @@ class EmployeeController {
       if (editemp) {
         const existingNID = await Employee.findOne({
           where: {
-            NID_num: req.body.NID_num,
+            national_id_number: req.body.national_id_number,
             employee_id: { [Op.ne]: req.params.id },
           },
         });
@@ -173,7 +173,7 @@ class EmployeeController {
         }
         const existingEmail = await Employee.findOne({
           where: {
-            Email: req.body.Email,
+            email: req.body.email,
             employee_id: { [Op.ne]: req.params.id }, // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
           },
         });
@@ -182,11 +182,11 @@ class EmployeeController {
           title: req.body.title,
           first_name: req.body.first_name,
           last_name: req.body.last_name,
-          Address: req.body.Address,
-          Birthdate: req.body.Birthdate,
-          NID_num: req.body.NID_num,
-          Phone_num: req.body.Phone_num,
-          Email: req.body.Email,
+          address: req.body.address,
+          birth_date: req.body.birth_date,
+          national_id_number: req.body.national_id_number,
+          phone_number: req.body.phone_number,
+          email: req.body.email,
           start_working_date: req.body.start_working_date,
           Salary: req.body.Salary,
           employeeType: req.body.employeeType,
@@ -519,7 +519,7 @@ class EmployeeController {
             {
               model: Employee,
               where: {
-                Email: userEmail,
+                email: userEmail,
               },
               include: [Position, Department],
             },
@@ -580,7 +580,7 @@ class EmployeeController {
       } else if (RoleName === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
-            Email: userEmail,
+            email: userEmail,
             bus_id: bus_id,
             first_name: {
               [Op.ne]: "-",
@@ -597,7 +597,7 @@ class EmployeeController {
       } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            Email: userEmail,
+            email: userEmail,
           },
           include: [
             {
@@ -621,7 +621,7 @@ class EmployeeController {
           where: {
             departmentID: userdepart,
             bus_id: bus_id,
-            Email: {
+            email: {
               [Op.ne]: userEmail,
             },
             first_name: {
@@ -756,7 +756,7 @@ class EmployeeController {
       } else if (RoleName === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
-            Email: userEmail,
+            email: userEmail,
             bus_id: bus_id,
             first_name: {
               [Op.ne]: "-",
@@ -773,7 +773,7 @@ class EmployeeController {
       } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            Email: userEmail,
+            email: userEmail,
           },
           include: [
             {
@@ -797,7 +797,7 @@ class EmployeeController {
           where: {
             departmentID: userdepart,
             bus_id: bus_id,
-            Email: {
+            email: {
               [Op.ne]: userEmail,
             },
             first_name: {
@@ -1219,7 +1219,7 @@ class EmployeeController {
               model: Employee,
               where: {
                 bus_id: bus_id,
-                Email: userEmail,
+                email: userEmail,
               },
             },
           ],
@@ -1227,7 +1227,7 @@ class EmployeeController {
       } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            Email: userEmail,
+            email: userEmail,
             bus_id: bus_id,
           },
           include: [
@@ -1255,7 +1255,7 @@ class EmployeeController {
               where: {
                 departmentID: userdepart,
                 bus_id: bus_id,
-                Email: {
+                email: {
                   [Op.ne]: userEmail,
                 },
               },
@@ -1351,7 +1351,7 @@ class EmployeeController {
               model: Employee,
               where: {
                 bus_id: bus_id,
-                Email: userEmail,
+                email: userEmail,
               },
             },
           ],
