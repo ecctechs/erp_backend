@@ -11,7 +11,7 @@ const {
   Leaving,
   Overtime,
 } = require("../model/employeeModel");
-const create_employee_rows = require('../helpers/collection_helper');
+const { create_employee_rows, create_payment_rows } = require('../helpers/collection_helper');
 const { Business } = require("../model/quotationModel");
 
 class EmployeeController {
@@ -112,21 +112,6 @@ class EmployeeController {
         );
       }
 
-      // const existingempBankID = await Employee.findOne({
-      //   where: {
-      //     bankAccountID: req.body.bankAccountID,
-      //   },
-      // });
-
-      // if (existingempBankID) {
-      //   return ResponseManager.ErrorResponse(
-      //     req,
-      //     res,
-      //     400,
-      //     "Bank Account ID is already exist"
-      //   );
-      // }
-
       const insert_emp = await Employee.create({
         title: req.body.title,
         F_name: req.body.F_name,
@@ -193,8 +178,6 @@ class EmployeeController {
           },
         });
 
-
-
         const updatedData = {
           title: req.body.title,
           F_name: req.body.F_name,
@@ -251,22 +234,6 @@ class EmployeeController {
       });
 
       if (employee) {
-        // await Employee.update(
-        //   {
-        //     Address: "-", // ลบที่อยู่
-        //     Birthdate: "-", // ลบวันเกิด
-        //     NID_num: "-", // ลบเลขบัตรประชาชน
-        //     Phone_num: "-", // ลบเบอร์โทร
-        //     Email: "-", // ลบอีเมล
-        //     bankName: "-", // ลบชื่อธนาคาร
-        //     bankAccountID: "-", // ลบเลขบัญชี
-        //   },
-        //   {
-        //     where: {
-        //       employeeID: req.params.id,
-        //     },
-        //   }
-        // );
         const updatedData = {
           Status: "not active",
         };
@@ -395,7 +362,6 @@ class EmployeeController {
   }
 
   static async DeleteDepartment(req, res) {
-    //delete product
     Employee.belongsTo(Department, { foreignKey: "departmentID" });
     Department.hasMany(Employee, { foreignKey: "departmentID" });
     try {
@@ -443,8 +409,6 @@ class EmployeeController {
   }
 
   static async DeleteLeave(req, res) {
-    //delete product
-
     try {
       const deletecate = await Leaving.findOne({
         where: {
@@ -546,19 +510,9 @@ class EmployeeController {
           include: [{ model: Employee, include: [Position, Department] }],
           where: { bus_id: bus_id },
         });
-        paymentslist.forEach((log) => {
-          result.push({
-            payment_id: log.payment_id,
-            date: log.Date,
-            round: log.round,
-            month: log.month,
-            year: log.year,
-            employeeID: log.employee.employeeID,
-            employeeName: log.employee.F_name + " " + log.employee.L_name,
-            position: log.employee.position,
-            salary: log.employee.Salary,
-          });
-        });
+
+        result = create_payment_rows(paymentslist);
+
       } else if (RoleName === "SALE") {
         paymentslist = await Salary_pay.findAll({
           include: [
@@ -572,77 +526,8 @@ class EmployeeController {
           ],
           where: { bus_id: bus_id },
         });
-        paymentslist.forEach((log) => {
-          result.push({
-            payment_id: log.payment_id,
-            date: log.Date,
-            round: log.round,
-            month: log.month,
-            year: log.year,
-            employeeName: log.employee.F_name + " " + log.employee.L_name,
-            salary: log.employee.Salary,
-          });
-        });
-        // } else if (RoleName === "MANAGER") {
-        //   const userData = await Employee.findOne({
-        //     where: {
-        //       Email: userEmail,
-        //     },
-        //     include: [
-        //       {
-        //         model: Department,
-        //       },
-        //     ],
-        //   });
 
-        //   if (!userData || !userData.department) {
-        //     return await ResponseManager.ErrorResponse(
-        //       req,
-        //       res,
-        //       404,
-        //       "Manager department data not found"
-        //     );
-        //   }
-
-        //   const userdepart = userData.department.departmentID;
-
-        //   paymentslist = await Salary_pay.findAll({
-        //     include: [
-        //       {
-        //         model: Employee,
-        //         where: {
-        //           departmentID: userdepart,
-        //           Email: {
-        //             [Op.ne]: userEmail,
-        //           },
-        //         },
-        //         include: [
-        //           {
-        //             model: Position,
-        //           },
-        //           {
-        //             model: Department,
-        //             where: {
-        //               departmentID: userdepart,
-        //             },
-        //           },
-        //         ],
-        //       },
-        //     ],
-        //     where: { bus_id: bus_id },
-        //   });
-
-        //   paymentslist.forEach((log) => {
-        //     result.push({
-        //       payment_id: log.payment_id,
-        //       date: log.Date,
-        //       round: log.round,
-        //       month: log.month,
-        //       year: log.year,
-        //       employeeName: log.employee.F_name + " " + log.employee.L_name,
-        //       salary: log.employee.Salary,
-        //     });
-        //   });
+         result = create_payment_rows(paymentslist);
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, result);
@@ -689,20 +574,9 @@ class EmployeeController {
           },
           include: [{ model: Position }, { model: Department }],
         });
-        employeeslist.forEach((log) => {
-          result.push({
-            employeeID: log.employeeID,
-            name: log.F_name + " " + log.L_name,
-            employeeType: log.employeeType,
-            phone: log.Phone_num,
-            email: log.Email,
-            department: log.department.departmentName,
-            position: log.position.Position,
-            bankName: log.bankName,
-            bankAccountID: log.bankAccountID,
-            salary: log.Salary,
-          });
-        });
+
+        result = create_employee_rows(employeeslist);
+
       } else if (RoleName === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
@@ -717,20 +591,9 @@ class EmployeeController {
           },
           include: [{ model: Position }, { model: Department }],
         });
-        employeeslist.forEach((log) => {
-          result.push({
-            employeeID: log.employeeID,
-            name: log.F_name + " " + log.L_name,
-            employeeType: log.employeeType,
-            phone: log.Phone_num,
-            email: log.Email,
-            department: log.department.departmentName,
-            position: log.position.Position,
-            bankName: log.bankName,
-            bankAccountID: log.bankAccountID,
-            salary: log.Salary,
-          });
-        });
+
+        result = create_employee_rows(employeeslist);
+
       } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
@@ -770,20 +633,9 @@ class EmployeeController {
           },
           include: [{ model: Position }, { model: Department }],
         });
-        employeeslist.forEach((log) => {
-          result.push({
-            employeeID: log.employeeID,
-            name: log.F_name + " " + log.L_name,
-            employeeType: log.employeeType,
-            phone: log.Phone_num,
-            email: log.Email,
-            department: log.department.departmentName,
-            position: log.position.Position,
-            bankName: log.bankName,
-            bankAccountID: log.bankAccountID,
-            salary: log.Salary,
-          });
-        });
+
+        result = create_employee_rows(employeeslist);
+
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, result);
@@ -915,20 +767,9 @@ class EmployeeController {
           },
           include: [{ model: Position }, { model: Department }],
         });
-        employeeslist.forEach((log) => {
-          result.push({
-            employeeID: log.employeeID,
-            name: log.F_name + " " + log.L_name,
-            employeeType: log.employeeType,
-            phone: log.Phone_num,
-            email: log.Email,
-            department: log.department ? log.department.departmentName : "",
-            position: log.position ? log.position.Position : "",
-            bankName: log.bankName,
-            bankAccountID: log.bankAccountID,
-            salary: log.Salary,
-          });
-        });
+
+       result = create_employee_rows(employeeslist);
+
       } else if (RoleName === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
@@ -969,20 +810,7 @@ class EmployeeController {
           include: [{ model: Position }, { model: Department }],
         });
 
-        employeeslist.forEach((log) => {
-          result.push({
-            employeeID: log.employeeID,
-            name: log.F_name + " " + log.L_name,
-            employeeType: log.employeeType,
-            phone: log.Phone_num,
-            email: log.Email,
-            department: log.department ? log.department.departmentName : "",
-            position: log.position ? log.position.Position : "",
-            bankName: log.bankName,
-            bankAccountID: log.bankAccountID,
-            salary: log.Salary,
-          });
-        });
+        result = create_employee_rows(employeeslist);
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, result);
@@ -1203,88 +1031,8 @@ class EmployeeController {
           req.body.payments
         );
       } catch (error) {
-        // Handle the error (duplicate payment)
         return ResponseManager.ErrorResponse(req, res, 400, error.message);
       }
-
-      // for (let i = 0; i < req.body.payments.length; i++) {
-      //   if (
-      //     req.body.payments[i].month === "" ||
-      //     req.body.payments[i].round === "" ||
-      //     req.body.payments[i].year === ""
-      //   ) {
-      //     return ResponseManager.SuccessResponse(
-      //       req,
-      //       res,
-      //       400,
-      //       "กรุณาใส่ เดือน ปี และ รอบเงินเดือน"
-      //     );
-      //   data_arry.month = req.body.payments[i].month;
-      //   data_arry.round = req.body.payments[i].round;
-      //   data_arry.year = req.body.payments[i].year;
-      //   data_arry.employeeID = req.body.payments[i].employeeID;
-      //   data_arry.bus_id = bus_id;
-      //   datalist.push(data_arry);
-
-      // const data = await Salary_pay.findOne({
-      //   where: {
-      //     month: req.body.payments[i].month,
-      //     round: parseInt(req.body.payments[i].round),
-      //     year: req.body.payments[i].year,
-      //     employeeID: parseInt(req.body.payments[i].employeeID),
-      //     bus_id: bus_id,
-      //   },
-      // });
-      // if (data) {
-      //   return ResponseManager.SuccessResponse(
-      //     req,
-      //     res,
-      //     400,
-      //     "Employee Payment already exists"
-      //   );
-      // } else {
-      // await Salary_pay.create({
-      //   employeeID: req.body.payments[i].employeeID,
-      //   Date: req.body.payments[i].Date,
-      //   round: req.body.payments[i].round,
-      //   month: req.body.payments[i].month,
-      //   year: req.body.payments[i].year,
-      //   bus_id: bus_id,
-      // });
-      // datalist.push(req.body.payments);
-      // }
-      // return ResponseManager.SuccessResponse(req, res, 200, datalist);
-      // }
-      // return ResponseManager.SuccessResponse(req, res, 200, datalist);
-
-      // const data = await Salary_pay.findOne({
-      //   where: {
-      //     month: req.body.month,
-      //     round: req.body.round,
-      //     year: req.body.year,
-      //     employeeID: req.body.employeeID,
-      //     bus_id: bus_id,
-      //   },
-      // });
-      // if (data) {
-      //   return ResponseManager.SuccessResponse(
-      //     req,
-      //     res,
-      //     400,
-      //     "Employee Payment already exists"
-      //   );
-      // } else {
-      //   const data_payment = await Salary_pay.create({
-      //     employeeID: req.body.employeeID,
-      //     Date: req.body.Date,
-      //     round: req.body.round,
-      //     month: req.body.month,
-      //     year: req.body.year,
-      //     bus_id: bus_id,
-      //   });
-      //   console.log(req.body);
-      //   return ResponseManager.SuccessResponse(req, res, 200, data_payment);
-      // }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
@@ -1313,10 +1061,6 @@ class EmployeeController {
           400,
           "Invalid request format. Missing payments array."
         );
-
-        // return res
-        //   .status(400)
-        //   .json({ error: "Invalid request format. Missing payments array." });
       }
 
       const paymentCreationPromises = [];
@@ -1353,9 +1097,6 @@ class EmployeeController {
         }
       }
       return ResponseManager.SuccessResponse(req, res, 200, "success payment ");
-      
-      // const createdPayments = await Promise.all(paymentCreationPromises);
-      // return ResponseManager.SuccessResponse(req, res, 200, createdPayments);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
@@ -1615,44 +1356,6 @@ class EmployeeController {
             },
           ],
         });
-        // } else if (RoleName === "MANAGER") {
-        //   const userData = await Employee.findOne({
-        //     where: {
-        //       Email: userEmail,
-        //       bus_id: bus_id,
-        //     },
-        //     include: [
-        //       {
-        //         model: Department,
-        //       },
-        //     ],
-        //   });
-
-        //   if (!userData || !userData.department) {
-        //     return await ResponseManager.ErrorResponse(
-        //       req,
-        //       res,
-        //       404,
-        //       "Manager department data not found"
-        //     );
-        //   }
-
-        //   const userdepart = userData.department.departmentID;
-
-        //   data_overtime = await Overtime.findAll({
-        //     include: [
-        //       {
-        //         model: Employee,
-        //         where: {
-        //           departmentID: userdepart,
-        //           bus_id: bus_id,
-        //           Email: {
-        //             [Op.ne]: userEmail,
-        //           },
-        //         },
-        //       },
-        //     ],
-        //   });
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, data_overtime);
