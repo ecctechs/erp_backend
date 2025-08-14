@@ -14,11 +14,11 @@ const Employee = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    F_name: {
+    first_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    L_name: {
+    last_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },

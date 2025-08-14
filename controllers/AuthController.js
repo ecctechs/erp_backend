@@ -447,8 +447,8 @@ class AuthController {
 
         await Employee.create({
           title: req.body.user_title,
-          F_name: req.body.userF_name,
-          L_name: req.body.userL_name,
+          first_name: req.body.userF_name,
+          last_name: req.body.userL_name,
           Address: "",
           Birthdate: "",
           NID_num: "",

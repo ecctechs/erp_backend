@@ -32,10 +32,10 @@ class EmployeeController {
         include: [{ model: Position }, { model: Department }],
         where: {
           bus_id: bus_id,
-          F_name: {
+          first_name: {
             [Op.not]: "-",
           },
-          L_name: {
+          last_name: {
             [Op.not]: "-",
           },
           Email: {
@@ -114,8 +114,8 @@ class EmployeeController {
 
       const insert_emp = await Employee.create({
         title: req.body.title,
-        F_name: req.body.F_name,
-        L_name: req.body.L_name,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
         Address: req.body.Address,
         Birthdate: req.body.Birthdate,
         NID_num: req.body.NID_num,
@@ -180,8 +180,8 @@ class EmployeeController {
 
         const updatedData = {
           title: req.body.title,
-          F_name: req.body.F_name,
-          L_name: req.body.L_name,
+          first_name: req.body.first_name,
+          last_name: req.body.last_name,
           Address: req.body.Address,
           Birthdate: req.body.Birthdate,
           NID_num: req.body.NID_num,
@@ -565,10 +565,10 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           where: {
             bus_id: bus_id,
-            F_name: {
+            first_name: {
               [Op.ne]: "-",
             },
-            L_name: {
+            last_name: {
               [Op.ne]: "-",
             },
           },
@@ -582,10 +582,10 @@ class EmployeeController {
           where: {
             Email: userEmail,
             bus_id: bus_id,
-            F_name: {
+            first_name: {
               [Op.ne]: "-",
             },
-            L_name: {
+            last_name: {
               [Op.ne]: "-",
             },
           },
@@ -624,10 +624,10 @@ class EmployeeController {
             Email: {
               [Op.ne]: userEmail,
             },
-            F_name: {
+            first_name: {
               [Op.ne]: "-",
             },
-            L_name: {
+            last_name: {
               [Op.ne]: "-",
             },
           },
@@ -741,10 +741,10 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           where: {
             bus_id: bus_id,
-            F_name: {
+            first_name: {
               [Op.ne]: "-",
             },
-            L_name: {
+            last_name: {
               [Op.ne]: "-",
             },
           },
@@ -758,10 +758,10 @@ class EmployeeController {
           where: {
             Email: userEmail,
             bus_id: bus_id,
-            F_name: {
+            first_name: {
               [Op.ne]: "-",
             },
-            L_name: {
+            last_name: {
               [Op.ne]: "-",
             },
           },
@@ -800,10 +800,10 @@ class EmployeeController {
             Email: {
               [Op.ne]: userEmail,
             },
-            F_name: {
+            first_name: {
               [Op.ne]: "-",
             },
-            L_name: {
+            last_name: {
               [Op.ne]: "-",
             },
           },

@@ -4,7 +4,7 @@ function create_employee_rows(employeeslist) {
     employeeslist.forEach((log) => {
         result.push({
           employee_id: log.employee_id,
-          name: log.F_name + " " + log.L_name,
+          name: log.first_name + " " + log.last_name,
           employeeType: log.employeeType,
           phone: log.Phone_num,
           email: log.Email,
@@ -30,7 +30,7 @@ function create_payment_rows(paymentslist) {
             month: log.month,
             year: log.year,
             employee_id: log.employee.employee_id,
-            employeeName: log.employee.F_name + " " + log.employee.L_name,
+            employeeName: log.employee.first_name + " " + log.employee.last_name,
             position: log.employee.position,
             salary: log.employee.Salary,
           });

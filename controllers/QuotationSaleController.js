@@ -834,9 +834,9 @@ class QuotationSaleController {
         order: [["sale_number", "ASC"]], // <-- เรียงจากน้อยไปมาก
       });
       const today = new Date();
-      console.log("-----------------------------------------");
-      console.log("quotationslist",quotationslist);
-      // return false
+
+        console.log("---");
+       console.log("quotationslist",quotationslist);
 
       for (let log of quotationslist) {
         const expiredDate = new Date(log.credit_expired_date);
@@ -855,7 +855,7 @@ class QuotationSaleController {
           quotation_num: log.sale_number,
           status: log.status,
           employee_id: log.employee_id,
-          employee_name: log.employee.F_name + " " + log.employee.L_name,
+          employee_name: log.employee.first_name + " " + log.employee.last_name,
           cus_id: log.cus_id,
           cus_name: log.customer.cus_name,
           cus_address: log.customer.cus_address,
@@ -941,7 +941,7 @@ from quotation_sale_details
           quotation_num: sale.sale_number,
           status: sale.status,
           employee_id: sale.employee_id,
-          employee_name: `${sale.F_name} ${sale.L_name}`,
+          employee_name: `${sale.first_name} ${sale.last_name}`,
           cus_id: sale.cus_id,
           cus_name: sale.cus_name,
           cus_address: sale.cus_address,
@@ -1047,7 +1047,7 @@ from quotation_sale_details
           tax_invoice_remark: sale.tax_invoice_remark,
           status: sale.status,
           employee_id: sale.employee_id,
-          employee_name: `${sale.F_name} ${sale.L_name}`,
+          employee_name: `${sale.first_name} ${sale.last_name}`,
           cus_id: sale.cus_id,
           cus_name: sale.cus_name,
           cus_address: sale.cus_address,
@@ -1665,7 +1665,7 @@ from quotation_sale_details
           quotation_num: sale.sale_number,
           status: sale.status,
           employee_id: sale.employee_id,
-          employee_name: `${sale.F_name} ${sale.L_name}`,
+          employee_name: `${sale.first_name} ${sale.last_name}`,
           cus_id: sale.cus_id,
           cus_name: sale.cus_name,
           cus_address: sale.cus_address,
