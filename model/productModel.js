@@ -9,7 +9,7 @@ const Product = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    productTypeID: {
+    product_type_id: {
       type: DataTypes.INTEGER,
     },
     categoryID: {
@@ -55,12 +55,12 @@ const Product = sequelize.define(
 const productType = sequelize.define(
   "product_types",
   {
-    productTypeID: {
+    product_type_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    productTypeName: {
+    product_type_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },

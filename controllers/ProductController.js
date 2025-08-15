@@ -17,8 +17,8 @@ class ProductController {
     try {
       Product.belongsTo(productCategory, { foreignKey: "categoryID" });
       productCategory.hasMany(Product, { foreignKey: "categoryID" });
-      Product.belongsTo(productType, { foreignKey: "productTypeID" });
-      productType.hasMany(Product, { foreignKey: "productTypeID" });
+      Product.belongsTo(productType, { foreignKey: "product_type_id" });
+      productType.hasMany(Product, { foreignKey: "product_type_id" });
 
       Product.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Product, { foreignKey: "bus_id" });
@@ -42,8 +42,8 @@ class ProductController {
 
       // ตรวจสอบและอัพเดท status หาก amount = 0
       for (const product of products) {
-        if (product.amount === 0 && product.productTypeID === 1) {
-        } else if (product.amount > 0 && product.productTypeID === 1) {
+        if (product.amount === 0 && product.product_type_id === 1) {
+        } else if (product.amount > 0 && product.product_type_id === 1) {
         }
       }
 
@@ -79,7 +79,7 @@ class ProductController {
 
       const ProductByProductType = await Product.findAll({
         where: {
-          productTypeID: req.params.id,
+          product_type_id: req.params.id,
           bus_id: bus_id,
         },
       });
@@ -166,7 +166,7 @@ class ProductController {
         }
 
         const insert_product = await Product.create({
-          productTypeID: req.body.productTypeID,
+          product_type_id: req.body.product_type_id,
           productname: req.body.productname,
           productdetail: req.body.productdetail,
           amount: req.body.amount,
@@ -200,7 +200,7 @@ class ProductController {
         }
 
         let productUpdateData = {
-          productTypeID: req.body.productTypeID,
+          product_type_id: req.body.product_type_id,
           productname: req.body.productname,
           productdetail: req.body.productdetail,
           amount: req.body.amount,
@@ -838,7 +838,7 @@ class ProductController {
     try {
       const addcate = await productType.findOne({
         where: {
-          productTypeName: req.body.productTypeName,
+          product_type_name: req.body.product_type_name,
         },
       });
       if (addcate) {
@@ -848,7 +848,7 @@ class ProductController {
         });
       } else {
         const insert_cate = await productType.create({
-          productTypeName: req.body.productTypeName,
+          product_type_name: req.body.product_type_name,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -862,13 +862,13 @@ class ProductController {
     try {
       const deletecate = await productType.findOne({
         where: {
-          productTypeID: req.params.id,
+          product_type_id: req.params.id,
         },
       });
       if (deletecate) {
         await productType.destroy({
           where: {
-            productTypeID: req.params.id,
+            product_type_id: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(

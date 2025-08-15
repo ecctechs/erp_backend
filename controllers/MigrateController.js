@@ -127,7 +127,7 @@ class MigrateController {
       // รายชื่อ key ที่ต้องการลบ
       const excludedKeys = [
         "product_id",
-        "productTypeID",
+        "product_type_id",
         "categoryID",
         "productImg",
         "bus_id",

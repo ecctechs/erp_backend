@@ -2354,8 +2354,8 @@ from quotation_sale_details
         `
       SELECT 
     CASE 
-        WHEN products."productTypeID" = 1 THEN 'สินค้า'
-        WHEN products."productTypeID" = 2 THEN 'บริการ'
+        WHEN products."product_type_id" = 1 THEN 'สินค้า'
+        WHEN products."product_type_id" = 2 THEN 'บริการ'
         ELSE 'Other'
     END AS product_type,
     SUM(quotation_sale_details."sale_price") AS total_sale_price
@@ -2447,7 +2447,7 @@ WITH RankedProducts AS (
         public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
     WHERE 
         public.products."bus_id" = :bus_id
-        AND public.products."productTypeID" != 2
+        AND public.products."product_type_id" != 2
            AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
     GROUP BY 
         public.products."productname"
@@ -2508,7 +2508,7 @@ LEFT JOIN
     public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
 WHERE 
     public.products."bus_id" = :bus_id
-    AND public.products."productTypeID" = 2
+    AND public.products."product_type_id" = 2
     AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
 	GROUP BY 
     public.products."productname"
