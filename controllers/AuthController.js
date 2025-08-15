@@ -458,11 +458,11 @@ class AuthController {
           salary: 0,
           employee_type: "",
           bank_name: "",
-          bankAccountID: "",
+          bank_account_id: "",
           PositionID: null,
           departmentID: null,
           bus_id: createdBusiness.bus_id,
-          Status: "active",
+          employee_status: "active",
         });
 
         console.log("User creation result:", insertUser);

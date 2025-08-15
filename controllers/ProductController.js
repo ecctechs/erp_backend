@@ -43,19 +43,8 @@ class ProductController {
       // ตรวจสอบและอัพเดท status หาก amount = 0
       for (const product of products) {
         if (product.amount === 0 && product.productTypeID === 1) {
-          // await product.update({ Status: "Discontinued" });
         } else if (product.amount > 0 && product.productTypeID === 1) {
-          // await product.update({ Status: "active" });
         }
-        // else if (
-        //   product.Status === "Discontinued" &&
-        //   product.amount > 0 &&
-        //   product.productTypeID === 1
-        // ) {
-        //   await product.update({ Status: "active" });
-        // } else {
-        //   await product.update({ Status: "active" });
-        // }
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, products);
@@ -209,22 +198,6 @@ class ProductController {
         if (req.file && req.file.size > 5 * 1024 * 1024) {
           res.status(400).json({ error: "File size exceeds 5 MB limit" });
         }
-
-        // const existingProduct = await Product.findOne({
-        //   where: {
-        //     productname: req.body.productname,
-        //     productID: { [Op.ne]: req.params.id },
-        //   },
-        // });
-
-        // if (existingProduct) {
-        //   return ResponseManager.ErrorResponse(
-        //     req,
-        //     res,
-        //     400,
-        //     "Product already exists"
-        //   );
-        // }
 
         let productUpdateData = {
           productTypeID: req.body.productTypeID,

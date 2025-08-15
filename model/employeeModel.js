@@ -58,7 +58,7 @@ const Employee = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    bankAccountID: {
+    bank_account_id: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -74,7 +74,7 @@ const Employee = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Status: {
+    employee_status: {
       type: DataTypes.STRING,
       allowNull: false,
     },

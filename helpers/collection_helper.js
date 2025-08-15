@@ -11,7 +11,7 @@ function create_employee_rows(employeeslist) {
           department: log.department ? log.department.departmentName : "",
           position: log.position ? log.position.Position : "",
           bank_name: log.bank_name,
-          bankAccountID: log.bankAccountID,
+          bank_account_id: log.bank_account_id,
           salary: log.salary,
         });
       });

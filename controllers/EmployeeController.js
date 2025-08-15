@@ -125,11 +125,11 @@ class EmployeeController {
         salary: req.body.salary || "0",
         employee_type: req.body.employee_type,
         bank_name: req.body.bank_name,
-        bankAccountID: req.body.bankAccountID,
+        bank_account_id: req.body.bank_account_id,
         PositionID: req.body.PositionID,
         departmentID: req.body.departmentID,
         bus_id: bus_id,
-        Status: "active",
+        employee_status: "active",
       });
       console.log(req.body);
       return ResponseManager.SuccessResponse(req, res, 200, insert_emp);
@@ -191,7 +191,7 @@ class EmployeeController {
           salary: req.body.salary,
           employee_type: req.body.employee_type,
           bank_name: req.body.bank_name,
-          bankAccountID: req.body.bankAccountID,
+          bank_account_id: req.body.bank_account_id,
           PositionID: req.body.PositionID,
           departmentID: req.body.departmentID,
         };
@@ -235,7 +235,7 @@ class EmployeeController {
 
       if (employee) {
         const updatedData = {
-          Status: "not active",
+          employee_status: "not active",
         };
 
         await Employee.update(updatedData, {
