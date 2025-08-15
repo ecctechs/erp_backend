@@ -129,7 +129,7 @@ class MigrateController {
         "product_id",
         "product_type_id",
         "category_id",
-        "productImg",
+        "product_img",
         "bus_id",
       ];
 

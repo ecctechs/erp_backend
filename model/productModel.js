@@ -33,7 +33,7 @@ const Product = sequelize.define(
     product_cost: {
       type: DataTypes.DOUBLE,
     },
-    productImg: {
+    product_img: {
       type: DataTypes.STRING(100),
     },
     product_date: {

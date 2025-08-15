@@ -173,7 +173,7 @@ class ProductController {
           price: req.body.price,
           product_cost: req.body.product_cost,
           category_id: req.body.category_id,
-          productImg: result.secure_url,
+          product_img: result.secure_url,
           product_date: DateString,
           bus_id: bus_id,
           Status: "Discontinued",
@@ -212,7 +212,7 @@ class ProductController {
 
         if (req.file) {
           const result = await cloudinary.uploader.upload(req.file.path);
-          productUpdateData.productImg = result.secure_url;
+          productUpdateData.product_img = result.secure_url;
         }
 
         await Product.update(productUpdateData, {
