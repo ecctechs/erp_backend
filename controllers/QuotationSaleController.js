@@ -2366,7 +2366,7 @@ LEFT JOIN
 LEFT JOIN 
     public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
 LEFT JOIN 
-    public.product_categories ON public.products."categoryID" = public.product_categories."categoryID"
+    public.product_categories ON public.products."category_id" = public.product_categories."category_id"
 WHERE 
     public.products."bus_id" = :bus_id
     AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
@@ -2396,7 +2396,7 @@ GROUP BY
       const log = await sequelize.query(
         `
 SELECT 
-    public.product_categories."categoryName",
+    public.product_categories."category_name",
     SUM(public.quotation_sale_details."sale_price") AS total_sale_price
 FROM 
     public.quotation_sale_details
@@ -2405,12 +2405,12 @@ LEFT JOIN
 LEFT JOIN 
     public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
 LEFT JOIN 
-    public.product_categories ON public.products."categoryID" = public.product_categories."categoryID"
+    public.product_categories ON public.products."category_id" = public.product_categories."category_id"
 WHERE 
     public.products."bus_id" = :bus_id
     AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
 GROUP BY 
-    public.product_categories."categoryName";
+    public.product_categories."category_name";
 
       `,
         {
@@ -2436,7 +2436,7 @@ GROUP BY
         `
 WITH RankedProducts AS (
     SELECT 
-        public.products."productname",
+        public.products."product_name",
         SUM(public.quotation_sale_details."sale_price") AS total_sale_price,
         ROW_NUMBER() OVER (ORDER BY SUM(public.quotation_sale_details."sale_price") DESC) AS rank
     FROM 
@@ -2450,19 +2450,19 @@ WITH RankedProducts AS (
         AND public.products."product_type_id" != 2
            AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
     GROUP BY 
-        public.products."productname"
+        public.products."product_name"
 ),
 AggregatedProducts AS (
     SELECT 
         CASE 
-            WHEN rank <= 7 THEN "productname"
+            WHEN rank <= 7 THEN "product_name"
             ELSE 'Others'
         END AS product,
         SUM(total_sale_price) AS total_sale_price
     FROM RankedProducts
     GROUP BY 
         CASE 
-            WHEN rank <= 7 THEN "productname"
+            WHEN rank <= 7 THEN "product_name"
             ELSE 'Others'
         END
 )
@@ -2498,7 +2498,7 @@ ORDER BY
       const log = await sequelize.query(
         `
 SELECT 
-    public.products.productname AS product_name,
+    public.products.product_name AS product_name,
     SUM(public.quotation_sale_details."sale_price") AS total_sale_price
 FROM 
     public.quotation_sale_details
@@ -2511,7 +2511,7 @@ WHERE
     AND public.products."product_type_id" = 2
     AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
 	GROUP BY 
-    public.products."productname"
+    public.products."product_name"
 ORDER BY 
     total_sale_price DESC;
 

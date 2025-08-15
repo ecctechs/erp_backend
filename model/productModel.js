@@ -12,10 +12,10 @@ const Product = sequelize.define(
     product_type_id: {
       type: DataTypes.INTEGER,
     },
-    categoryID: {
+    category_id: {
       type: DataTypes.INTEGER,
     },
-    productname: {
+    product_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -73,12 +73,12 @@ const productType = sequelize.define(
 const productCategory = sequelize.define(
   "product_categories",
   {
-    categoryID: {
+    category_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    categoryName: {
+    category_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -164,8 +164,8 @@ const Expense = sequelize.define(
   }
 );
 
-Product.belongsTo(productCategory, { foreignKey: "categoryID" });
-productCategory.hasMany(Product, { foreignKey: "categoryID" });
+Product.belongsTo(productCategory, { foreignKey: "category_id" });
+productCategory.hasMany(Product, { foreignKey: "category_id" });
 
 module.exports = {
   Product,

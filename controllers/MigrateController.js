@@ -128,7 +128,7 @@ class MigrateController {
       const excludedKeys = [
         "product_id",
         "product_type_id",
-        "categoryID",
+        "category_id",
         "productImg",
         "bus_id",
       ];
@@ -145,7 +145,7 @@ class MigrateController {
 
       if (tableName === "products") {
         header = [
-          { id: "productname", title: "ชื่อสินค้า" },
+          { id: "product_name", title: "ชื่อสินค้า" },
           { id: "productdetail", title: "รายละเอียด" },
           { id: "amount", title: "จำนวน" },
           { id: "price", title: "ราคาขาย" },

@@ -15,8 +15,8 @@ const TokenManager = require("../middleware/tokenManager");
 class ProductController {
   static async getProduct(req, res) {
     try {
-      Product.belongsTo(productCategory, { foreignKey: "categoryID" });
-      productCategory.hasMany(Product, { foreignKey: "categoryID" });
+      Product.belongsTo(productCategory, { foreignKey: "category_id" });
+      productCategory.hasMany(Product, { foreignKey: "category_id" });
       Product.belongsTo(productType, { foreignKey: "product_type_id" });
       productType.hasMany(Product, { foreignKey: "product_type_id" });
 
@@ -111,11 +111,11 @@ class ProductController {
 
       const { bus_id } = req.userData;
 
-      console.log(req.body.productname);
+      console.log(req.body.product_name);
 
       const addproduct = await Product.findOne({
         where: {
-          productname: req.body.productname.trim(),
+          product_name: req.body.product_name.trim(),
           bus_id: bus_id,
         },
       });
@@ -167,12 +167,12 @@ class ProductController {
 
         const insert_product = await Product.create({
           product_type_id: req.body.product_type_id,
-          productname: req.body.productname,
+          product_name: req.body.product_name,
           productdetail: req.body.productdetail,
           amount: req.body.amount,
           price: req.body.price,
           productcost: req.body.productcost,
-          categoryID: req.body.categoryID,
+          category_id: req.body.category_id,
           productImg: result.secure_url,
           product_date: DateString,
           bus_id: bus_id,
@@ -201,12 +201,12 @@ class ProductController {
 
         let productUpdateData = {
           product_type_id: req.body.product_type_id,
-          productname: req.body.productname,
+          product_name: req.body.product_name,
           productdetail: req.body.productdetail,
           amount: req.body.amount,
           price: req.body.price,
           productcost: req.body.productcost,
-          categoryID: req.body.categoryID,
+          category_id: req.body.category_id,
           Status: req.body.Status,
         };
 
@@ -287,7 +287,7 @@ class ProductController {
 
       const addcate = await productCategory.findOne({
         where: {
-          categoryName: req.body.categoryName,
+          category_name: req.body.category_name,
           bus_id: bus_id,
         },
       });
@@ -300,7 +300,7 @@ class ProductController {
         );
       } else {
         const insert_cate = await productCategory.create({
-          categoryName: req.body.categoryName,
+          category_name: req.body.category_name,
           bus_id: bus_id,
         });
         console.log(req.body);
@@ -315,14 +315,14 @@ class ProductController {
     try {
       const delcate = await productCategory.findOne({
         where: {
-          categoryID: req.params.id,
+          category_id: req.params.id,
         },
       });
       if (delcate) {
         const existingCate = await productCategory.findOne({
           where: {
-            categoryName: req.body.categoryName,
-            categoryID: { [Op.ne]: req.params.id }, // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+            category_name: req.body.category_name,
+            category_id: { [Op.ne]: req.params.id }, // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
           },
         });
 
@@ -338,11 +338,11 @@ class ProductController {
 
         await productCategory.update(
           {
-            categoryName: req.body.categoryName,
+            category_name: req.body.category_name,
           },
           {
             where: {
-              categoryID: req.params.id,
+              category_id: req.params.id,
             },
           }
         );
@@ -365,52 +365,20 @@ class ProductController {
     }
   }
 
-  // static async DeleteCategory(req, res) {
-  //   try {
-  //     const deletecate = await productCategory.findOne({
-  //       where: {
-  //         categoryID: req.params.id,
-  //       },
-  //     });
-  //     if (deletecate) {
-  //       await productCategory.destroy({
-  //         where: {
-  //           categoryID: req.params.id,
-  //         },
-  //       });
-  //       return ResponseManager.SuccessResponse(
-  //         req,
-  //         res,
-  //         200,
-  //         "Category Deleted"
-  //       );
-  //     } else {
-  //       return ResponseManager.ErrorResponse(
-  //         req,
-  //         res,
-  //         400,
-  //         "No Category found"
-  //       );
-  //     }
-  //   } catch (err) {
-  //     return ResponseManager.CatchResponse(req, res, err.message);
-  //   }
-  // }
   static async DeleteCategory(req, res) {
     try {
-      const categoryID = parseInt(req.params.id);
+      const category_id = parseInt(req.params.id);
 
       const { bus_id } = req.userData;
 
       const addcate = await productCategory.findOne({
         where: {
-          categoryName: "ไม่มีหมวดหมู่",
+          category_name: "ไม่มีหมวดหมู่",
           bus_id: bus_id,
-          categoryID: categoryID,
+          category_id: category_id,
         },
       });
 
-      // ห้ามลบ categoryID = 0
       if (addcate) {
         return ResponseManager.ErrorResponse(
           req,
@@ -421,12 +389,12 @@ class ProductController {
       }
 
       const deletecate = await productCategory.findOne({
-        where: { categoryID: categoryID },
+        where: { category_id: category_id },
       });
 
       if (deletecate) {
         await productCategory.destroy({
-          where: { categoryID: categoryID },
+          where: { category_id: category_id },
         });
 
         return ResponseManager.SuccessResponse(
@@ -818,7 +786,7 @@ class ProductController {
           id: log.transaction_id,
           Date: dateOnly,
           product_id: log.product_id,
-          Product: log.product.productname,
+          Product: log.product.product_name,
           Transaction: log.transactionType,
           Detail: log.transactionDetail,
           Quantity:
@@ -932,19 +900,18 @@ class ProductController {
 
       const { bus_id } = req.userData;
 
-      // ตรวจสอบว่าหมวด categoryID = 0 มีหรือยัง
       const defaultCategory = await productCategory.findOne({
         where: {
           bus_id: bus_id,
-          categoryName: "ไม่มีหมวดหมู่",
+          category_name: "ไม่มีหมวดหมู่",
         },
       });
 
       // ถ้ายังไม่มี ให้สร้าง default category
       if (!defaultCategory) {
         await productCategory.create({
-          // categoryID: 0,
-          categoryName: "ไม่มีหมวดหมู่",
+          // category_id: 0,
+          category_name: "ไม่มีหมวดหมู่",
           bus_id: bus_id,
         });
       }
