@@ -9,7 +9,7 @@ function create_employee_rows(employeeslist) {
           phone: log.phone_number,
           email: log.email,
           department: log.department ? log.department.departmentName : "",
-          position: log.position ? log.position.Position : "",
+          position: log.position ? log.position.position_name : "",
           bank_name: log.bank_name,
           bank_account_id: log.bank_account_id,
           salary: log.salary,

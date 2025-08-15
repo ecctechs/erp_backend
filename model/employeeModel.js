@@ -92,7 +92,7 @@ const Position = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    Position: {
+    position_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },

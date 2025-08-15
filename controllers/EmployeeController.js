@@ -837,7 +837,7 @@ class EmployeeController {
 
       const adddepart = await Position.findOne({
         where: {
-          Position: req.body.Position,
+          position_name: req.body.position_name,
           bus_id: bus_id,
         },
       });
@@ -850,7 +850,7 @@ class EmployeeController {
         );
       } else {
         const insert_depart = await Position.create({
-          Position: req.body.Position,
+          position_name: req.body.position_name,
           bus_id: bus_id,
         });
         console.log(req.body);
@@ -871,7 +871,7 @@ class EmployeeController {
       if (editemp) {
         const existingPosition = await Position.findOne({
           where: {
-            Position: req.body.Position,
+            position_name: req.body.position_name,
             PositionID: { [Op.ne]: req.params.id },
           },
         });
@@ -888,7 +888,7 @@ class EmployeeController {
 
         await Position.update(
           {
-            Position: req.body.Position,
+            position_name: req.body.position_name,
           },
           {
             where: {
