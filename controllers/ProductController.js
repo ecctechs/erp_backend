@@ -190,7 +190,7 @@ class ProductController {
     try {
       const editproduct = await Product.findOne({
         where: {
-          productID: req.params.id,
+          product_id: req.params.id,
         },
       });
 
@@ -217,7 +217,7 @@ class ProductController {
 
         await Product.update(productUpdateData, {
           where: {
-            productID: req.params.id,
+            product_id: req.params.id,
           },
         });
 
@@ -239,22 +239,18 @@ class ProductController {
     try {
       const deleteproduct = await Product.findOne({
         where: {
-          productID: req.params.id,
+          product_id: req.params.id,
         },
       });
       if (deleteproduct) {
-        // await Product.destroy({
-        //   where: {
-        //     productID: req.params.id,
-        //   },
-        // });
+
         const updatedData = {
           Status: "not active",
         };
 
         await Product.update(updatedData, {
           where: {
-            productID: req.params.id,
+            product_id: req.params.id,
           },
         });
 
@@ -464,7 +460,7 @@ class ProductController {
 
       const getProductByid = await Product.findOne({
         where: {
-          productID: req.body.productID,
+          product_id: req.body.product_id,
         },
       });
 
@@ -473,7 +469,7 @@ class ProductController {
 
         if (transactionType == "Receive") {
           await Transaction.create({
-            productID: req.body.productID,
+            product_id: req.body.product_id,
             transactionType: transactionType,
             transactionDetail: req.body.transactionDetail,
             quantity_added: req.body.quantity,
@@ -490,7 +486,7 @@ class ProductController {
             },
             {
               where: {
-                productID: req.body.productID,
+                product_id: req.body.product_id,
               },
             }
           );
@@ -506,7 +502,7 @@ class ProductController {
             );
           } else {
             await Transaction.create({
-              productID: req.body.productID,
+              product_id: req.body.product_id,
               transactionType: transactionType,
               transactionDetail: req.body.transactionDetail,
               quantity_removed: req.body.quantity,
@@ -520,7 +516,7 @@ class ProductController {
               },
               {
                 where: {
-                  productID: req.body.productID,
+                  product_id: req.body.product_id,
                 },
               }
             );
@@ -535,7 +531,7 @@ class ProductController {
                 { Status: "Discontinued" },
                 {
                   where: {
-                    productID: req.body.productID,
+                    product_id: req.body.product_id,
                   },
                 }
               );
@@ -573,7 +569,7 @@ class ProductController {
     try {
       const getProductAmount = await Product.findOne({
         where: {
-          productID: req.body.productID,
+          product_id: req.body.product_id,
         },
       });
 
@@ -597,25 +593,25 @@ class ProductController {
             {
               amount: getProductAmount.amount - quantityDifference,
             },
-            { where: { productID: req.body.productID } }
+            { where: { product_id: req.body.product_id } }
           );
 
           // อัปเดตสถานะหากจำนวนสินค้าหลังอัปเดตเหลือ 0
           const updatedProduct = await Product.findOne({
-            where: { productID: req.body.productID },
+            where: { product_id: req.body.product_id },
           });
 
           if (updatedProduct.amount === 0) {
             await Product.update(
               { Status: "Discontinued" },
-              { where: { productID: req.body.productID } }
+              { where: { product_id: req.body.product_id } }
             );
           }
 
           // อัปเดต Transaction เป็น receive
           await Transaction.update(
             {
-              productID: req.body.productID,
+              product_id: req.body.product_id,
               transactionType: transactionType,
               transactionDetail: req.body.transactionDetail,
               quantity_added: 0,
@@ -641,12 +637,12 @@ class ProductController {
             {
               amount: getProductAmount.amount + quantityDifference,
             },
-            { where: { productID: req.body.productID } }
+            { where: { product_id: req.body.product_id } }
           );
 
           // อัปเดตสถานะให้กลับมาใช้งานได้หากจำนวนสินค้ากลายเป็นมากกว่า 0
           const updatedProduct = await Product.findOne({
-            where: { productID: req.body.productID },
+            where: { product_id: req.body.product_id },
           });
 
           if (
@@ -655,14 +651,14 @@ class ProductController {
           ) {
             await Product.update(
               { Status: "active" },
-              { where: { productID: req.body.productID } }
+              { where: { product_id: req.body.product_id } }
             );
           }
 
           // อัปเดต Transaction เป็น receive
           await Transaction.update(
             {
-              productID: req.body.productID,
+              product_id: req.body.product_id,
               transactionType: transactionType,
               transactionDetail: req.body.transactionDetail,
               quantity_added: req.body.quantity,
@@ -679,7 +675,7 @@ class ProductController {
         } else if (transactionType == "Receive") {
           await Transaction.update(
             {
-              productID: req.body.productID,
+              product_id: req.body.product_id,
               transactionType: transactionType,
               transactionDetail: req.body.transactionDetail,
               quantity_added: req.body.quantity,
@@ -702,7 +698,7 @@ class ProductController {
             },
             {
               where: {
-                productID: req.body.productID,
+                product_id: req.body.product_id,
               },
             }
           );
@@ -724,7 +720,7 @@ class ProductController {
           } else {
             await Transaction.update(
               {
-                productID: req.body.productID,
+                product_id: req.body.product_id,
                 transactionType: transactionType,
                 transactionDetail: req.body.transactionDetail,
                 quantity_removed: req.body.quantity,
@@ -746,7 +742,7 @@ class ProductController {
               },
               {
                 where: {
-                  productID: req.body.productID,
+                  product_id: req.body.product_id,
                 },
               }
             );
@@ -781,8 +777,8 @@ class ProductController {
 
   static async getTransaction(req, res) {
     try {
-      Transaction.belongsTo(Product, { foreignKey: "productID" });
-      Product.hasMany(Transaction, { foreignKey: "productID" });
+      Transaction.belongsTo(Product, { foreignKey: "product_id" });
+      Product.hasMany(Transaction, { foreignKey: "product_id" });
 
       Product.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Product, { foreignKey: "bus_id" });
@@ -821,7 +817,7 @@ class ProductController {
         result.push({
           id: log.transaction_id,
           Date: dateOnly,
-          productID: log.productID,
+          product_id: log.product_id,
           Product: log.product.productname,
           Transaction: log.transactionType,
           Detail: log.transactionDetail,
@@ -1095,7 +1091,7 @@ class ProductController {
       const { id, quantity, transactionType } = req.body;
 
       const product = await Product.findOne({
-        where: { productID: id },
+        where: { product_id: id },
       });
 
       if (!product) {
@@ -1129,7 +1125,7 @@ class ProductController {
       await Product.update(
         { amount: newAmount },
         {
-          where: { productID: id },
+          where: { product_id: id },
         }
       );
 

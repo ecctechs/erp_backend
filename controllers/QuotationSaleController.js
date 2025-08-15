@@ -881,7 +881,7 @@ class QuotationSaleController {
           //
           details: log.quotation_sale_details.map((detail) => ({
             sale_id: detail.sale_id,
-            productID: detail.productID,
+            product_id: detail.product_id,
             sale_price: detail.sale_price,
             discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
@@ -975,7 +975,7 @@ from quotation_sale_details
         saleDetails.forEach((detail) => {
           saleData.details.push({
             sale_id: detail.sale_id,
-            productID: detail.productID,
+            product_id: detail.product_id,
             sale_price: detail.sale_price,
             discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
@@ -1081,7 +1081,7 @@ from quotation_sale_details
         saleDetails.forEach((detail) => {
           saleData.details.push({
             sale_id: detail.sale_id,
-            productID: detail.productID,
+            product_id: detail.product_id,
             sale_price: detail.sale_price,
             discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
@@ -1702,7 +1702,7 @@ from quotation_sale_details
         saleDetails.forEach((detail) => {
           saleData.details.push({
             sale_id: detail.sale_id,
-            productID: detail.productID,
+            product_id: detail.product_id,
             sale_price: detail.sale_price,
             discounttype: detail.discounttype,
             sale_discount: detail.sale_discount,
@@ -2364,7 +2364,7 @@ FROM
 LEFT JOIN 
     public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
 LEFT JOIN 
-    public.products ON public.products."productID" = public.quotation_sale_details."productID"
+    public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
 LEFT JOIN 
     public.product_categories ON public.products."categoryID" = public.product_categories."categoryID"
 WHERE 
@@ -2403,7 +2403,7 @@ FROM
 LEFT JOIN 
     public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
 LEFT JOIN 
-    public.products ON public.products."productID" = public.quotation_sale_details."productID"
+    public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
 LEFT JOIN 
     public.product_categories ON public.products."categoryID" = public.product_categories."categoryID"
 WHERE 
@@ -2444,7 +2444,7 @@ WITH RankedProducts AS (
     LEFT JOIN 
         public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
     LEFT JOIN 
-        public.products ON public.products."productID" = public.quotation_sale_details."productID"
+        public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
     WHERE 
         public.products."bus_id" = :bus_id
         AND public.products."productTypeID" != 2
@@ -2505,7 +2505,7 @@ FROM
 LEFT JOIN 
     public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
 LEFT JOIN 
-    public.products ON public.products."productID" = public.quotation_sale_details."productID"
+    public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
 WHERE 
     public.products."bus_id" = :bus_id
     AND public.products."productTypeID" = 2

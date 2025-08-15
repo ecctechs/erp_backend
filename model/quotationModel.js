@@ -191,7 +191,7 @@ const Quotation_sale_detail = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    productID: {
+    product_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

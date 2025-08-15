@@ -4,7 +4,7 @@ const sequelize = require("../database");
 const Product = sequelize.define(
   "products",
   {
-    productID: {
+    product_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -100,7 +100,7 @@ const Transaction = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    productID: {
+    product_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
