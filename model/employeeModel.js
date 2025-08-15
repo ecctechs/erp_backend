@@ -66,7 +66,7 @@ const Employee = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    departmentID: {
+    department_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
@@ -215,7 +215,7 @@ const Overtime = sequelize.define(
 const Department = sequelize.define(
   "departments",
   {
-    departmentID: {
+    department_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -243,8 +243,8 @@ Business.hasMany(Employee, { foreignKey: "bus_id" });
 Employee.belongsTo(Position, { foreignKey: "position_id" });
 Position.hasMany(Employee, { foreignKey: "position_id" });
 
-Employee.belongsTo(Department, { foreignKey: "departmentID" });
-Department.hasMany(Employee, { foreignKey: "departmentID" });
+Employee.belongsTo(Department, { foreignKey: "department_id" });
+Department.hasMany(Employee, { foreignKey: "department_id" });
 
 module.exports = {
   Employee,

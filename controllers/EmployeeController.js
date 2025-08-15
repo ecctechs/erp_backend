@@ -20,14 +20,14 @@ class EmployeeController {
       Employee.belongsTo(Position, { foreignKey: "position_id" });
       Position.hasMany(Employee, { foreignKey: "position_id" });
 
-      Employee.belongsTo(Department, { foreignKey: "departmentID" });
-      Department.hasMany(Employee, { foreignKey: "departmentID" });
+      Employee.belongsTo(Department, { foreignKey: "department_id" });
+      Department.hasMany(Employee, { foreignKey: "department_id" });
 
       Employee.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Employee, { foreignKey: "bus_id" });
 
       const { bus_id } = req.userData;
-      // console.log("Testtttttttttttttttt",req.body.departmentID)
+   
       var employees = await Employee.findAll({
         include: [{ model: Position }, { model: Department }],
         where: {
@@ -55,8 +55,8 @@ class EmployeeController {
       Employee.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Employee, { foreignKey: "bus_id" });
 
-      Employee.belongsTo(Department, { foreignKey: "departmentID" });
-      Department.hasMany(Employee, { foreignKey: "departmentID" });
+      Employee.belongsTo(Department, { foreignKey: "department_id" });
+      Department.hasMany(Employee, { foreignKey: "department_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -127,7 +127,7 @@ class EmployeeController {
         bank_name: req.body.bank_name,
         bank_account_id: req.body.bank_account_id,
         position_id: req.body.position_id,
-        departmentID: req.body.departmentID,
+        department_id: req.body.department_id,
         bus_id: bus_id,
         employee_status: "active",
       });
@@ -142,8 +142,8 @@ class EmployeeController {
     Employee.belongsTo(Position, { foreignKey: "position_id" });
     Position.hasMany(Employee, { foreignKey: "position_id" });
 
-    Employee.belongsTo(Department, { foreignKey: "departmentID" });
-    Department.hasMany(Employee, { foreignKey: "departmentID" });
+    Employee.belongsTo(Department, { foreignKey: "department_id" });
+    Department.hasMany(Employee, { foreignKey: "department_id" });
 
     Employee.belongsTo(Business, { foreignKey: "bus_id" });
     Business.hasMany(Employee, { foreignKey: "bus_id" });
@@ -193,7 +193,7 @@ class EmployeeController {
           bank_name: req.body.bank_name,
           bank_account_id: req.body.bank_account_id,
           position_id: req.body.position_id,
-          departmentID: req.body.departmentID,
+          department_id: req.body.department_id,
         };
 
         console.log("Updating employee with data:", updatedData);
@@ -223,8 +223,8 @@ class EmployeeController {
   }
 
   static async DeleteEmployee(req, res) {
-    Employee.belongsTo(Department, { foreignKey: "departmentID" });
-    Department.hasMany(Employee, { foreignKey: "departmentID" });
+    Employee.belongsTo(Department, { foreignKey: "department_id" });
+    Department.hasMany(Employee, { foreignKey: "department_id" });
 
     try {
       const employee = await Employee.findOne({
@@ -311,14 +311,14 @@ class EmployeeController {
     try {
       const editemp = await Department.findOne({
         where: {
-          departmentID: req.params.id,
+          department_id: req.params.id,
         },
       });
       if (editemp) {
         const existingDepart = await Department.findOne({
           where: {
             departmentName: req.body.departmentName,
-            departmentID: { [Op.ne]: req.params.id },
+            department_id: { [Op.ne]: req.params.id },
           },
         });
 
@@ -338,7 +338,7 @@ class EmployeeController {
           },
           {
             where: {
-              departmentID: req.params.id,
+              department_id: req.params.id,
             },
           }
         );
@@ -362,17 +362,17 @@ class EmployeeController {
   }
 
   static async DeleteDepartment(req, res) {
-    Employee.belongsTo(Department, { foreignKey: "departmentID" });
-    Department.hasMany(Employee, { foreignKey: "departmentID" });
+    Employee.belongsTo(Department, { foreignKey: "department_id" });
+    Department.hasMany(Employee, { foreignKey: "department_id" });
     try {
       const deletecate = await Department.findOne({
         where: {
-          departmentID: req.params.id,
+          department_id: req.params.id,
         },
       });
       const checkEmployee = await Employee.findOne({
         where: {
-          departmentID: req.params.id,
+          department_id: req.params.id,
         },
       });
       if (checkEmployee) {
@@ -386,7 +386,7 @@ class EmployeeController {
       if (deletecate) {
         await Department.destroy({
           where: {
-            departmentID: req.params.id,
+            department_id: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(
@@ -457,12 +457,12 @@ class EmployeeController {
 
       for (const property in departments) {
         const data = {};
-        data.departmentID = departments[property].departmentID;
+        data.department_id = departments[property].department_id;
         data.departmentName = departments[property].departmentName;
 
         const employee = await Employee.findAll({
           where: {
-            departmentID: departments[property].departmentID.toString(),
+            department_id: departments[property].department_id.toString(),
             bus_id: bus_id,
           },
         });
@@ -484,8 +484,8 @@ class EmployeeController {
       Employee.hasMany(Position, { foreignKey: "position_id" });
       Position.belongsTo(Employee, { foreignKey: "position_id" });
 
-      Department.hasMany(Employee, { foreignKey: "departmentID" });
-      Employee.belongsTo(Department, { foreignKey: "departmentID" });
+      Department.hasMany(Employee, { foreignKey: "department_id" });
+      Employee.belongsTo(Department, { foreignKey: "department_id" });
 
       Employee.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Employee, { foreignKey: "bus_id" });
@@ -540,8 +540,8 @@ class EmployeeController {
       Employee.belongsTo(Position, { foreignKey: "position_id" });
       Position.hasMany(Employee, { foreignKey: "position_id" });
 
-      Employee.belongsTo(Department, { foreignKey: "departmentID" });
-      Department.hasMany(Employee, { foreignKey: "departmentID" });
+      Employee.belongsTo(Department, { foreignKey: "department_id" });
+      Department.hasMany(Employee, { foreignKey: "department_id" });
 
       Employee.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Employee, { foreignKey: "bus_id" });
@@ -615,11 +615,11 @@ class EmployeeController {
           );
         }
 
-        const userdepart = userData.department.departmentID;
+        const userdepart = userData.department.department_id;
 
         employeeslist = await Employee.findAll({
           where: {
-            departmentID: userdepart,
+            department_id: userdepart,
             bus_id: bus_id,
             email: {
               [Op.ne]: userEmail,
@@ -717,8 +717,8 @@ class EmployeeController {
       Employee.belongsTo(Position, { foreignKey: "position_id" });
       Position.hasMany(Employee, { foreignKey: "position_id" });
 
-      Employee.belongsTo(Department, { foreignKey: "departmentID" });
-      Department.hasMany(Employee, { foreignKey: "departmentID" });
+      Employee.belongsTo(Department, { foreignKey: "department_id" });
+      Department.hasMany(Employee, { foreignKey: "department_id" });
 
       Employee.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Employee, { foreignKey: "bus_id" });
@@ -791,11 +791,11 @@ class EmployeeController {
           );
         }
 
-        const userdepart = userData.department.departmentID;
+        const userdepart = userData.department.department_id;
 
         employeeslist = await Employee.findAll({
           where: {
-            departmentID: userdepart,
+            department_id: userdepart,
             bus_id: bus_id,
             email: {
               [Op.ne]: userEmail,
@@ -1246,14 +1246,14 @@ class EmployeeController {
           );
         }
 
-        const userdepart = userData.department.departmentID;
+        const userdepart = userData.department.department_id;
 
         data_leave = await Leaving.findAll({
           include: [
             {
               model: Employee,
               where: {
-                departmentID: userdepart,
+                department_id: userdepart,
                 bus_id: bus_id,
                 email: {
                   [Op.ne]: userEmail,

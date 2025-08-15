@@ -460,7 +460,7 @@ class AuthController {
           bank_name: "",
           bank_account_id: "",
           position_id: null,
-          departmentID: null,
+          department_id: null,
           bus_id: createdBusiness.bus_id,
           employee_status: "active",
         });
