@@ -282,7 +282,7 @@ class EmployeeController {
 
       const adddepart = await Department.findOne({
         where: {
-          departmentName: req.body.departmentName,
+          department_name: req.body.department_name,
           bus_id: bus_id,
         },
       });
@@ -295,7 +295,7 @@ class EmployeeController {
         );
       } else {
         const insert_depart = await Department.create({
-          departmentName: req.body.departmentName,
+          department_name: req.body.department_name,
           bus_id: bus_id,
         });
         console.log(req.body);
@@ -317,7 +317,7 @@ class EmployeeController {
       if (editemp) {
         const existingDepart = await Department.findOne({
           where: {
-            departmentName: req.body.departmentName,
+            department_name: req.body.department_name,
             department_id: { [Op.ne]: req.params.id },
           },
         });
@@ -334,7 +334,7 @@ class EmployeeController {
 
         await Department.update(
           {
-            departmentName: req.body.departmentName,
+            department_name: req.body.department_name,
           },
           {
             where: {
@@ -458,7 +458,7 @@ class EmployeeController {
       for (const property in departments) {
         const data = {};
         data.department_id = departments[property].department_id;
-        data.departmentName = departments[property].departmentName;
+        data.department_name = departments[property].department_name;
 
         const employee = await Employee.findAll({
           where: {

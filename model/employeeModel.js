@@ -220,7 +220,7 @@ const Department = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    departmentName: {
+    department_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
