@@ -19,7 +19,7 @@ const Product = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    productdetail: {
+    product_detail: {
       type: DataTypes.STRING,
     },
     amount: {
@@ -30,7 +30,7 @@ const Product = sequelize.define(
       type: DataTypes.DOUBLE,
       allowNull: false,
     },
-    productcost: {
+    product_cost: {
       type: DataTypes.DOUBLE,
     },
     productImg: {

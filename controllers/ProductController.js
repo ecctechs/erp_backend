@@ -168,10 +168,10 @@ class ProductController {
         const insert_product = await Product.create({
           product_type_id: req.body.product_type_id,
           product_name: req.body.product_name,
-          productdetail: req.body.productdetail,
+          product_detail: req.body.product_detail,
           amount: req.body.amount,
           price: req.body.price,
-          productcost: req.body.productcost,
+          product_cost: req.body.product_cost,
           category_id: req.body.category_id,
           productImg: result.secure_url,
           product_date: DateString,
@@ -202,10 +202,10 @@ class ProductController {
         let productUpdateData = {
           product_type_id: req.body.product_type_id,
           product_name: req.body.product_name,
-          productdetail: req.body.productdetail,
+          product_detail: req.body.product_detail,
           amount: req.body.amount,
           price: req.body.price,
-          productcost: req.body.productcost,
+          product_cost: req.body.product_cost,
           category_id: req.body.category_id,
           Status: req.body.Status,
         };

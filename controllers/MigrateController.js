@@ -146,10 +146,10 @@ class MigrateController {
       if (tableName === "products") {
         header = [
           { id: "product_name", title: "ชื่อสินค้า" },
-          { id: "productdetail", title: "รายละเอียด" },
+          { id: "product_detail", title: "รายละเอียด" },
           { id: "amount", title: "จำนวน" },
           { id: "price", title: "ราคาขาย" },
-          { id: "productcost", title: "ราคาทุน" },
+          { id: "product_cost", title: "ราคาทุน" },
           { id: "product_date", title: "วันที่เพิ่มสินค้า" },
           { id: "Status", title: "สถานะ" },
         ];
