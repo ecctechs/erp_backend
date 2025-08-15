@@ -17,8 +17,8 @@ const { Business } = require("../model/quotationModel");
 class EmployeeController {
   static async getEmployee(req, res) {
     try {
-      Employee.belongsTo(Position, { foreignKey: "PositionID" });
-      Position.hasMany(Employee, { foreignKey: "PositionID" });
+      Employee.belongsTo(Position, { foreignKey: "position_id" });
+      Position.hasMany(Employee, { foreignKey: "position_id" });
 
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
@@ -126,7 +126,7 @@ class EmployeeController {
         employee_type: req.body.employee_type,
         bank_name: req.body.bank_name,
         bank_account_id: req.body.bank_account_id,
-        PositionID: req.body.PositionID,
+        position_id: req.body.position_id,
         departmentID: req.body.departmentID,
         bus_id: bus_id,
         employee_status: "active",
@@ -139,8 +139,8 @@ class EmployeeController {
   }
 
   static async EditEmployee(req, res) {
-    Employee.belongsTo(Position, { foreignKey: "PositionID" });
-    Position.hasMany(Employee, { foreignKey: "PositionID" });
+    Employee.belongsTo(Position, { foreignKey: "position_id" });
+    Position.hasMany(Employee, { foreignKey: "position_id" });
 
     Employee.belongsTo(Department, { foreignKey: "departmentID" });
     Department.hasMany(Employee, { foreignKey: "departmentID" });
@@ -192,7 +192,7 @@ class EmployeeController {
           employee_type: req.body.employee_type,
           bank_name: req.body.bank_name,
           bank_account_id: req.body.bank_account_id,
-          PositionID: req.body.PositionID,
+          position_id: req.body.position_id,
           departmentID: req.body.departmentID,
         };
 
@@ -481,8 +481,8 @@ class EmployeeController {
       Employee.hasMany(Salary_pay, { foreignKey: "employee_id" });
       Salary_pay.belongsTo(Employee, { foreignKey: "employee_id" });
 
-      Employee.hasMany(Position, { foreignKey: "PositionID" });
-      Position.belongsTo(Employee, { foreignKey: "PositionID" });
+      Employee.hasMany(Position, { foreignKey: "position_id" });
+      Position.belongsTo(Employee, { foreignKey: "position_id" });
 
       Department.hasMany(Employee, { foreignKey: "departmentID" });
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
@@ -537,8 +537,8 @@ class EmployeeController {
   }
   static async getEmployeeSalary(req, res) {
     try {
-      Employee.belongsTo(Position, { foreignKey: "PositionID" });
-      Position.hasMany(Employee, { foreignKey: "PositionID" });
+      Employee.belongsTo(Position, { foreignKey: "position_id" });
+      Position.hasMany(Employee, { foreignKey: "position_id" });
 
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
@@ -714,8 +714,8 @@ class EmployeeController {
 
   static async getEmployeeQuotation(req, res) {
     try {
-      Employee.belongsTo(Position, { foreignKey: "PositionID" });
-      Position.hasMany(Employee, { foreignKey: "PositionID" });
+      Employee.belongsTo(Position, { foreignKey: "position_id" });
+      Position.hasMany(Employee, { foreignKey: "position_id" });
 
       Employee.belongsTo(Department, { foreignKey: "departmentID" });
       Department.hasMany(Employee, { foreignKey: "departmentID" });
@@ -865,14 +865,14 @@ class EmployeeController {
     try {
       const editemp = await Position.findOne({
         where: {
-          PositionID: req.params.id,
+          position_id: req.params.id,
         },
       });
       if (editemp) {
         const existingPosition = await Position.findOne({
           where: {
             position_name: req.body.position_name,
-            PositionID: { [Op.ne]: req.params.id },
+            position_id: { [Op.ne]: req.params.id },
           },
         });
 
@@ -892,7 +892,7 @@ class EmployeeController {
           },
           {
             where: {
-              PositionID: req.params.id,
+              position_id: req.params.id,
             },
           }
         );
@@ -919,13 +919,13 @@ class EmployeeController {
     try {
       const deletecate = await Position.findOne({
         where: {
-          PositionID: req.params.id,
+          position_id: req.params.id,
         },
       });
       if (deletecate) {
         await Position.destroy({
           where: {
-            PositionID: req.params.id,
+            position_id: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(

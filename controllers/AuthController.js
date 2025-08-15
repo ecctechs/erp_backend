@@ -459,7 +459,7 @@ class AuthController {
           employee_type: "",
           bank_name: "",
           bank_account_id: "",
-          PositionID: null,
+          position_id: null,
           departmentID: null,
           bus_id: createdBusiness.bus_id,
           employee_status: "active",
