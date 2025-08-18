@@ -1,14 +1,16 @@
-// const bcrypt = require('bcrypt');
-var bcrypt = require("bcryptjs");
 const TokenManager = require("../middleware/tokenManager");
 const ResponseManager = require("../middleware/ResponseManager");
-const { User, Role } = require("../model/userModel"); // call model
-const { Business, Bank } = require("../model/quotationModel");
 const logUserActivity = require("../middleware/UserActivity");
 const { Op } = require("sequelize");
 const { cloudinary } = require("../utils/cloudinary");
-const { Employee } = require("../model/employeeModel");
 const { isError } = require("util");
+const {
+  User,
+  Role,
+  Business,
+  Bank,
+  Employee,
+} = require("../model"); 
 
 class AuthController {
   static index(req, res) {
@@ -37,12 +39,6 @@ class AuthController {
 
   static async login(req, res, next) {
     try {
-      // let isError = false;
-
-      // กำหนดความสัมพันธ์ระหว่าง User และ Role
-      User.belongsTo(Role, { foreignKey: "RoleID" });
-      Role.hasMany(User, { foreignKey: "RoleID" });
-
       const timestamp = Date.now();
       const dateObject = new Date(timestamp);
       const thaiDateString =
@@ -133,25 +129,14 @@ class AuthController {
           "Incorrect username or password"
         );
       }
-      // if(isError)
-      //   return ResponseManager.ErrorResponse(
-      //     req,
-      //     res,
-      //     404,
-      //     "Incorrect username or password"
-      //   );
-      // }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
   static async RegisterUsers(req, res) {
-    User.belongsTo(Business, { foreignKey: "bus_id" });
-    Business.hasMany(User, { foreignKey: "bus_id" });
 
     const { bus_id } = req.userData;
-    console.log("---->", req.body);
 
     try {
       const addemail = await User.findOne({
@@ -198,7 +183,6 @@ class AuthController {
         );
       }
 
-      // Find the oldest user with the same bus_id
       const oldestUser = await User.findOne({
         where: {
           bus_id: bus_id,
@@ -218,7 +202,6 @@ class AuthController {
         bus_id: bus_id,
         TokenCreate: oldestUser ? oldestUser.TokenCreate : null,
       });
-      console.log("---->", req.body);
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
@@ -226,11 +209,6 @@ class AuthController {
   }
 
   static async RegisterNewUsers(req, res) {
-    User.belongsTo(Business, { foreignKey: "bus_id" });
-    Business.hasMany(User, { foreignKey: "bus_id" });
-
-    console.log("req.body:", req.body); // ดูข้อมูลทั้งหมดที่ถูกส่งมาจาก frontend
-
     try {
       if (!req.body.bus_name) {
         return ResponseManager.ErrorResponse(
@@ -277,15 +255,11 @@ class AuthController {
         result = await cloudinary.uploader.upload(req.file.path);
       }
 
-      console.log("Cloudinary upload result:", result);
-
       const createbank = await Bank.create({
         bank_name: req.body.bank_name,
         bank_account: req.body.bank_account,
         bank_number: req.body.bank_number,
       });
-
-      console.log("Bank creation result:", createbank);
 
       let createdBusiness = null;
       if (createbank) {
@@ -302,8 +276,6 @@ class AuthController {
       }
 
       if (createdBusiness) {
-        // Hash password ก่อนบันทึก
-        // const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
         const hashedPassword = req.body.userPassword;
         const timestamp = Date.now();
         const dateObject = new Date(timestamp);
@@ -318,7 +290,7 @@ class AuthController {
           userL_name: req.body.userL_name,
           userPhone: req.body.userPhone,
           userEmail: req.body.userEmail,
-          userPassword: hashedPassword, // เก็บรหัสผ่านแบบ hash
+          userPassword: hashedPassword, 
           RoleID: 1,
           bus_id: createdBusiness.bus_id,
           TokenCreate: thaiDateString,
@@ -373,7 +345,7 @@ class AuthController {
         const existingUser = await User.findOne({
           where: {
             [Op.and]: [
-              { bus_id }, // ตรวจสอบ bus_id
+              { bus_id }, 
               {
                 [Op.or]: [
                   {
@@ -406,7 +378,6 @@ class AuthController {
             "email,UserName,LastName,Password already exists"
           );
         }
-        // const hashedPassword = await bcrypt.hash(req.body.userPassword, 10);
         const hashedPassword = req.body.userPassword;
         await User.update(
           {
@@ -431,9 +402,6 @@ class AuthController {
   }
 
   static async GetUsers(req, res) {
-    User.belongsTo(Role, { foreignKey: "RoleID" });
-    User.belongsTo(Business, { foreignKey: "bus_id" });
-    Business.hasMany(User, { foreignKey: "bus_id" });
 
     const { bus_id } = req.userData;
 
