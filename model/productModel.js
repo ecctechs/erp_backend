@@ -37,7 +37,7 @@ const Product = sequelize.define(
       type: DataTypes.STRING(100),
     },
     product_date: {
-      type: DataTypes.STRING,
+      type: 'timestamp with time zone',
     },
     bus_id: {
       type: DataTypes.INTEGER,

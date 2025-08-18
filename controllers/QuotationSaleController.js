@@ -13,9 +13,6 @@ const {
 } = require("../model/quotationModel");
 const {
   Employee,
-  Position,
-  Salary_pay,
-  Department,
 } = require("../model/employeeModel");
 const { User } = require("../model/userModel");
 const { cloudinary } = require("../utils/cloudinary");
@@ -224,7 +221,6 @@ class QuotationSaleController {
         const addCustomerPhone = await Customer.findOne({
           where: {
             cus_tel: req.body.cus_tel,
-
             cus_id: { [Op.ne]: req.params.id },
           },
         });
@@ -287,11 +283,6 @@ class QuotationSaleController {
         },
       });
       if (deleteproduct) {
-        // await Customer.destroy({
-        //   where: {
-        //     cus_id: req.params.id,
-        //   },
-        // });
 
         const updatedData = {
           Status: "not active",
@@ -329,11 +320,6 @@ class QuotationSaleController {
         },
       });
       if (deleteproduct) {
-        // await Customer.destroy({
-        //   where: {
-        //     cus_id: req.params.id,
-        //   },
-        // });
 
         const updatedData = {
           company_person_status: "not active",
@@ -428,7 +414,7 @@ class QuotationSaleController {
             );
           }
 
-          if (req.file.size > 5 * 1024 * 1024) {
+          else if (req.file.size > 5 * 1024 * 1024) {
             return ResponseManager.ErrorResponse(
               req,
               res,
@@ -438,13 +424,7 @@ class QuotationSaleController {
           }
 
           const result = await cloudinary.uploader.upload(req.file.path);
-
-          console.log("processssssss", result);
-
-          console.log("==========test Before:", result.secure_url);
           productUpdateData.bus_logo = result.secure_url;
-
-          console.log("==========test After:", productUpdateData.bus_logo);
         }
 
         await Business.update(productUpdateData, {
@@ -561,8 +541,6 @@ class QuotationSaleController {
     }
   }
   static async addQuotationSale(req, res) {
-    console.log("Received sale_number:     ", req.body.sale_number);
-    console.log("Received data:    ", req.body);
     try {
       Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
@@ -671,10 +649,6 @@ class QuotationSaleController {
       if (req.body.status === "Allowed") {
         const today = new Date();
         const invoiceDateStr = today.toISOString().split("T")[0];
-
-        // const lastInvoice = await Invoice.findOne({
-        //   order: [["invoice_number", "DESC"]],
-        // });
         const lastInvoice = await Invoice.findOne({
           include: {
             model: Quotation_sale,
@@ -689,15 +663,6 @@ class QuotationSaleController {
           },
         });
 
-        // let newInvoiceNumber;
-
-        // if (!lastInvoice) {
-        //   newInvoiceNumber = "IN-00000001";
-        // } else {
-        //   const lastNumber = parseInt(lastInvoice.invoice_number.slice(3));
-        //   const nextNumber = lastNumber + 1;
-        //   newInvoiceNumber = "IN-" + nextNumber.toString().padStart(8, "0");
-        // }
         let newInvoiceNumber = "";
         const now = new Date();
         const yy = String(now.getFullYear()).slice(-2);
@@ -835,9 +800,6 @@ class QuotationSaleController {
       });
       const today = new Date();
 
-        console.log("---");
-       console.log("quotationslist",quotationslist);
-
       for (let log of quotationslist) {
         const expiredDate = new Date(log.credit_expired_date);
 
@@ -873,7 +835,6 @@ class QuotationSaleController {
           vatType: log.vatType,
           vat: log.vat,
           deleted_at: log.deleted_at,
-          // bank_id: log.bank_id,
           invoice:
             !log.invoice || log.status !== "Allowed"
               ? "Pending"
@@ -1090,7 +1051,6 @@ from quotation_sale_details
             pro_unti: detail.pro_unti,
           });
         });
-        console.log(log);
         // Add the complete sale data to the result
         result.push(saleData);
       });
@@ -1111,38 +1071,10 @@ from quotation_sale_details
         },
       });
 
-      // if (existQuatationSale) {
-      //   const existingQuo = await TaxInvoice.findOne({
-      //     where: {
-      //       invoice_number: req.body.invoice_number,
-      //       invoice_id: { [Op.ne]: req.params.id },
-      //     },
-      //     include: {
-      //       model: Quotation_sale,
-      //       where: { bus_id },
-      //     },
-      //   });
-
-      //   if (existingQuo) {
-      //     await ResponseManager.ErrorResponse(
-      //       req,
-      //       res,
-      //       400,
-      //       "Invoice already exists"
-      //     );
-      //     return;
-      //   }
-      // }
-      // console.log("req.body.tax_invoice_status", req.body.invoice_status);
-
-      // console.log("-------------->>billingOfInvoice", billingOfInvoice);
       if (req.body.invoice_status === "Issue a receipt") {
         const today = new Date();
         const BillingDateStr = today.toISOString().split("T")[0];
 
-        // const lastBilling = await Billing.findOne({
-        //   order: [["billing_number", "DESC"]],
-        // }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
         const [lastBilling] = await sequelize.query(`
           SELECT billings.*
           FROM billings
@@ -1213,21 +1145,6 @@ from quotation_sale_details
           );
         }
       }
-
-      // await Invoice.update(
-      //   {
-      //     invoice_date: req.body.invoice_date,
-      //     invoice_status: req.body.invoice_status,
-      //     remark: req.body.remark,
-      //   },
-      //   {
-      //     where: {
-      //       invoice_id: req.params.id,
-      //     },
-      //   }
-      // );
-      // const { bus_id } = req.userData;
-      console.log("-------------->", req.params.id);
 
       await sequelize.query(`
         UPDATE tax_invoices
@@ -1326,9 +1243,6 @@ from quotation_sale_details
         const today = new Date();
         const BillingDateStr = today.toISOString().split("T")[0];
 
-        // const lastBilling = await Billing.findOne({
-        //   order: [["billing_number", "DESC"]],
-        // }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
         const [lastBilling] = await sequelize.query(`
           SELECT tax_invoices.*
           FROM tax_invoices
@@ -1404,20 +1318,6 @@ from quotation_sale_details
         }
       }
 
-      // await Invoice.update(
-      //   {
-      //     invoice_date: req.body.invoice_date,
-      //     invoice_status: req.body.invoice_status,
-      //     remark: req.body.remark,
-      //   },
-      //   {
-      //     where: {
-      //       invoice_id: req.params.id,
-      //     },
-      //   }
-      // );
-      // const { bus_id } = req.userData;
-
       await sequelize.query(`
         UPDATE invoices
         SET invoice_date = '${req.body.invoice_date}',
@@ -1434,139 +1334,7 @@ from quotation_sale_details
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-  // static async editTaxInvoice(req, res) {
-  //   try {
-  //     const { bus_id } = req.userData;
 
-  //     const existQuatationSale = await TaxInvoice.findOne({
-  //       where: {
-  //         invoice_id: req.params.id,
-  //       },
-  //     });
-
-  //     if (existQuatationSale) {
-  //       const existingQuo = await TaxInvoice.findOne({
-  //         where: {
-  //           invoice_number: req.body.invoice_number,
-  //           invoice_id: { [Op.ne]: req.params.id },
-  //         },
-  //         include: {
-  //           model: Quotation_sale,
-  //           where: { bus_id },
-  //         },
-  //       });
-
-  //       if (existingQuo) {
-  //         await ResponseManager.ErrorResponse(
-  //           req,
-  //           res,
-  //           400,
-  //           "Invoice already exists"
-  //         );
-  //         return;
-  //       }
-  //     }
-
-  //     if (req.body.invoice_status === "Issue a receipt") {
-  //       const today = new Date();
-  //       const BillingDateStr = today.toISOString().split("T")[0];
-
-  //       // const lastBilling = await Billing.findOne({
-  //       //   order: [["billing_number", "DESC"]],
-  //       // }); // return billing object อันสุดท้าย ถ้ามี ถ้าไม่มี เป็น null
-  //       const [lastBilling] = await sequelize.query(`
-  //        SELECT billings.*
-  //         FROM billings
-  //         LEFT JOIN invoices ON invoices.invoice_id = billings.invoice_id
-  //         LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
-  //         WHERE quotation_sales.bus_id = '${bus_id}'
-  //         ORDER BY billings.billing_number DESC
-  //         LIMIT 1
-  //       `);
-
-  //       const billingOfInvoice = await TaxInvoice.findOne({
-  //         where: {
-  //           invoice_id: req.params.id,
-  //         },
-  //       });
-
-  //       const Invoice_quotataion = await Invoice.findOne({
-  //         where: {
-  //           invoice_id: req.params.id,
-  //         },
-  //       });
-
-  //       let newBillingNumber = "";
-
-  //       // สร้าง prefix วันที่แบบ yyMMdd
-  //       const now = new Date();
-  //       const yy = String(now.getFullYear()).slice(-2);
-  //       const mm = String(now.getMonth() + 1).padStart(2, "0");
-  //       const dd = String(now.getDate()).padStart(2, "0");
-  //       const todayPrefix = `${yy}${mm}${dd}`; // เช่น 250424
-
-  //       if (
-  //         !lastBilling ||
-  //         lastBilling.length === 0 ||
-  //         !lastBilling[0].tax_invoice_number
-  //       ) {
-  //         newBillingNumber = `BI-${todayPrefix}0001`;
-  //       } else {
-  //         const lastCode = lastBilling[0].tax_invoice_number; // เช่น BI-2504240003
-  //         const lastDatePart = lastCode.slice(3, 9);
-  //         const lastNumberPart = lastCode.slice(9);
-
-  //         let nextNumber = 1;
-
-  //         if (lastDatePart === todayPrefix) {
-  //           nextNumber = parseInt(lastNumberPart) + 1;
-  //         }
-
-  //         const nextNumberStr = String(nextNumber).padStart(4, "0");
-  //         newBillingNumber = `BI-${todayPrefix}${nextNumberStr}`;
-  //       }
-
-  //       if (!billingOfInvoice) {
-  //         await Billing.create({
-  //           billing_number: newBillingNumber,
-  //           billing_date: BillingDateStr,
-  //           billing_status: "Complete",
-  //           payments: "Cash",
-  //           remark: "",
-  //         });
-  //       }
-  //     }
-
-  //     // await Invoice.update(
-  //     //   {
-  //     //     invoice_date: req.body.invoice_date,
-  //     //     invoice_status: req.body.invoice_status,
-  //     //     remark: req.body.remark,
-  //     //   },
-  //     //   {
-  //     //     where: {
-  //     //       invoice_id: req.params.id,
-  //     //     },
-  //     //   }
-  //     // );
-  //     // const { bus_id } = req.userData;
-
-  //     await sequelize.query(`
-  //       UPDATE invoices
-  //       SET invoice_date = '${req.body.invoice_date}',
-  //           invoice_status = '${req.body.invoice_status}',
-  //           remark = '${req.body.remark}'
-  //       FROM quotation_sales
-  //       WHERE invoices.invoice_id = '${req.params.id}'
-  //         AND quotation_sales.sale_id = invoices.sale_id
-  //         AND quotation_sales.bus_id = '${req.userData.bus_id}'
-  //     `);
-
-  //     return ResponseManager.SuccessResponse(req, res, 200, "Invoice Saved");
-  //   } catch (err) {
-  //     return ResponseManager.CatchResponse(req, res, err.message);
-  //   }
-  // }
   static async deleteInvoice(req, res) {
     try {
       const deleteqto = await Invoice.findOne({
@@ -1755,28 +1523,6 @@ from quotation_sale_details
   }
   static async deleteBilling(req, res) {
     try {
-      // const deleteqto = await Billing.findOne({
-      //   where: {
-      //     billing_id: req.params.id,
-      //   },
-      // });
-      // if (deleteqto) {
-      //   const data_Billing = await Billing.findOne({
-      //     where: {
-      //       billing_id: req.params.id,
-      //     },
-      //   });
-      //   const invoice_updated = await TaxInvoice.update(
-      //     {
-      //       tax_invoice_status: "Pending",
-      //     },
-      //     {
-      //       where: {
-      //         invoice_id: data_Billing.invoice_id,
-      //       },
-      //     }
-      //   );
-      //   if (invoice_updated) {
       await Billing.destroy({
         where: {
           invoice_id: req.params.id,
@@ -1793,9 +1539,6 @@ from quotation_sale_details
       );
 
       return ResponseManager.SuccessResponse(req, res, 200, "Billing Deleted ");
-      // } else {
-      //   return ResponseManager.ErrorResponse(req, res, 400, "No Billing found");
-      // }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
@@ -1954,7 +1697,6 @@ from quotation_sale_details
           userID: userId,
         },
       });
-      // console.log(userId);
 
       return ResponseManager.SuccessResponse(req, res, 200, business);
     } catch (err) {
@@ -1998,7 +1740,6 @@ from quotation_sale_details
             400,
             "File size exceeds 5 MB limit"
           );
-          // res.status(400).json({ error: "File size exceeds 5 MB limit" });
         } else {
           let productUpdateData = {
             bus_name: req.body.bus_name,
@@ -2069,19 +1810,6 @@ from quotation_sale_details
     try {
       const today = new Date();
       const DateString = today.toISOString().split("T")[0];
-
-      // const tokenData = await TokenManager.update_token(req);
-      // if (!tokenData) {
-      //   return await ResponseManager.ErrorResponse(
-      //     req,
-      //     res,
-      //     401,
-      //     "Unauthorized: Invalid token data"
-      //   );
-      // }
-
-      // const { bus_id } = req.userData;
-
       const editproduct = await Quotation_img.findOne({
         where: {
           quotation_id: req.body.quotation_id,
@@ -2139,28 +1867,8 @@ from quotation_sale_details
 
   static async AddExpense_img(req, res) {
     try {
-      // return ResponseManager.SuccessResponse(req, res, 200);
-
-      console.log("File received:", req.file);
-      console.log("Request body:", req.body);
-
       const today = new Date();
       const DateString = today.toISOString().split("T")[0];
-
-      // const editproduct = await Expense.findOne({
-      //   where: {
-      //     expense_id: req.body.expense_id,
-      //   },
-      // });
-
-      // if (editproduct) {
-      //   await Quotation_img.destroy({
-      //     where: {
-      //       quotation_id: req.body.quotation_id,
-      //     },
-      //   });
-      // }
-      // return false;
 
       if (!req.file) {
         return ResponseManager.ErrorResponse(
@@ -2188,8 +1896,6 @@ from quotation_sale_details
           "Only JPEG and PNG image files are allowed"
         );
       }
-
-      // const result = await cloudinary.uploader.upload(req.file.path);
 
       if (req.file) {
         let productUpdateData = {};
@@ -2228,23 +1934,6 @@ from quotation_sale_details
       });
 
       if (editproduct) {
-        // if (req.file && req.file.size > 5 * 1024 * 1024) {
-        //   res.status(400).json({ error: "File size exceeds 5 MB limit" });
-        // }
-
-        // let productUpdateData = {};
-
-        // if (req.file) {
-        //   const result = await cloudinary.uploader.upload(req.file.path);
-        //   productUpdateData.quotation_img = result.secure_url;
-        // }
-
-        // await Quotation_img.update(productUpdateData, {
-        //   where: {
-        //     quotation_id: req.params.id,
-        //   },
-        // });
-
         return ResponseManager.SuccessResponse(
           req,
           res,

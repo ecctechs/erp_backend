@@ -8,6 +8,7 @@ const logUserActivity = require("../middleware/UserActivity");
 const { Op } = require("sequelize");
 const { cloudinary } = require("../utils/cloudinary");
 const { Employee } = require("../model/employeeModel");
+const { isError } = require("util");
 
 class AuthController {
   static index(req, res) {
@@ -36,6 +37,8 @@ class AuthController {
 
   static async login(req, res, next) {
     try {
+      // let isError = false;
+
       // กำหนดความสัมพันธ์ระหว่าง User และ Role
       User.belongsTo(Role, { foreignKey: "RoleID" });
       Role.hasMany(User, { foreignKey: "RoleID" });
@@ -70,9 +73,6 @@ class AuthController {
         const user = users[0];
         const storedPassword = user.userPassword;
 
-        // const isMatch = await bcrypt.compare(userPassword, storedPassword);
-
-        // if (isMatch) {
         if (userPassword === storedPassword) {
           let token = user.accessToken;
 
@@ -91,7 +91,6 @@ class AuthController {
             await User.update(
               {
                 accessToken: token,
-                //TokenCreate: thaiDateString,
               },
               { where: { userID: user.userID } }
             );
@@ -117,6 +116,7 @@ class AuthController {
             TokenCreate: user.TokenCreate,
           });
         } else {
+          // isError = true;
           return ResponseManager.ErrorResponse(
             req,
             res,
@@ -125,6 +125,7 @@ class AuthController {
           );
         }
       } else {
+        // isError = true;
         return ResponseManager.ErrorResponse(
           req,
           res,
@@ -132,106 +133,18 @@ class AuthController {
           "Incorrect username or password"
         );
       }
+      // if(isError)
+      //   return ResponseManager.ErrorResponse(
+      //     req,
+      //     res,
+      //     404,
+      //     "Incorrect username or password"
+      //   );
+      // }
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-
-  // static async login(req, res, next) {
-  //   try {
-  //     User.belongsTo(Role, { foreignKey: "RoleID" });
-  //     Role.hasMany(User, { foreignKey: "RoleID" });
-
-  //     const timestamp = Date.now();
-  //     const dateObject = new Date(timestamp);
-
-  //     const thaiDateString =
-  //       dateObject.toLocaleDateString("th") +
-  //       " " +
-  //       dateObject.toLocaleTimeString("th");
-
-  //     const { userEmail, userPassword } = req.body;
-  //     if (!userEmail || !userPassword) {
-  //       return ResponseManager.ErrorResponse(
-  //         req,
-  //         res,
-  //         400,
-  //         "userEmail and userPassword are required"
-  //       );
-  //     }
-
-  //     const users = await User.findAll({
-  //       include: [
-  //         {
-  //           model: Role,
-  //         },
-  //       ],
-  //       where: {
-  //         userEmail: userEmail,
-  //       },
-  //     });
-
-  //     if (users.length > 0) {
-  //       const storedPassword = users[0].userPassword;
-
-  //       if (userPassword === storedPassword) {
-  //         const payload = {
-  //           userID: users[0].userID,
-  //           userF_name: users[0].userF_name,
-  //           userEmail: users[0].userEmail,
-  //           userRole: users[0].role.RoleName,
-  //         };
-
-  //         const token = TokenManager.getGenerateAccessToken(payload);
-
-  //         await User.update(
-  //           {
-  //             accessToken: token,
-  //             TokenCreate: thaiDateString,
-  //           },
-  //           {
-  //             where: {
-  //               userID: users[0].userID,
-  //             },
-  //           }
-  //         );
-  //         const bodyString = JSON.stringify(req.body);
-
-  //         await logUserActivity(
-  //           users[0].userID,
-  //           `Read/login/${users[0].role.RoleName}`,
-  //           "Login",
-  //           bodyString
-  //         );
-
-  //         res.json({
-  //           token,
-  //           userID: users[0].userID,
-  //           userF_name: users[0].userF_name,
-  //           userEmail: users[0].userEmail,
-  //           RoleID: users[0].RoleID,
-  //           RoleName: users[0].role.RoleName,
-  //         });
-  //       } else {
-  //         return ResponseManager.ErrorResponse(
-  //           req,
-  //           res,
-  //           401,
-  //           "Incorrect username or password"
-  //         );
-  //       }
-  //     } else {
-  //       return ResponseManager.ErrorResponse(
-  //         req,
-  //         res,
-  //         404,
-  //         "Incorrect username or password"
-  //       );
-  //     }
-  //   } catch (err) {
-  //     return ResponseManager.CatchResponse(req, res, err.message);
-  //   }
-  // }
 
   static async RegisterUsers(req, res) {
     User.belongsTo(Business, { foreignKey: "bus_id" });
@@ -255,21 +168,6 @@ class AuthController {
           "User already exists"
         );
       }
-
-      // const checkPass = await User.findOne({
-      //   where: {
-      //     userPassword: req.body.userPassword,
-      //   },
-      // });
-
-      // if (checkPass) {
-      //   return ResponseManager.ErrorResponseResponse(
-      //     req,
-      //     res,
-      //     400,
-      //     "Password already exists"
-      //   );
-      // }
 
       const addName = await User.findOne({
         where: {
@@ -356,24 +254,6 @@ class AuthController {
         );
       }
 
-      // const existingBus = await Business.findOne({
-      //   where: {
-      //     bus_name: req.body.bus_name,
-      //   },
-      // });
-      // if (existingBus) {
-      //   return ResponseManager.SuccessResponse(
-      //     req,
-      //     res,
-      //     400,
-      //     "Business already exists"
-      //   );
-      // }
-
-      // if (!req.file) {
-      //   return ResponseManager.ErrorResponse(req, res, 400, "No file uploaded");
-      // }
-
       let result = [];
       if (req.file) {
         const allowedMimeTypes = ["image/jpeg", "image/png"];
@@ -385,7 +265,7 @@ class AuthController {
             "Only JPEG and PNG image files are allowed"
           );
         }
-        if (req.file && req.file.size > 5 * 1024 * 1024) {
+        else if (req.file && req.file.size > 5 * 1024 * 1024) {
           return ResponseManager.ErrorResponse(
             req,
             res,
@@ -396,7 +276,6 @@ class AuthController {
 
         result = await cloudinary.uploader.upload(req.file.path);
       }
-      // return false;
 
       console.log("Cloudinary upload result:", result);
 
@@ -620,7 +499,6 @@ class AuthController {
             },
           });
           return ResponseManager.SuccessResponse(req, res, 200, "User Deleted");
-          // return ResponseManager.SuccessResponse(req, res, 200, UserGetAll.length);
         }
       } else {
         return ResponseManager.ErrorResponse(req, res, 400, "No User found");
@@ -694,59 +572,6 @@ class AuthController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-
-  // static async forgetPassword(req, res) {
-  //   try {
-  //     const editemp = await User.findOne({
-  //       where: {
-  //         userEmail: req.body.userEmail,
-  //       },
-  //     });
-  //     const user_email = editemp.userEmail;
-  //     if (editemp) {
-  //       const editpassword = await User.findOne({
-  //         where: {
-  //           userPassword: req.body.userPassword,
-  //         },
-  //       });
-
-  //       if (editpassword) {
-  //         return ResponseManager.SuccessResponse(
-  //           req,
-  //           res,
-  //           400,
-  //           "Password already exists"
-  //         );
-  //       } else {
-  //         await User.update(
-  //           {
-  //             userPassword: req.body.userPassword,
-  //           },
-  //           {
-  //             where: {
-  //               userEmail: req.body.userEmail,
-  //             },
-  //           }
-  //         );
-  //         return ResponseManager.SuccessResponse(
-  //           req,
-  //           res,
-  //           200,
-  //           "Password Updated"
-  //         );
-  //       }
-  //     } else {
-  //       return ResponseManager.ErrorResponse(
-  //         req,
-  //         res,
-  //         400,
-  //         `email ${user_email} not found`
-  //       );
-  //     }
-  //   } catch (err) {
-  //     return ResponseManager.CatchResponse(req, res, err.message);
-  //   }
-  // }
 
   static async GetRole(req, res) {
     try {
@@ -849,3 +674,5 @@ class AuthController {
   }
 }
 module.exports = AuthController;
+
+// refactor ความสั้น โอเคแล้ว
