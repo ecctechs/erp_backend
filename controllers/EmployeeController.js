@@ -10,22 +10,13 @@ const {
   Department,
   Leaving,
   Overtime,
-} = require("../model/employeeModel");
+  Business,
+} = require("../model");
 const { create_employee_rows, create_payment_rows } = require('../helpers/collection_helper');
-const { Business } = require("../model/quotationModel");
 
 class EmployeeController {
   static async getEmployee(req, res) {
     try {
-      Employee.belongsTo(Position, { foreignKey: "position_id" });
-      Position.hasMany(Employee, { foreignKey: "position_id" });
-
-      Employee.belongsTo(Department, { foreignKey: "department_id" });
-      Department.hasMany(Employee, { foreignKey: "department_id" });
-
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
       const { bus_id } = req.userData;
    
       var employees = await Employee.findAll({
@@ -52,12 +43,6 @@ class EmployeeController {
 
   static async AddEmployee(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
-      Employee.belongsTo(Department, { foreignKey: "department_id" });
-      Department.hasMany(Employee, { foreignKey: "department_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -139,15 +124,6 @@ class EmployeeController {
   }
 
   static async EditEmployee(req, res) {
-    Employee.belongsTo(Position, { foreignKey: "position_id" });
-    Position.hasMany(Employee, { foreignKey: "position_id" });
-
-    Employee.belongsTo(Department, { foreignKey: "department_id" });
-    Department.hasMany(Employee, { foreignKey: "department_id" });
-
-    Employee.belongsTo(Business, { foreignKey: "bus_id" });
-    Business.hasMany(Employee, { foreignKey: "bus_id" });
-
     try {
       const editemp = await Employee.findOne({
         where: {
@@ -223,9 +199,6 @@ class EmployeeController {
   }
 
   static async DeleteEmployee(req, res) {
-    Employee.belongsTo(Department, { foreignKey: "department_id" });
-    Department.hasMany(Employee, { foreignKey: "department_id" });
-
     try {
       const employee = await Employee.findOne({
         where: {
@@ -265,9 +238,6 @@ class EmployeeController {
 
   static async AddDepartment(req, res) {
     try {
-      Department.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Department, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -307,7 +277,6 @@ class EmployeeController {
   }
 
   static async EditDepartment(req, res) {
-    //add product
     try {
       const editemp = await Department.findOne({
         where: {
@@ -362,8 +331,6 @@ class EmployeeController {
   }
 
   static async DeleteDepartment(req, res) {
-    Employee.belongsTo(Department, { foreignKey: "department_id" });
-    Department.hasMany(Employee, { foreignKey: "department_id" });
     try {
       const deletecate = await Department.findOne({
         where: {
@@ -433,9 +400,6 @@ class EmployeeController {
 
   static async getDepartment(req, res) {
     try {
-      Department.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Department, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -478,18 +442,6 @@ class EmployeeController {
 
   static async getPayment(req, res) {
     try {
-      Employee.hasMany(Salary_pay, { foreignKey: "employee_id" });
-      Salary_pay.belongsTo(Employee, { foreignKey: "employee_id" });
-
-      Employee.hasMany(Position, { foreignKey: "position_id" });
-      Position.belongsTo(Employee, { foreignKey: "position_id" });
-
-      Department.hasMany(Employee, { foreignKey: "department_id" });
-      Employee.belongsTo(Department, { foreignKey: "department_id" });
-
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -537,15 +489,6 @@ class EmployeeController {
   }
   static async getEmployeeSalary(req, res) {
     try {
-      Employee.belongsTo(Position, { foreignKey: "position_id" });
-      Position.hasMany(Employee, { foreignKey: "position_id" });
-
-      Employee.belongsTo(Department, { foreignKey: "department_id" });
-      Department.hasMany(Employee, { foreignKey: "department_id" });
-
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -714,15 +657,6 @@ class EmployeeController {
 
   static async getEmployeeQuotation(req, res) {
     try {
-      Employee.belongsTo(Position, { foreignKey: "position_id" });
-      Position.hasMany(Employee, { foreignKey: "position_id" });
-
-      Employee.belongsTo(Department, { foreignKey: "department_id" });
-      Department.hasMany(Employee, { foreignKey: "department_id" });
-
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -965,9 +899,6 @@ class EmployeeController {
 
   static async AddPayment(req, res) {
     try {
-      Salary_pay.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Salary_pay, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -1039,9 +970,6 @@ class EmployeeController {
   }
   static async AddPayment2(req, res) {
     try {
-      Salary_pay.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Salary_pay, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -1103,9 +1031,6 @@ class EmployeeController {
   }
   static async AddLeave(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -1184,12 +1109,6 @@ class EmployeeController {
   }
   static async getLeave(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
-      Leaving.belongsTo(Employee, { foreignKey: "employee_id" });
-      Employee.hasMany(Leaving, { foreignKey: "employee_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -1271,9 +1190,6 @@ class EmployeeController {
   }
   static async AddOvertime(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -1315,12 +1231,6 @@ class EmployeeController {
   }
   static async getOvertime(req, res) {
     try {
-      Employee.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Employee, { foreignKey: "bus_id" });
-
-      Overtime.belongsTo(Employee, { foreignKey: "employee_id" });
-      Employee.hasMany(Overtime, { foreignKey: "employee_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(

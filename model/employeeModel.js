@@ -234,17 +234,17 @@ const Department = sequelize.define(
   }
 );
 
-Employee.belongsTo(Position, { foreignKey: "position_id" });
-Position.hasMany(Employee, { foreignKey: "position_id" });
+// Employee.belongsTo(Position, { foreignKey: "position_id" });
+// Position.hasMany(Employee, { foreignKey: "position_id" });
 
-Employee.belongsTo(Business, { foreignKey: "bus_id" });
-Business.hasMany(Employee, { foreignKey: "bus_id" });
+// Employee.belongsTo(Business, { foreignKey: "bus_id" });
+// Business.hasMany(Employee, { foreignKey: "bus_id" });
 
-Employee.belongsTo(Position, { foreignKey: "position_id" });
-Position.hasMany(Employee, { foreignKey: "position_id" });
+// Employee.belongsTo(Position, { foreignKey: "position_id" });
+// Position.hasMany(Employee, { foreignKey: "position_id" });
 
-Employee.belongsTo(Department, { foreignKey: "department_id" });
-Department.hasMany(Employee, { foreignKey: "department_id" });
+// Employee.belongsTo(Department, { foreignKey: "department_id" });
+// Department.hasMany(Employee, { foreignKey: "department_id" });
 
 module.exports = {
   Employee,
