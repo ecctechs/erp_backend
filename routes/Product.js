@@ -7,7 +7,8 @@ const {
 } = require("../middleware/verifytokenwithrole");
 
 const ProductController = require("../controllers/ProductController");
-const { cloudinary } = require("../utils/cloudinary");
+const { cloudinary } = require("../utils/cloudinary")
+const authMiddleware = require('../middleware/authMiddleware');;
 
 const multer = require("multer");
 var upload = multer({ dest: "upload/" });
@@ -21,11 +22,13 @@ Route.get(
 Route.get(RouteName + "/getProductType", ProductController.getProductType);
 Route.post(
   RouteName + "/getProductByProductType/:id",
+  authMiddleware,
   verifyTokenWithbus_id,
   ProductController.getProductByProductType
 );
 Route.post(
   RouteName + "/AddProduct",
+  authMiddleware,
   type,
   verifyTokenWithbus_id,
   ProductController.AddProduct
@@ -34,6 +37,7 @@ Route.put(RouteName + "/EditProduct/:id", type, ProductController.EditProduct);
 Route.delete(RouteName + "/DeleteProduct/:id", ProductController.DeleteProduct);
 Route.post(
   RouteName + "/AddCategory",
+  authMiddleware,
   verifyTokenWithbus_id,
   ProductController.AddCategory
 );
@@ -55,35 +59,41 @@ Route.delete(
 );
 Route.get(
   RouteName + "/getCategory",
+  authMiddleware,
   verifyTokenWithbus_id,
   ProductController.getCategory
 );
 Route.get(
   RouteName + "/getTransaction",
+  authMiddleware,
   verifyTokenWithbus_id,
   ProductController.getTransaction
 );
 
 Route.get(
   RouteName + "/getExpenses",
+  authMiddleware,
   verifyTokenWithbus_id,
   ProductController.getExpenses
 );
 
 Route.post(
   RouteName + "/addExpenses",
+  authMiddleware,
   verifyTokenWithbus_id,
   ProductController.addExpenses
 );
 
 Route.put(
   RouteName + "/editExpenses/:id",
+  authMiddleware,
   verifyTokenWithbus_id,
   ProductController.editExpenses
 );
 
 Route.delete(
   RouteName + "/deleteExpenses/:id",
+  authMiddleware,
   verifyTokenWithbus_id,
   ProductController.deleteExpenses
 );

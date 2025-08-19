@@ -8,6 +8,7 @@ const {
 } = require("../middleware/verifytokenwithrole");
 
 const EmployeeController = require("../controllers/EmployeeController");
+const authMiddleware = require('../middleware/authMiddleware');
 
 Route.get(
   RouteName + "/getEmployee",
@@ -16,6 +17,7 @@ Route.get(
 );
 Route.post(
   RouteName + "/AddEmployee",
+  authMiddleware,
   verifyTokenWithbus_id,
   EmployeeController.AddEmployee
 );
@@ -26,6 +28,7 @@ Route.delete(
 );
 Route.post(
   RouteName + "/AddDepartment",
+  authMiddleware,
   verifyTokenWithbus_id,
   EmployeeController.AddDepartment
 );
@@ -36,17 +39,20 @@ Route.delete(
 );
 Route.get(
   RouteName + "/getDepartment",
+  authMiddleware,
   verifyTokenWithbus_id,
   EmployeeController.getDepartment
 );
 Route.get(
   RouteName + "/getPayment",
+  authMiddleware,
   verifyTokenWithbus_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getPayment
 );
 Route.get(
   RouteName + "/getEmployeeSalary",
+  authMiddleware,
   verifyTokenWithbus_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getEmployeeSalary
@@ -56,12 +62,14 @@ Route.put(RouteName + "/EditSalary/:id", EmployeeController.EditSalary);
 Route.delete(RouteName + "/DeleteSalary/:id", EmployeeController.DeleteSalary);
 Route.get(
   RouteName + "/getEmployeeQuotation",
+  authMiddleware,
   verifyTokenWithbus_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getEmployeeQuotation
 );
 Route.post(
   RouteName + "/AddPosition",
+  authMiddleware,
   verifyTokenWithbus_id,
   EmployeeController.AddPosition
 );
@@ -77,17 +85,20 @@ Route.get(
 );
 Route.post(
   RouteName + "/AddPayment",
+  authMiddleware,
   verifyTokenWithbus_id,
   EmployeeController.AddPayment
 );
 Route.post(
   RouteName + "/AddPayment2",
+  authMiddleware,
   verifyTokenWithbus_id,
   EmployeeController.AddPayment2
 );
 
 Route.post(
   RouteName + "/AddLeave",
+  authMiddleware,
   verifyTokenWithbus_id,
   EmployeeController.AddLeave
 );
@@ -99,6 +110,7 @@ Route.post(
 Route.delete(RouteName + "/DeleteLeave/:id", EmployeeController.DeleteLeave);
 Route.get(
   RouteName + "/getLeave",
+  authMiddleware,
   verifyTokenWithbus_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getLeave
@@ -106,11 +118,13 @@ Route.get(
 
 Route.post(
   RouteName + "/AddOvertime",
+  authMiddleware,
   verifyTokenWithbus_id,
   EmployeeController.AddOvertime
 );
 Route.get(
   RouteName + "/getOvertime",
+  authMiddleware,
   verifyTokenWithbus_id,
   verifyTokenWithRole(["SUPERUSER", "MANAGER", "SALE"]),
   EmployeeController.getOvertime

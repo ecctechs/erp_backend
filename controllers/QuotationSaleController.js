@@ -5,7 +5,6 @@ const TokenManager = require("../middleware/tokenManager");
 const sequelize = require("../database");
 const reportQueries = require("../queries/report_queries");
 
-// --- แก้ไขการ import มาที่นี่ที่เดียว ---
 const {
   Business, Bank, Customer, Quotation_sale, Quotation_sale_detail,
   Invoice, Billing, Quotation_img, Company_person, TaxInvoice,
@@ -33,16 +32,6 @@ class QuotationSaleController {
 
   static async getCustomer(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const customer = await Customer.findAll({
@@ -54,18 +43,9 @@ class QuotationSaleController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+  
   static async addCustomer(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const addCustomer = await Customer.findOne({
@@ -526,17 +506,6 @@ class QuotationSaleController {
   }
   static async addQuotationSale(req, res) {
     try {
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const existQuatationSale = await Quotation_sale.findOne({
@@ -733,17 +702,6 @@ class QuotationSaleController {
   }
   static async getQuotation(req, res) {
     try {
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       let result = [];
@@ -1590,19 +1548,6 @@ from quotation_sale_details
   }
   static async checkLastestQuotation(req, res) {
     try {
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const lastestSale = await Quotation_sale.findOne({
@@ -1626,17 +1571,6 @@ from quotation_sale_details
   }
   static async getBusinessByID(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id, userId } = req.userData;
 
       const business = await User.findOne({
@@ -1663,17 +1597,6 @@ from quotation_sale_details
   }
   static async getBank(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const business = await Bank.findAll();
 
       return ResponseManager.SuccessResponse(req, res, 200, business);
@@ -1918,16 +1841,6 @@ from quotation_sale_details
         }
       );
 
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       // Use 'let' if you intend to modify the array
@@ -1945,15 +1858,6 @@ from quotation_sale_details
   }
   static async addCustomer2(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
 
       const { bus_id } = req.userData;
 

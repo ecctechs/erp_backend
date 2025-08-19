@@ -43,15 +43,6 @@ class EmployeeController {
 
   static async AddEmployee(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
 
       const { bus_id } = req.userData;
 
@@ -238,15 +229,6 @@ class EmployeeController {
 
   static async AddDepartment(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
 
       const { bus_id } = req.userData;
 
@@ -400,16 +382,6 @@ class EmployeeController {
 
   static async getDepartment(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
       const departments = await Department.findAll({
         where: {
@@ -442,15 +414,6 @@ class EmployeeController {
 
   static async getPayment(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
       const { RoleName, userID, userEmail } = tokenData;
       const { bus_id } = req.userData;
 
@@ -489,15 +452,6 @@ class EmployeeController {
   }
   static async getEmployeeSalary(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
       const { RoleName, userID, userEmail } = tokenData;
       const { bus_id } = req.userData;
 
@@ -657,15 +611,6 @@ class EmployeeController {
 
   static async getEmployeeQuotation(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
       const { RoleName, userID, userEmail } = tokenData;
       const { bus_id } = req.userData;
       let result = [];
@@ -754,19 +699,6 @@ class EmployeeController {
   }
   static async AddPosition(req, res) {
     try {
-      Position.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Position, { foreignKey: "bus_id" });
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const adddepart = await Position.findOne({
@@ -899,15 +831,6 @@ class EmployeeController {
 
   static async AddPayment(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
       const { bus_id } = req.userData;
 
       let datalist = [];
@@ -970,16 +893,6 @@ class EmployeeController {
   }
   static async AddPayment2(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       if (!req.body.payments || !Array.isArray(req.body.payments)) {
@@ -1031,16 +944,6 @@ class EmployeeController {
   }
   static async AddLeave(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const data = await Leaving.findOne({
         where: {
           employee_id: req.body.employee_id,
@@ -1109,15 +1012,6 @@ class EmployeeController {
   }
   static async getLeave(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
       const { RoleName, userID, userEmail } = tokenData;
       const { bus_id } = req.userData;
       let data_leave;
@@ -1190,16 +1084,6 @@ class EmployeeController {
   }
   static async AddOvertime(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const data = await Overtime.findOne({
         where: {
           employee_id: req.body.employee_id,
@@ -1231,16 +1115,6 @@ class EmployeeController {
   }
   static async getOvertime(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { RoleName, userID, userEmail } = tokenData;
       const { bus_id } = req.userData;
       let data_overtime;

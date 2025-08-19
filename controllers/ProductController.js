@@ -16,16 +16,6 @@ const {
 class ProductController {
   static async getProduct(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       var products = await Product.findAll({
@@ -53,19 +43,6 @@ class ProductController {
   }
   static async getProductByProductType(req, res) {
     try {
-      Product.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Product, { foreignKey: "bus_id" });
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const ProductByProductType = await Product.findAll({
@@ -87,16 +64,6 @@ class ProductController {
 
   static async AddProduct(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const addproduct = await Product.findOne({
@@ -248,16 +215,6 @@ class ProductController {
 
   static async AddCategory(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const addcate = await productCategory.findOne({
@@ -713,16 +670,6 @@ class ProductController {
 
   static async getTransaction(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       let result = [];
@@ -822,19 +769,6 @@ class ProductController {
 
   static async getCategory(req, res) {
     try {
-      productCategory.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(productCategory, { foreignKey: "bus_id" });
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
 
       const defaultCategory = await productCategory.findOne({
@@ -864,20 +798,7 @@ class ProductController {
 
   static async getExpenses(req, res) {
     try {
-      Expense.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Expense, { foreignKey: "bus_id" });
-
       const { bus_id } = req.userData;
-
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
 
       const expenses = await Expense.findAll({
         where: { bus_id },
@@ -892,16 +813,6 @@ class ProductController {
 
   static async addExpenses(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const { bus_id } = req.userData;
       const {
         expense_date,
@@ -926,16 +837,6 @@ class ProductController {
 
   static async editExpenses(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       const editExpense = await Expense.update(
         {
           expense_date: req.body.expense_date,
@@ -954,16 +855,6 @@ class ProductController {
 
   static async deleteExpenses(req, res) {
     try {
-      const tokenData = await TokenManager.update_token(req);
-      if (!tokenData) {
-        return await ResponseManager.ErrorResponse(
-          req,
-          res,
-          401,
-          "Unauthorized: Invalid token data"
-        );
-      }
-
       await Expense.destroy({
         where: {
           expense_id: req.params.id,

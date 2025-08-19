@@ -7,6 +7,7 @@ const {
 } = require("../middleware/verifytokenwithrole");
 
 const QuotationSaleController = require("../controllers/QuotationSaleController");
+const authMiddleware = require('../middleware/authMiddleware');
 
 const multer = require("multer");
 var upload = multer({ dest: "import/" });
@@ -15,11 +16,13 @@ var type = upload.single("file");
 Route.get(RouteName + "/getBusiness", QuotationSaleController.getBusiness);
 Route.get(
   RouteName + "/getCustomer",
+  authMiddleware,
   verifyTokenWithbus_id,
   QuotationSaleController.getCustomer
 );
 Route.post(
   RouteName + "/addCustomer",
+  authMiddleware,
   verifyTokenWithbus_id,
   QuotationSaleController.addCustomer
 );
@@ -46,6 +49,7 @@ Route.post(
 );
 Route.post(
   RouteName + "/addQuotationSale",
+  authMiddleware,
   upload.single("file"),
   verifyTokenWithbus_id,
   QuotationSaleController.addQuotationSale
@@ -57,6 +61,7 @@ Route.put(
 );
 Route.get(
   RouteName + "/getQuotation",
+  authMiddleware,
   verifyTokenWithbus_id,
   QuotationSaleController.getQuotation
 );
@@ -108,12 +113,14 @@ Route.delete(
 );
 Route.get(
   RouteName + "/getBusinessByID",
+  authMiddleware,
   verifyTokenWithbus_id,
   QuotationSaleController.getBusinessByID
 );
 
 Route.get(
   RouteName + "/getBank",
+  authMiddleware,
   verifyTokenWithbus_id,
   QuotationSaleController.getBank
 );
@@ -124,6 +131,7 @@ Route.put(
 );
 Route.get(
   RouteName + "/checkLastestQuotation",
+  authMiddleware,
   verifyTokenWithbus_id,
   QuotationSaleController.checkLastestQuotation
 );
@@ -153,11 +161,13 @@ Route.put(
 
 Route.get(
   RouteName + "/getCompanyPerson",
+  authMiddleware,
   verifyTokenWithbus_id,
   QuotationSaleController.getCompanyPerson
 );
 Route.post(
   RouteName + "/addCustomer2",
+  authMiddleware,
   verifyTokenWithbus_id,
   QuotationSaleController.addCustomer2
 );
