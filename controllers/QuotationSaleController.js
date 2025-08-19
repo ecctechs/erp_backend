@@ -1,26 +1,16 @@
 const ResponseManager = require("../middleware/ResponseManager");
-const {
-  Business,
-  Bank,
-  Customer,
-  Quotation_sale,
-  Quotation_sale_detail,
-  Invoice,
-  Billing,
-  Quotation_img,
-  Company_person,
-  TaxInvoice,
-} = require("../model/quotationModel");
-const {
-  Employee,
-} = require("../model/employeeModel");
-const { User } = require("../model/userModel");
 const { cloudinary } = require("../utils/cloudinary");
 const { Op } = require("sequelize");
 const TokenManager = require("../middleware/tokenManager");
-
 const sequelize = require("../database");
-const { Expense } = require("../model/productModel");
+const reportQueries = require("../queries/report_queries");
+
+// --- แก้ไขการ import มาที่นี่ที่เดียว ---
+const {
+  Business, Bank, Customer, Quotation_sale, Quotation_sale_detail,
+  Invoice, Billing, Quotation_img, Company_person, TaxInvoice,
+  Employee, User, Expense
+} = require("../model");
 
 class QuotationSaleController {
   static async getBusiness(req, res) {
@@ -43,9 +33,6 @@ class QuotationSaleController {
 
   static async getCustomer(req, res) {
     try {
-      Customer.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Customer, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -69,9 +56,6 @@ class QuotationSaleController {
   }
   static async addCustomer(req, res) {
     try {
-      Customer.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Customer, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -542,8 +526,6 @@ class QuotationSaleController {
   }
   static async addQuotationSale(req, res) {
     try {
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -609,7 +591,6 @@ class QuotationSaleController {
       for (let i = 0; i < products.length; i++) {
         products[i].sale_id = insert_Quo.sale_id;
       }
-      console.log(insert_Quo.sale_id);
       await Quotation_sale_detail.bulkCreate(products);
 
       return ResponseManager.SuccessResponse(req, res, 200, insert_Quo);
@@ -752,25 +733,6 @@ class QuotationSaleController {
   }
   static async getQuotation(req, res) {
     try {
-      Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
-      Quotation_sale_detail.belongsTo(Quotation_sale, {
-        foreignKey: "sale_id",
-      });
-
-      Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
-
-      Business.hasMany(Bank, { foreignKey: "bank_id" });
-      Bank.belongsTo(Business, { foreignKey: "bank_id" });
-
-      Quotation_sale.belongsTo(Employee, { foreignKey: "employee_id" });
-      Employee.hasMany(Quotation_sale, { foreignKey: "employee_id" });
-
-      Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
-      Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
-
-      Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
-      Invoice.belongsTo(Quotation_sale, { foreignKey: "sale_id" });
 
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
@@ -1664,10 +1626,6 @@ from quotation_sale_details
   }
   static async getBusinessByID(req, res) {
     try {
-      Business.hasMany(Bank, { foreignKey: "bank_id" });
-      Business.hasMany(User, { foreignKey: "bus_id" });
-      User.belongsTo(Business, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
 
       if (!tokenData) {
@@ -1987,9 +1945,6 @@ from quotation_sale_details
   }
   static async addCustomer2(req, res) {
     try {
-      Customer.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Customer, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -2040,32 +1995,10 @@ from quotation_sale_details
       const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
 
       const log = await sequelize.query(
-        `
-      SELECT 
-    CASE 
-        WHEN products."product_type_id" = 1 THEN 'สินค้า'
-        WHEN products."product_type_id" = 2 THEN 'บริการ'
-        ELSE 'Other'
-    END AS product_type,
-    SUM(quotation_sale_details."sale_price") AS total_sale_price
-FROM 
-    public.quotation_sale_details
-LEFT JOIN 
-    public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
-LEFT JOIN 
-    public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
-LEFT JOIN 
-    public.product_categories ON public.products."category_id" = public.product_categories."category_id"
-WHERE 
-    public.products."bus_id" = :bus_id
-    AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
-GROUP BY 
-    product_type;
-
-      `,
+        reportQueries.GET_SALE_REPORT_BY_PRODUCT_TYPE, 
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id, startDate, endDate }, // ส่ง bus_id ผ่าน replacements เพื่อป้องกัน SQL Injection
+          replacements: { bus_id, startDate, endDate },
         }
       );
 
@@ -2083,28 +2016,10 @@ GROUP BY
       const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
 
       const log = await sequelize.query(
-        `
-SELECT 
-    public.product_categories."category_name",
-    SUM(public.quotation_sale_details."sale_price") AS total_sale_price
-FROM 
-    public.quotation_sale_details
-LEFT JOIN 
-    public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
-LEFT JOIN 
-    public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
-LEFT JOIN 
-    public.product_categories ON public.products."category_id" = public.product_categories."category_id"
-WHERE 
-    public.products."bus_id" = :bus_id
-    AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
-GROUP BY 
-    public.product_categories."category_name";
-
-      `,
+        reportQueries.GET_SALE_REPORT_BY_CATEGORY, // << แก้ไขตรงนี้
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id, startDate, endDate }, // ส่ง bus_id ผ่าน replacements เพื่อป้องกัน SQL Injection
+          replacements: { bus_id, startDate, endDate },
         }
       );
 
@@ -2116,58 +2031,17 @@ GROUP BY
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+
   static async GetSaleReportByProdcutRank(req, res) {
     try {
       const { bus_id } = req.userData;
       const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
 
       const log = await sequelize.query(
-        `
-WITH RankedProducts AS (
-    SELECT 
-        public.products."product_name",
-        SUM(public.quotation_sale_details."sale_price") AS total_sale_price,
-        ROW_NUMBER() OVER (ORDER BY SUM(public.quotation_sale_details."sale_price") DESC) AS rank
-    FROM 
-        public.quotation_sale_details
-    LEFT JOIN 
-        public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
-    LEFT JOIN 
-        public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
-    WHERE 
-        public.products."bus_id" = :bus_id
-        AND public.products."product_type_id" != 2
-           AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
-    GROUP BY 
-        public.products."product_name"
-),
-AggregatedProducts AS (
-    SELECT 
-        CASE 
-            WHEN rank <= 7 THEN "product_name"
-            ELSE 'Others'
-        END AS product,
-        SUM(total_sale_price) AS total_sale_price
-    FROM RankedProducts
-    GROUP BY 
-        CASE 
-            WHEN rank <= 7 THEN "product_name"
-            ELSE 'Others'
-        END
-)
-SELECT 
-    product,
-    total_sale_price
-FROM 
-    AggregatedProducts
-ORDER BY 
-    total_sale_price DESC;
-
-
-      `,
+        reportQueries.GET_SALE_REPORT_BY_PRODUCT_RANK, // << แก้ไขตรงนี้
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id, startDate, endDate }, // ส่ง bus_id ผ่าน replacements เพื่อป้องกัน SQL Injection
+          replacements: { bus_id, startDate, endDate },
         }
       );
 
@@ -2185,30 +2059,10 @@ ORDER BY
       const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
 
       const log = await sequelize.query(
-        `
-SELECT 
-    public.products.product_name AS product_name,
-    SUM(public.quotation_sale_details."sale_price") AS total_sale_price
-FROM 
-    public.quotation_sale_details
-LEFT JOIN 
-    public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
-LEFT JOIN 
-    public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
-WHERE 
-    public.products."bus_id" = :bus_id
-    AND public.products."product_type_id" = 2
-    AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
-	GROUP BY 
-    public.products."product_name"
-ORDER BY 
-    total_sale_price DESC;
-
-
-      `,
+        reportQueries.GET_SALE_REPORT_BY_SERVICE, // << แก้ไขตรงนี้
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id, startDate, endDate }, // ส่ง bus_id ผ่าน replacements เพื่อป้องกัน SQL Injection
+          replacements: { bus_id, startDate, endDate },
         }
       );
 

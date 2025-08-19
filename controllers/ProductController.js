@@ -1,28 +1,21 @@
 const ResponseManager = require("../middleware/ResponseManager");
+const { cloudinary } = require("../utils/cloudinary");
+const { Op } = require("sequelize");
+const moment = require("moment");
+const TokenManager = require("../middleware/tokenManager");
 const {
   Product,
   productType,
   productCategory,
   Transaction,
   Expense,
-} = require("../model/productModel");
-const { Business, Billing } = require("../model/quotationModel");
-const { cloudinary } = require("../utils/cloudinary");
-const { Op } = require("sequelize");
-const moment = require("moment");
-const TokenManager = require("../middleware/tokenManager");
+  Business,
+  Billing,
+} = require("../model"); 
 
 class ProductController {
   static async getProduct(req, res) {
     try {
-      Product.belongsTo(productCategory, { foreignKey: "category_id" });
-      productCategory.hasMany(Product, { foreignKey: "category_id" });
-      Product.belongsTo(productType, { foreignKey: "product_type_id" });
-      productType.hasMany(Product, { foreignKey: "product_type_id" });
-
-      Product.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Product, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -39,8 +32,6 @@ class ProductController {
         include: [productCategory, productType],
         where: { bus_id: bus_id },
       });
-
-      // ตรวจสอบและอัพเดท status หาก amount = 0
       for (const product of products) {
         if (product.amount === 0 && product.product_type_id === 1) {
         } else if (product.amount > 0 && product.product_type_id === 1) {
@@ -96,9 +87,6 @@ class ProductController {
 
   static async AddProduct(req, res) {
     try {
-      Product.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Product, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -110,8 +98,6 @@ class ProductController {
       }
 
       const { bus_id } = req.userData;
-
-      console.log(req.body.product_name);
 
       const addproduct = await Product.findOne({
         where: {
@@ -131,14 +117,6 @@ class ProductController {
           "Product already exists"
         );
       } else {
-        // if (!req.file) {
-        //   return ResponseManager.ErrorResponse(
-        //     req,
-        //     res,
-        //     400,
-        //     "Please choose a product image file"
-        //   );
-        // }
         let result = [];
         if (req.file) {
           if (req.file.size > 5 * 1024 * 1024) {
@@ -270,9 +248,6 @@ class ProductController {
 
   static async AddCategory(req, res) {
     try {
-      productCategory.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(productCategory, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -445,8 +420,6 @@ class ProductController {
             transaction_date: DateString,
           });
 
-          // ใช้ reduce เพื่อรวมค่าของ Quantity
-
           await Product.update(
             {
               amount: req.body.quantity + getProductByid.dataValues.amount,
@@ -489,7 +462,6 @@ class ProductController {
               }
             );
 
-            // อัปเดตจำนวนสินค้าในตาราง Product
             const updatedAmount =
               getProductByid.dataValues.amount - req.body.quantity;
 
@@ -555,16 +527,12 @@ class ProductController {
         ) {
           const quantityDifference =
             req.body.quantity + getProductByid.quantity_added;
-
-          // อัปเดตจำนวนสินค้าใน Product โดยเพิ่ม quantity ที่มีการเปลี่ยนแปลง
           await Product.update(
             {
               amount: getProductAmount.amount - quantityDifference,
             },
             { where: { product_id: req.body.product_id } }
           );
-
-          // อัปเดตสถานะหากจำนวนสินค้าหลังอัปเดตเหลือ 0
           const updatedProduct = await Product.findOne({
             where: { product_id: req.body.product_id },
           });
@@ -745,12 +713,6 @@ class ProductController {
 
   static async getTransaction(req, res) {
     try {
-      Transaction.belongsTo(Product, { foreignKey: "product_id" });
-      Product.hasMany(Transaction, { foreignKey: "product_id" });
-
-      Product.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(Product, { foreignKey: "bus_id" });
-
       const tokenData = await TokenManager.update_token(req);
       if (!tokenData) {
         return await ResponseManager.ErrorResponse(
@@ -858,31 +820,6 @@ class ProductController {
     }
   }
 
-  // static async getCategory(req, res) {
-  //   try {
-  //     productCategory.belongsTo(Business, { foreignKey: "bus_id" });
-  //     Business.hasMany(productCategory, { foreignKey: "bus_id" });
-
-  //     const tokenData = await TokenManager.update_token(req);
-  //     if (!tokenData) {
-  //       return await ResponseManager.ErrorResponse(
-  //         req,
-  //         res,
-  //         401,
-  //         "Unauthorized: Invalid token data"
-  //       );
-  //     }
-
-  //     const { bus_id } = req.userData;
-
-  //     const category_list = await productCategory.findAll({
-  //       where: { bus_id: bus_id },
-  //     });
-  //     return ResponseManager.SuccessResponse(req, res, 200, category_list);
-  //   } catch (err) {
-  //     return ResponseManager.CatchResponse(req, res, err.message);
-  //   }
-  // }
   static async getCategory(req, res) {
     try {
       productCategory.belongsTo(Business, { foreignKey: "bus_id" });
@@ -907,16 +844,14 @@ class ProductController {
         },
       });
 
-      // ถ้ายังไม่มี ให้สร้าง default category
+
       if (!defaultCategory) {
         await productCategory.create({
-          // category_id: 0,
           category_name: "ไม่มีหมวดหมู่",
           bus_id: bus_id,
         });
       }
 
-      // ดึง category ทั้งหมด (รวมตัวที่เพิ่งสร้าง)
       const category_list = await productCategory.findAll({
         where: { bus_id: bus_id },
       });
@@ -975,14 +910,6 @@ class ProductController {
         quantity_remark,
       } = req.body;
 
-      // const newExpense = await Expense.create({
-      //   expense_date,
-      //   expense_category,
-      //   expense_amount,
-      //   quantity_remark,
-      //   bus_id,
-      // });
-
       const newExpense = await Expense.create({
         expense_date: req.body.expense_date,
         expense_category: req.body.expense_category,
@@ -990,8 +917,6 @@ class ProductController {
         quantity_remark: req.body.quantity_remark,
         bus_id: bus_id,
       });
-
-      console.log("newExpense");
 
       return ResponseManager.SuccessResponse(req, res, 201, newExpense);
     } catch (err) {
