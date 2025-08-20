@@ -414,13 +414,13 @@ class EmployeeController {
 
   static async getPayment(req, res) {
     try {
-      const { RoleName, userID, userEmail } = tokenData;
+      const { userRole, userID, userEmail } = req.userData;
       const { bus_id } = req.userData;
 
       let result = [];
       let paymentslist = [];
 
-      if (RoleName === "SUPERUSER" || RoleName === "MANAGER") {
+      if (userRole === "SUPERUSER" || userRole === "MANAGER") {
         paymentslist = await Salary_pay.findAll({
           include: [{ model: Employee, include: [Position, Department] }],
           where: { bus_id: bus_id },
@@ -428,7 +428,7 @@ class EmployeeController {
 
         result = create_payment_rows(paymentslist);
 
-      } else if (RoleName === "SALE") {
+      } else if (userRole === "SALE") {
         paymentslist = await Salary_pay.findAll({
           include: [
             {
@@ -452,13 +452,13 @@ class EmployeeController {
   }
   static async getEmployeeSalary(req, res) {
     try {
-      const { RoleName, userID, userEmail } = tokenData;
+      const { userRole, userID, userEmail } = req.userData;
       const { bus_id } = req.userData;
 
       let result = [];
       let employeeslist = [];
 
-      if (RoleName === "SUPERUSER") {
+      if (userRole === "SUPERUSER") {
         employeeslist = await Employee.findAll({
           where: {
             bus_id: bus_id,
@@ -474,7 +474,7 @@ class EmployeeController {
 
         result = create_employee_rows(employeeslist);
 
-      } else if (RoleName === "SALE") {
+      } else if (userRole === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
             email: userEmail,
@@ -491,7 +491,7 @@ class EmployeeController {
 
         result = create_employee_rows(employeeslist);
 
-      } else if (RoleName === "MANAGER") {
+      } else if (userRole === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
             email: userEmail,
@@ -611,12 +611,14 @@ class EmployeeController {
 
   static async getEmployeeQuotation(req, res) {
     try {
-      const { RoleName, userID, userEmail } = tokenData;
+
+      const { userRole, userID, userEmail } = req.userData;
+
       const { bus_id } = req.userData;
       let result = [];
       let employeeslist = [];
 
-      if (RoleName === "SUPERUSER") {
+      if (userRole === "SUPERUSER") {
         employeeslist = await Employee.findAll({
           where: {
             bus_id: bus_id,
@@ -632,7 +634,7 @@ class EmployeeController {
         
         result = create_employee_rows(employeeslist);
         
-      } else if (RoleName === "SALE") {
+      } else if (userRole === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
             email: userEmail,
@@ -649,7 +651,7 @@ class EmployeeController {
 
        result = create_employee_rows(employeeslist);
 
-      } else if (RoleName === "MANAGER") {
+      } else if (userRole === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
             email: userEmail,
@@ -1012,11 +1014,11 @@ class EmployeeController {
   }
   static async getLeave(req, res) {
     try {
-      const { RoleName, userID, userEmail } = tokenData;
+      const { userRole, userID, userEmail } = req.userData;
       const { bus_id } = req.userData;
       let data_leave;
 
-      if (RoleName === "SUPERUSER") {
+      if (userRole === "SUPERUSER") {
         data_leave = await Leaving.findAll({
           include: [
             {
@@ -1025,7 +1027,7 @@ class EmployeeController {
             },
           ],
         });
-      } else if (RoleName === "SALE") {
+      } else if (userRole === "SALE") {
         data_leave = await Leaving.findAll({
           include: [
             {
@@ -1037,7 +1039,7 @@ class EmployeeController {
             },
           ],
         });
-      } else if (RoleName === "MANAGER") {
+      } else if (userRole === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
             email: userEmail,
@@ -1115,11 +1117,11 @@ class EmployeeController {
   }
   static async getOvertime(req, res) {
     try {
-      const { RoleName, userID, userEmail } = tokenData;
+      const { userRole, userID, userEmail } = req.userData;
       const { bus_id } = req.userData;
       let data_overtime;
 
-      if (RoleName === "SUPERUSER" || RoleName === "MANAGER") {
+      if (userRole === "SUPERUSER" || userRole === "MANAGER") {
         data_overtime = await Overtime.findAll({
           include: [
             {
@@ -1128,7 +1130,7 @@ class EmployeeController {
             },
           ],
         });
-      } else if (RoleName === "SALE") {
+      } else if (userRole === "SALE") {
         data_overtime = await Overtime.findAll({
           include: [
             {

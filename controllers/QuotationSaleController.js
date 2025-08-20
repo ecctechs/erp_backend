@@ -4,6 +4,7 @@ const { Op } = require("sequelize");
 const TokenManager = require("../middleware/tokenManager");
 const sequelize = require("../database");
 const reportQueries = require("../queries/report_queries");
+const quotationQueries = require("../queries/quotation_queries");
 
 const {
   Business, Bank, Customer, Quotation_sale, Quotation_sale_detail,
@@ -108,7 +109,7 @@ class QuotationSaleController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-  static async editCustomer2(req, res) {
+  static async editCompany(req, res) {
     try {
       const editemp = await Company_person.findOne({
         where: {
@@ -276,7 +277,7 @@ class QuotationSaleController {
     }
   }
 
-  static async deleteCustomer2(req, res) {
+  static async deleteCompany(req, res) {
     try {
       const deleteproduct = await Company_person.findOne({
         where: {
@@ -407,103 +408,103 @@ class QuotationSaleController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-  static async addQuotationSaleOld(req, res) {
-    try {
-      const addCustomer = await Customer.findOne({
-        where: {
-          cus_email: req.body.cus_email,
-        },
-      });
-      if (addCustomer) {
-        const sale_chk = await Quotation_sale.findOne({
-          where: {
-            sale_number: req.body.sale_number,
-          },
-        });
+  // static async addQuotationSaleOld(req, res) {
+  //   try {
+  //     const addCustomer = await Customer.findOne({
+  //       where: {
+  //         cus_email: req.body.cus_email,
+  //       },
+  //     });
+  //     if (addCustomer) {
+  //       const sale_chk = await Quotation_sale.findOne({
+  //         where: {
+  //           sale_number: req.body.sale_number,
+  //         },
+  //       });
 
-        if (sale_chk) {
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Quotation already exists"
-          );
-        } else {
-          const insert_Quo = await Quotation_sale.create({
-            sale_number: req.body.sale_number,
-            sale_date: req.body.sale_date,
-            credit_date_number: req.body.credit_date_number,
-            credit_expired_date: req.body.credit_expired_date,
-            sale_totalprice: req.body.sale_totalprice,
-            bus_id: req.body.bus_id,
-            cus_id: req.body.cus_id,
-            employee_id: req.body.employee_id,
-            discount_quotation: req.body.discount_quotation,
-          });
+  //       if (sale_chk) {
+  //         return ResponseManager.ErrorResponse(
+  //           req,
+  //           res,
+  //           400,
+  //           "Quotation already exists"
+  //         );
+  //       } else {
+  //         const insert_Quo = await Quotation_sale.create({
+  //           sale_number: req.body.sale_number,
+  //           sale_date: req.body.sale_date,
+  //           credit_date_number: req.body.credit_date_number,
+  //           credit_expired_date: req.body.credit_expired_date,
+  //           sale_totalprice: req.body.sale_totalprice,
+  //           bus_id: req.body.bus_id,
+  //           cus_id: req.body.cus_id,
+  //           employee_id: req.body.employee_id,
+  //           discount_quotation: req.body.discount_quotation,
+  //         });
 
-          const products = req.body.products;
-          for (let i = 0; i < products.length; i++) {
-            products[i].sale_id = insert_Quo.sale_id;
-          }
-          console.log(insert_Quo.sale_id);
+  //         const products = req.body.products;
+  //         for (let i = 0; i < products.length; i++) {
+  //           products[i].sale_id = insert_Quo.sale_id;
+  //         }
+  //         console.log(insert_Quo.sale_id);
 
-          await Quotation_sale_detail.bulkCreate(products);
+  //         await Quotation_sale_detail.bulkCreate(products);
 
-          return ResponseManager.SuccessResponse(req, res, 200, "Success");
-        }
-      } else {
-        const sale_chk = await Quotation_sale.findOne({
-          where: {
-            sale_number: req.body.sale_number,
-          },
-        });
+  //         return ResponseManager.SuccessResponse(req, res, 200, "Success");
+  //       }
+  //     } else {
+  //       const sale_chk = await Quotation_sale.findOne({
+  //         where: {
+  //           sale_number: req.body.sale_number,
+  //         },
+  //       });
 
-        if (sale_chk) {
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Quotation already exists"
-          );
-        } else {
-          const insert_Customer = await Customer.create({
-            cus_name: req.body.cus_name,
-            cus_address: req.body.cus_address,
-            cus_tel: req.body.cus_tel,
-            cus_email: req.body.cus_email,
-            cus_tax: req.body.cus_tax,
-            cus_purchase: req.body.cus_purchase,
-          });
+  //       if (sale_chk) {
+  //         return ResponseManager.ErrorResponse(
+  //           req,
+  //           res,
+  //           400,
+  //           "Quotation already exists"
+  //         );
+  //       } else {
+  //         const insert_Customer = await Customer.create({
+  //           cus_name: req.body.cus_name,
+  //           cus_address: req.body.cus_address,
+  //           cus_tel: req.body.cus_tel,
+  //           cus_email: req.body.cus_email,
+  //           cus_tax: req.body.cus_tax,
+  //           cus_purchase: req.body.cus_purchase,
+  //         });
 
-          if (insert_Customer) {
-            const insert_Quo = await Quotation_sale.create({
-              sale_number: req.body.sale_number,
-              sale_date: req.body.sale_date,
-              credit_date_number: req.body.credit_date_number,
-              credit_expired_date: req.body.credit_expired_date,
-              sale_totalprice: req.body.sale_totalprice,
-              bus_id: req.body.bus_id,
-              cus_id: req.body.cus_id,
-              employee_id: req.body.employee_id,
-              status: req.body.status,
-            });
+  //         if (insert_Customer) {
+  //           const insert_Quo = await Quotation_sale.create({
+  //             sale_number: req.body.sale_number,
+  //             sale_date: req.body.sale_date,
+  //             credit_date_number: req.body.credit_date_number,
+  //             credit_expired_date: req.body.credit_expired_date,
+  //             sale_totalprice: req.body.sale_totalprice,
+  //             bus_id: req.body.bus_id,
+  //             cus_id: req.body.cus_id,
+  //             employee_id: req.body.employee_id,
+  //             status: req.body.status,
+  //           });
 
-            const products = req.body.products;
-            for (let i = 0; i < products.length; i++) {
-              products[i].sale_id = insert_Quo.sale_id;
-            }
-            console.log(insert_Quo.sale_id);
+  //           const products = req.body.products;
+  //           for (let i = 0; i < products.length; i++) {
+  //             products[i].sale_id = insert_Quo.sale_id;
+  //           }
+  //           console.log(insert_Quo.sale_id);
 
-            await Quotation_sale_detail.bulkCreate(products);
+  //           await Quotation_sale_detail.bulkCreate(products);
 
-            return ResponseManager.SuccessResponse(req, res, 200, "Success");
-          }
-        }
-      }
-    } catch (err) {
-      return ResponseManager.CatchResponse(req, res, err.message);
-    }
-  }
+  //           return ResponseManager.SuccessResponse(req, res, 200, "Success");
+  //         }
+  //       }
+  //     }
+  //   } catch (err) {
+  //     return ResponseManager.CatchResponse(req, res, err.message);
+  //   }
+  // }
   static async addQuotationSale(req, res) {
     try {
       const { bus_id } = req.userData;
@@ -785,32 +786,18 @@ class QuotationSaleController {
 
       const { bus_id } = req.userData;
 
+      //  เรียกใช้ query สำหรับดึงข้อมูลหลัก
       const log = await sequelize.query(
-        `
-        select   *, 
-  invoices.deleted_at AS invoice_deleted_at,
-  invoices.remark AS invoices_remark
-from invoices
-Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
-Left join businesses on businesses.bus_id = quotation_sales.bus_id
-Left join banks on banks.bank_id = businesses.bank_id
-Left join customers on quotation_sales.cus_id = customers.cus_id
-left join employees on employees."employee_id"  = quotation_sales."employee_id" 
-Left join billings on billings.invoice_id = invoices.invoice_id 
-WHERE quotation_sales.bus_id = :bus_id
-ORDER BY invoices.invoice_number ASC;
-      `,
+        quotationQueries.GET_INVOICES,
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id }, // <-- ปลอดภัยและสะอาด
+          replacements: { bus_id },
         }
       );
 
+      //  เรียกใช้ query สำหรับดึงรายละเอียดสินค้า
       const product_detail = await sequelize.query(
-        `
-select * 
-from quotation_sale_details
-      `,
+        quotationQueries.GET_ALL_QUOTATION_DETAILS,
         {
           type: sequelize.QueryTypes.SELECT,
         }
@@ -877,41 +864,24 @@ from quotation_sale_details
   }
 
   static async getTaxInvoice(req, res) {
+
     try {
       let result = [];
 
       const { bus_id } = req.userData;
 
+      //  ใช้ query ที่ import เข้ามา สำหรับดึงข้อมูลหลัก
       const log = await sequelize.query(
-        `
-  SELECT 
-  tax_invoices.tax_invoice_id AS tax_id_alias,
-  tax_invoices.sale_id AS sale_id_alias,
-  tax_invoices.invoice_id AS invoice_id_alias,
-  tax_invoices.deleted_at AS tax_invoice_deleted_at,
-  * 
-FROM tax_invoices
-Left join invoices on invoices.invoice_id = tax_invoices.invoice_id
-Left join quotation_sales on quotation_sales.sale_id = invoices.sale_id
-Left join businesses on businesses.bus_id = quotation_sales.bus_id
-Left join banks on banks.bank_id = businesses.bank_id
-Left join customers on quotation_sales.cus_id = customers.cus_id
-left join employees on employees."employee_id"  = quotation_sales."employee_id" 
-Left join billings on billings.invoice_id = invoices.invoice_id 
-WHERE quotation_sales.bus_id = :bus_id
-ORDER BY tax_invoices.tax_invoice_number ASC;
-      `,
+        quotationQueries.GET_TAX_INVOICES,
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id }, // <-- ปลอดภัยและสะอาด
+          replacements: { bus_id },
         }
       );
-
+      
+      //  ใช้ query ที่ import เข้ามา สำหรับดึงรายละเอียดสินค้า
       const product_detail = await sequelize.query(
-        `
-select * 
-from quotation_sale_details
-      `,
+        quotationQueries.GET_ALL_QUOTATION_DETAILS,
         {
           type: sequelize.QueryTypes.SELECT,
         }
@@ -1310,36 +1280,16 @@ from quotation_sale_details
       const { bus_id } = req.userData;
 
       const log = await sequelize.query(
-        `
-        SELECT 
-  billings.*,
-  tax_invoices.*,
-  invoices.*,
-  quotation_sales.*,
-  employees.*,
-  customers.*,
-  billings.deleted_at AS billings_deleted_at,
-  billings.remark AS billings_remark
-FROM billings
-LEFT JOIN tax_invoices ON billings.tax_invoice_id = tax_invoices.tax_invoice_id
-LEFT JOIN invoices ON billings.invoice_id = invoices.invoice_id
-LEFT JOIN quotation_sales ON billings.sale_id = quotation_sales.sale_id
-Left join customers on quotation_sales.cus_id = customers.cus_id
-left join employees on employees."employee_id"  = quotation_sales."employee_id" 
-WHERE quotation_sales.bus_id = :bus_id
-ORDER BY invoices.invoice_number ASC;
-      `,
+        quotationQueries.GET_BILLINGS,
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id }, // <-- ปลอดภัยและสะอาด
+          replacements: { bus_id },
         }
       );
 
+      // เรียกใช้ query สำหรับดึงรายละเอียดสินค้า
       const product_detail = await sequelize.query(
-        `
-select * 
-from quotation_sale_details
-      `,
+        quotationQueries.GET_ALL_QUOTATION_DETAILS,
         {
           type: sequelize.QueryTypes.SELECT,
         }

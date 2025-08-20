@@ -31,16 +31,16 @@ Route.put(
   QuotationSaleController.editCustomer
 );
 Route.put(
-  RouteName + "/editCustomer2/:id",
-  QuotationSaleController.editCustomer2
+  RouteName + "/editCompany/:id",
+  QuotationSaleController.editCompany
 );
 Route.delete(
   RouteName + "/deleteCustomer/:id",
   QuotationSaleController.deleteCustomer
 );
 Route.delete(
-  RouteName + "/deleteCustomer2/:id",
-  QuotationSaleController.deleteCustomer2
+  RouteName + "/deleteCompany/:id",
+  QuotationSaleController.deleteCompany
 );
 Route.post(
   RouteName + "/addBusiness",
