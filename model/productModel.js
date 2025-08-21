@@ -43,7 +43,7 @@ const Product = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Status: {
+    product_status: {
       type: DataTypes.STRING,
     },
   },

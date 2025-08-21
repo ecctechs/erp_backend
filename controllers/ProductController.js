@@ -121,7 +121,7 @@ class ProductController {
           product_img: result.secure_url,
           product_date: DateString,
           bus_id: bus_id,
-          Status: "Discontinued",
+          product_status: "Discontinued",
         });
 
         return ResponseManager.SuccessResponse(req, res, 200, insert_product);
@@ -152,7 +152,7 @@ class ProductController {
           price: req.body.price,
           product_cost: req.body.product_cost,
           category_id: req.body.category_id,
-          Status: req.body.Status,
+          product_status: req.body.product_status,
         };
 
         if (req.file) {
@@ -190,7 +190,7 @@ class ProductController {
       if (deleteproduct) {
 
         const updatedData = {
-          Status: "not active",
+          product_status: "not active",
         };
 
         await Product.update(updatedData, {
@@ -380,7 +380,7 @@ class ProductController {
           await Product.update(
             {
               amount: req.body.quantity + getProductByid.dataValues.amount,
-              Status: "active",
+              product_status: "active",
             },
             {
               where: {
@@ -425,7 +425,7 @@ class ProductController {
             // หากจำนวนสินค้าเหลือ 0 ให้อัปเดตสถานะเป็น Discontinued
             if (updatedAmount === 0) {
               await Product.update(
-                { Status: "Discontinued" },
+                { product_status: "Discontinued" },
                 {
                   where: {
                     product_id: req.body.product_id,
@@ -496,7 +496,7 @@ class ProductController {
 
           if (updatedProduct.amount === 0) {
             await Product.update(
-              { Status: "Discontinued" },
+              { product_status: "Discontinued" },
               { where: { product_id: req.body.product_id } }
             );
           }
@@ -540,10 +540,10 @@ class ProductController {
 
           if (
             updatedProduct.amount > 0 &&
-            updatedProduct.Status === "Discontinued"
+            updatedProduct.product_status === "Discontinued"
           ) {
             await Product.update(
-              { Status: "active" },
+              { product_status: "active" },
               { where: { product_id: req.body.product_id } }
             );
           }
