@@ -101,7 +101,7 @@ class QuotationSaleController {
         cus_tax: req.body.cus_tax,
         cus_purchase: req.body.cus_purchase,
         bus_id: bus_id,
-        Status: "active",
+        customer_status: "active",
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -250,7 +250,7 @@ class QuotationSaleController {
       if (deleteproduct) {
 
         const updatedData = {
-          Status: "not active",
+          customer_status: "not active",
         };
 
         await Customer.update(updatedData, {
@@ -1806,7 +1806,7 @@ class QuotationSaleController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-  static async addCustomer2(req, res) {
+  static async addCompany(req, res) {
     try {
 
       const { bus_id } = req.userData;
@@ -1834,7 +1834,7 @@ class QuotationSaleController {
         company_person_customer: req.body.company_person_customer,
         company_person_status: "active",
         bus_id: bus_id,
-        Status: "active",
+        company_status: "active",
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);

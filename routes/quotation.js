@@ -166,10 +166,10 @@ Route.get(
   QuotationSaleController.getCompanyPerson
 );
 Route.post(
-  RouteName + "/addCustomer2",
+  RouteName + "/addCompany",
   authMiddleware,
   verifyTokenWithbus_id,
-  QuotationSaleController.addCustomer2
+  QuotationSaleController.addCompany
 );
 
 Route.post(

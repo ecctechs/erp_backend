@@ -104,7 +104,7 @@ const Customer = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Status: {
+    customer_status: {
       type: DataTypes.STRING(10),
       allowNull: false,
     },
@@ -407,7 +407,7 @@ const Company_person = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Status: {
+    company_status: {
       type: DataTypes.STRING(10),
       allowNull: false,
     },
