@@ -365,16 +365,16 @@ class ProductController {
       });
 
       if (getProductByid) {
-        const transactionType = req.body.transactionType;
+        const transaction_type = req.body.transaction_type;
 
-        if (transactionType == "Receive") {
+        if (transaction_type == "Receive") {
           await Transaction.create({
             product_id: req.body.product_id,
-            transactionType: transactionType,
-            transactionDetail: req.body.transactionDetail,
+            transaction_type: transaction_type,
+            transaction_detail: req.body.transaction_detail,
             quantity_added: req.body.quantity,
             quantity_removed: 0,
-            transaction_date: DateString,
+            transaction_date: dateObject,
           });
 
           await Product.update(
@@ -390,7 +390,7 @@ class ProductController {
           );
 
           return ResponseManager.SuccessResponse(req, res, 200, "success");
-        } else if (transactionType == "Issue") {
+        } else if (transaction_type == "Issue") {
           if (getProductByid.dataValues.amount < req.body.quantity) {
             return ResponseManager.ErrorResponse(
               req,
@@ -401,11 +401,11 @@ class ProductController {
           } else {
             await Transaction.create({
               product_id: req.body.product_id,
-              transactionType: transactionType,
-              transactionDetail: req.body.transactionDetail,
+              transaction_type: transaction_type,
+              transaction_detail: req.body.transaction_detail,
               quantity_removed: req.body.quantity,
               quantity_added: 0,
-              transaction_date: DateString,
+              transaction_date: dateObject,
             });
 
             await Product.update(
@@ -476,11 +476,11 @@ class ProductController {
         },
       });
       if (getProductByid) {
-        const transactionType = req.body.transactionType;
+        const transaction_type = req.body.transaction_type;
 
         if (
-          transactionType == "Issue" &&
-          getProductByid.transactionType == "Receive"
+          transaction_type == "Issue" &&
+          getProductByid.transaction_type == "Receive"
         ) {
           const quantityDifference =
             req.body.quantity + getProductByid.quantity_added;
@@ -505,8 +505,8 @@ class ProductController {
           await Transaction.update(
             {
               product_id: req.body.product_id,
-              transactionType: transactionType,
-              transactionDetail: req.body.transactionDetail,
+              transaction_type: transaction_type,
+              transaction_detail: req.body.transaction_detail,
               quantity_added: 0,
               quantity_removed: req.body.quantity,
             },
@@ -519,8 +519,8 @@ class ProductController {
             "product receive success"
           );
         } else if (
-          transactionType == "Receive" &&
-          getProductByid.transactionType == "Issue"
+          transaction_type == "Receive" &&
+          getProductByid.transaction_type == "Issue"
         ) {
           const quantityDifference =
             req.body.quantity + getProductByid.quantity_removed;
@@ -552,8 +552,8 @@ class ProductController {
           await Transaction.update(
             {
               product_id: req.body.product_id,
-              transactionType: transactionType,
-              transactionDetail: req.body.transactionDetail,
+              transaction_type: transaction_type,
+              transaction_detail: req.body.transaction_detail,
               quantity_added: req.body.quantity,
               quantity_removed: 0,
             },
@@ -565,12 +565,12 @@ class ProductController {
             200,
             "product receive success"
           );
-        } else if (transactionType == "Receive") {
+        } else if (transaction_type == "Receive") {
           await Transaction.update(
             {
               product_id: req.body.product_id,
-              transactionType: transactionType,
-              transactionDetail: req.body.transactionDetail,
+              transaction_type: transaction_type,
+              transaction_detail: req.body.transaction_detail,
               quantity_added: req.body.quantity,
               quantity_removed: 0,
             },
@@ -602,7 +602,7 @@ class ProductController {
             200,
             "product receive success"
           );
-        } else if (transactionType == "Issue") {
+        } else if (transaction_type == "Issue") {
           if (getProductAmount.dataValues.amount < req.body.quantity) {
             return ResponseManager.ErrorResponse(
               req,
@@ -614,8 +614,8 @@ class ProductController {
             await Transaction.update(
               {
                 product_id: req.body.product_id,
-                transactionType: transactionType,
-                transactionDetail: req.body.transactionDetail,
+                transaction_type: transaction_type,
+                transaction_detail: req.body.transaction_detail,
                 quantity_removed: req.body.quantity,
                 quantity_added: 0,
               },
@@ -696,8 +696,8 @@ class ProductController {
           Date: dateOnly,
           product_id: log.product_id,
           Product: log.product.product_name,
-          Transaction: log.transactionType,
-          Detail: log.transactionDetail,
+          Transaction: log.transaction_type,
+          Detail: log.transaction_detail,
           Quantity:
             log.quantity_added === 0
               ? log.quantity_removed
@@ -871,7 +871,7 @@ class ProductController {
 
   static async CutStock(req, res) {
     try {
-      const { id, quantity, transactionType } = req.body;
+      const { id, quantity, transaction_type } = req.body;
 
       const product = await Product.findOne({
         where: { product_id: id },
@@ -889,7 +889,7 @@ class ProductController {
       let newAmount;
       let billingStatus;
 
-      if (transactionType === "Receive") {
+      if (transaction_type === "Receive") {
         newAmount = product.amount + quantity;
         billingStatus = "";
       } else {

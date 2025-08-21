@@ -104,11 +104,11 @@ const Transaction = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    transactionType: {
+    transaction_type: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    transactionDetail: {
+    transaction_detail: {
       type: DataTypes.STRING,
     },
     quantity_added: {
@@ -118,7 +118,7 @@ const Transaction = sequelize.define(
       type: DataTypes.INTEGER,
     },
     transaction_date: {
-      type: DataTypes.STRING,
+      type: 'timestamp with time zone',
     },
   },
   {
