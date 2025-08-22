@@ -210,7 +210,7 @@ class AuthController {
 
   static async RegisterNewUsers(req, res) {
     try {
-      if (!req.body.bus_name) {
+      if (!req.body.business_name) {
         return ResponseManager.ErrorResponse(
           req,
           res,
@@ -264,7 +264,7 @@ class AuthController {
       let createdBusiness = null;
       if (createbank) {
         createdBusiness = await Business.create({
-          bus_name: req.body.bus_name,
+          business_name: req.body.business_name,
           bus_address: req.body.bus_address,
           bus_website: req.body.bus_website || "",
           bus_tel: req.body.bus_tel,

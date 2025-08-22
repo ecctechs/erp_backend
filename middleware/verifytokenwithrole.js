@@ -154,7 +154,7 @@ const verifyTokenWithbus_id = async (req, res, next) => {
           include: [
             {
               model: Business,
-              attributes: ["bus_id", "bus_name"],
+              attributes: ["bus_id", "business_name"],
             },
           ],
           where: {

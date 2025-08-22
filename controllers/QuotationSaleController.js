@@ -318,7 +318,7 @@ class QuotationSaleController {
     try {
       const checkBusiness = await Business.findOne({
         where: {
-          bus_name: req.body.bus_name,
+          business_name: req.body.business_name,
         },
       });
       if (!checkBusiness) {
@@ -345,7 +345,7 @@ class QuotationSaleController {
         });
         if (createbank) {
           await Business.create({
-            bus_name: req.body.bus_name,
+            business_name: req.body.business_name,
             bus_address: req.body.bus_address,
             bus_website: req.body.bus_website,
             bus_tel: req.body.bus_tel,
@@ -357,7 +357,7 @@ class QuotationSaleController {
         return ResponseManager.SuccessResponse(req, res, 200, "Success");
       } else {
         let productUpdateData = {
-          bus_name: req.body.bus_name,
+          business_name: req.body.business_name,
           bus_address: req.body.bus_address,
           bus_website: req.body.bus_website,
           bus_tax: req.body.bus_tax,
@@ -1573,7 +1573,7 @@ class QuotationSaleController {
           );
         } else {
           let productUpdateData = {
-            bus_name: req.body.bus_name,
+            business_name: req.body.business_name,
             bus_address: req.body.bus_address,
             bus_website: req.body.bus_website,
             bus_tax: req.body.bus_tax,

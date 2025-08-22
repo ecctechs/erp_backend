@@ -9,7 +9,7 @@ const Business = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    bus_name: {
+    business_name: {
       type: DataTypes.STRING(40),
       allowNull: false,
     },
