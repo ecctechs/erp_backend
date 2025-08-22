@@ -81,7 +81,7 @@ class QuotationSaleController {
 
       const addCustomerTax = await Customer.findOne({
         where: {
-          cus_tax: req.body.cus_tax,
+          customer_tax: req.body.customer_tax,
           bus_id: bus_id,
         },
       });
@@ -98,7 +98,7 @@ class QuotationSaleController {
         customer_address: req.body.customer_address,
         customer_tel: req.body.customer_tel,
         customer_email: req.body.customer_email,
-        cus_tax: req.body.cus_tax,
+        customer_tax: req.body.customer_tax,
         cus_purchase: req.body.cus_purchase,
         bus_id: bus_id,
         customer_status: "active",
@@ -200,8 +200,7 @@ class QuotationSaleController {
 
         const addCustomerTax = await Customer.findOne({
           where: {
-            cus_tax: req.body.cus_tax,
-
+            customer_tax: req.body.customer_tax,
             customer_id: { [Op.ne]: req.params.id },
           },
         });
@@ -220,7 +219,7 @@ class QuotationSaleController {
             customer_address: req.body.customer_address,
             customer_tel: req.body.customer_tel,
             customer_email: req.body.customer_email,
-            cus_tax: req.body.cus_tax,
+            customer_tax: req.body.customer_tax,
             cus_purchase: req.body.cus_purchase,
           },
           {
@@ -648,7 +647,7 @@ class QuotationSaleController {
           customer_address: log.customer.customer_address,
           customer_tel: log.customer.customer_tel,
           customer_email: log.customer.customer_email,
-          cus_tax: log.customer.cus_tax,
+          customer_tax: log.customer.customer_tax,
           cus_purchase: log.customer.cus_purchase,
           quotation_start_date: log.sale_date,
           credit_date: log.credit_date_number,
@@ -719,7 +718,7 @@ class QuotationSaleController {
           customer_address: sale.customer_address,
           customer_tel: sale.customer_tel,
           customer_email: sale.customer_email,
-          cus_tax: sale.cus_tax,
+          customer_tax: sale.customer_tax,
           cus_purchase: sale.cus_purchase,
           quotation_start_date: sale.sale_date,
           credit_date: sale.credit_date_number,
@@ -808,7 +807,7 @@ class QuotationSaleController {
           customer_address: sale.customer_address,
           customer_tel: sale.customer_tel,
           customer_email: sale.customer_email,
-          cus_tax: sale.cus_tax,
+          customer_tax: sale.customer_tax,
           cus_purchase: sale.cus_purchase,
           quotation_start_date: sale.sale_date,
           credit_date: sale.credit_date_number,
@@ -1213,7 +1212,7 @@ class QuotationSaleController {
           customer_address: sale.customer_address,
           customer_tel: sale.customer_tel,
           customer_email: sale.customer_email,
-          cus_tax: sale.cus_tax,
+          customer_tax: sale.customer_tax,
           cus_purchase: sale.cus_purchase,
           quotation_start_date: sale.sale_date,
           credit_date: sale.credit_date_number,

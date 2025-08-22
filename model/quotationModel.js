@@ -92,7 +92,7 @@ const Customer = sequelize.define(
       type: DataTypes.STRING(40),
       allowNull: false,
     },
-    cus_tax: {
+    customer_tax: {
       type: DataTypes.STRING(13),
       allowNull: false,
     },
