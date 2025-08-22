@@ -154,7 +154,7 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    status: {
+    quotation_status: {
       type: DataTypes.STRING(10),
       allowNull: false,
     },

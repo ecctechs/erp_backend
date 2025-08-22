@@ -453,7 +453,7 @@ class QuotationSaleController {
         bus_id: req.body.bus_id,
         customer_id: req.body.customer_id,
         employee_id: req.body.employee_id,
-        status: req.body.status,
+        quotation_status: req.body.quotation_status,
         remark: req.body.remark,
         remarkInfernal: req.body.remarkInfernal,
         discount_quotation: req.body.discount_quotation,
@@ -500,7 +500,7 @@ class QuotationSaleController {
         }
       }
 
-      if (req.body.status === "Allowed") {
+      if (req.body.quotation_status === "Allowed") {
         const today = new Date();
         const invoiceDateStr = today.toISOString().split("T")[0];
         const lastInvoice = await Invoice.findOne({
@@ -572,7 +572,7 @@ class QuotationSaleController {
           bus_id: req.body.bus_id,
           customer_id: req.body.customer_id,
           employee_id: req.body.employee_id,
-          status: req.body.status,
+          quotation_status: req.body.quotation_status,
           remark: req.body.remark,
           remarkInfernal: req.body.remarkInfernal,
           discount_quotation: req.body.discount_quotation,
@@ -628,10 +628,10 @@ class QuotationSaleController {
         const expiredDate = new Date(log.credit_expired_date);
 
         if (today > expiredDate) {
-          log.status = "expired";
+          log.quotation_status = "expired";
 
           await Quotation_sale.update(
-            { status: "expired" },
+            { quotation_status: "expired" },
             { where: { sale_id: log.sale_id } }
           );
         }
@@ -639,7 +639,7 @@ class QuotationSaleController {
         result.push({
           sale_id: log.sale_id,
           quotation_num: log.sale_number,
-          status: log.status,
+          quotation_status: log.quotation_status,
           employee_id: log.employee_id,
           employee_name: log.employee.first_name + " " + log.employee.last_name,
           customer_id: log.customer_id,
@@ -660,7 +660,7 @@ class QuotationSaleController {
           vat: log.vat,
           deleted_at: log.deleted_at,
           invoice:
-            !log.invoice || log.status !== "Allowed"
+            !log.invoice || log.quotation_status !== "Allowed"
               ? "Pending"
               : log.invoice.invoice_number,
           //
@@ -1154,7 +1154,7 @@ class QuotationSaleController {
 
         await Quotation_sale.update(
           {
-            status: "Pending",
+            quotation_status: "Pending",
             deleted_at: "",
           },
           {
