@@ -71,12 +71,12 @@ const Bank = sequelize.define(
 const Customer = sequelize.define(
   "customers",
   {
-    cus_id: {
+    customer_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    cus_name: {
+    customer_name: {
       type: DataTypes.STRING(40),
       allowNull: false,
     },
@@ -146,7 +146,7 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    cus_id: {
+    customer_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

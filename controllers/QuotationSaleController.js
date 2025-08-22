@@ -51,7 +51,7 @@ class QuotationSaleController {
 
       const addCustomer = await Customer.findOne({
         where: {
-          cus_name: req.body.cus_name,
+          customer_name: req.body.customer_name,
           bus_id: bus_id,
         },
       });
@@ -94,7 +94,7 @@ class QuotationSaleController {
         );
       }
       const insert_cate = await Customer.create({
-        cus_name: req.body.cus_name,
+        customer_name: req.body.customer_name,
         cus_address: req.body.cus_address,
         cus_tel: req.body.cus_tel,
         cus_email: req.body.cus_email,
@@ -162,14 +162,14 @@ class QuotationSaleController {
     try {
       const editemp = await Customer.findOne({
         where: {
-          cus_id: req.params.id,
+          customer_id: req.params.id,
         },
       });
       if (editemp) {
         const existingUser = await Customer.findOne({
           where: {
-            cus_name: req.body.cus_name,
-            cus_id: { [Op.ne]: req.params.id },
+            customer_name: req.body.customer_name,
+            customer_id: { [Op.ne]: req.params.id },
           },
         });
 
@@ -186,7 +186,7 @@ class QuotationSaleController {
         const addCustomerPhone = await Customer.findOne({
           where: {
             cus_tel: req.body.cus_tel,
-            cus_id: { [Op.ne]: req.params.id },
+            customer_id: { [Op.ne]: req.params.id },
           },
         });
         if (addCustomerPhone) {
@@ -202,7 +202,7 @@ class QuotationSaleController {
           where: {
             cus_tax: req.body.cus_tax,
 
-            cus_id: { [Op.ne]: req.params.id },
+            customer_id: { [Op.ne]: req.params.id },
           },
         });
         if (addCustomerTax) {
@@ -216,7 +216,7 @@ class QuotationSaleController {
 
         await Customer.update(
           {
-            cus_name: req.body.cus_name,
+            customer_name: req.body.customer_name,
             cus_address: req.body.cus_address,
             cus_tel: req.body.cus_tel,
             cus_email: req.body.cus_email,
@@ -225,7 +225,7 @@ class QuotationSaleController {
           },
           {
             where: {
-              cus_id: req.params.id,
+              customer_id: req.params.id,
             },
           }
         );
@@ -244,7 +244,7 @@ class QuotationSaleController {
     try {
       const deleteproduct = await Customer.findOne({
         where: {
-          cus_id: req.params.id,
+          customer_id: req.params.id,
         },
       });
       if (deleteproduct) {
@@ -255,7 +255,7 @@ class QuotationSaleController {
 
         await Customer.update(updatedData, {
           where: {
-            cus_id: req.params.id,
+            customer_id: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(
@@ -408,103 +408,7 @@ class QuotationSaleController {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
-  // static async addQuotationSaleOld(req, res) {
-  //   try {
-  //     const addCustomer = await Customer.findOne({
-  //       where: {
-  //         cus_email: req.body.cus_email,
-  //       },
-  //     });
-  //     if (addCustomer) {
-  //       const sale_chk = await Quotation_sale.findOne({
-  //         where: {
-  //           sale_number: req.body.sale_number,
-  //         },
-  //       });
-
-  //       if (sale_chk) {
-  //         return ResponseManager.ErrorResponse(
-  //           req,
-  //           res,
-  //           400,
-  //           "Quotation already exists"
-  //         );
-  //       } else {
-  //         const insert_Quo = await Quotation_sale.create({
-  //           sale_number: req.body.sale_number,
-  //           sale_date: req.body.sale_date,
-  //           credit_date_number: req.body.credit_date_number,
-  //           credit_expired_date: req.body.credit_expired_date,
-  //           sale_totalprice: req.body.sale_totalprice,
-  //           bus_id: req.body.bus_id,
-  //           cus_id: req.body.cus_id,
-  //           employee_id: req.body.employee_id,
-  //           discount_quotation: req.body.discount_quotation,
-  //         });
-
-  //         const products = req.body.products;
-  //         for (let i = 0; i < products.length; i++) {
-  //           products[i].sale_id = insert_Quo.sale_id;
-  //         }
-  //         console.log(insert_Quo.sale_id);
-
-  //         await Quotation_sale_detail.bulkCreate(products);
-
-  //         return ResponseManager.SuccessResponse(req, res, 200, "Success");
-  //       }
-  //     } else {
-  //       const sale_chk = await Quotation_sale.findOne({
-  //         where: {
-  //           sale_number: req.body.sale_number,
-  //         },
-  //       });
-
-  //       if (sale_chk) {
-  //         return ResponseManager.ErrorResponse(
-  //           req,
-  //           res,
-  //           400,
-  //           "Quotation already exists"
-  //         );
-  //       } else {
-  //         const insert_Customer = await Customer.create({
-  //           cus_name: req.body.cus_name,
-  //           cus_address: req.body.cus_address,
-  //           cus_tel: req.body.cus_tel,
-  //           cus_email: req.body.cus_email,
-  //           cus_tax: req.body.cus_tax,
-  //           cus_purchase: req.body.cus_purchase,
-  //         });
-
-  //         if (insert_Customer) {
-  //           const insert_Quo = await Quotation_sale.create({
-  //             sale_number: req.body.sale_number,
-  //             sale_date: req.body.sale_date,
-  //             credit_date_number: req.body.credit_date_number,
-  //             credit_expired_date: req.body.credit_expired_date,
-  //             sale_totalprice: req.body.sale_totalprice,
-  //             bus_id: req.body.bus_id,
-  //             cus_id: req.body.cus_id,
-  //             employee_id: req.body.employee_id,
-  //             status: req.body.status,
-  //           });
-
-  //           const products = req.body.products;
-  //           for (let i = 0; i < products.length; i++) {
-  //             products[i].sale_id = insert_Quo.sale_id;
-  //           }
-  //           console.log(insert_Quo.sale_id);
-
-  //           await Quotation_sale_detail.bulkCreate(products);
-
-  //           return ResponseManager.SuccessResponse(req, res, 200, "Success");
-  //         }
-  //       }
-  //     }
-  //   } catch (err) {
-  //     return ResponseManager.CatchResponse(req, res, err.message);
-  //   }
-  // }
+  
   static async addQuotationSale(req, res) {
     try {
       const { bus_id } = req.userData;
@@ -527,7 +431,7 @@ class QuotationSaleController {
 
       const existCustomer = await Customer.findOne({
         where: {
-          cus_id: req.body.cus_id,
+          customer_id: req.body.customer_id,
           bus_id: bus_id,
         },
       });
@@ -548,7 +452,7 @@ class QuotationSaleController {
         credit_expired_date: req.body.credit_expired_date,
         sale_totalprice: req.body.sale_totalprice,
         bus_id: req.body.bus_id,
-        cus_id: req.body.cus_id,
+        customer_id: req.body.customer_id,
         employee_id: req.body.employee_id,
         status: req.body.status,
         remark: req.body.remark,
@@ -667,7 +571,7 @@ class QuotationSaleController {
           credit_expired_date: req.body.credit_expired_date,
           sale_totalprice: req.body.sale_totalprice,
           bus_id: req.body.bus_id,
-          cus_id: req.body.cus_id,
+          customer_id: req.body.customer_id,
           employee_id: req.body.employee_id,
           status: req.body.status,
           remark: req.body.remark,
@@ -739,8 +643,8 @@ class QuotationSaleController {
           status: log.status,
           employee_id: log.employee_id,
           employee_name: log.employee.first_name + " " + log.employee.last_name,
-          cus_id: log.cus_id,
-          cus_name: log.customer.cus_name,
+          customer_id: log.customer_id,
+          customer_name: log.customer.customer_name,
           cus_address: log.customer.cus_address,
           cus_tel: log.customer.cus_tel,
           cus_email: log.customer.cus_email,
@@ -810,8 +714,8 @@ class QuotationSaleController {
           status: sale.status,
           employee_id: sale.employee_id,
           employee_name: `${sale.first_name} ${sale.last_name}`,
-          cus_id: sale.cus_id,
-          cus_name: sale.cus_name,
+          customer_id: sale.customer_id,
+          customer_name: sale.customer_name,
           cus_address: sale.cus_address,
           cus_tel: sale.cus_tel,
           cus_email: sale.cus_email,
@@ -899,8 +803,8 @@ class QuotationSaleController {
           status: sale.status,
           employee_id: sale.employee_id,
           employee_name: `${sale.first_name} ${sale.last_name}`,
-          cus_id: sale.cus_id,
-          cus_name: sale.cus_name,
+          customer_id: sale.customer_id,
+          customer_name: sale.customer_name,
           cus_address: sale.cus_address,
           cus_tel: sale.cus_tel,
           cus_email: sale.cus_email,
@@ -1304,8 +1208,8 @@ class QuotationSaleController {
           status: sale.status,
           employee_id: sale.employee_id,
           employee_name: `${sale.first_name} ${sale.last_name}`,
-          cus_id: sale.cus_id,
-          cus_name: sale.cus_name,
+          customer_id: sale.customer_id,
+          customer_name: sale.customer_name,
           cus_address: sale.cus_address,
           cus_tel: sale.cus_tel,
           cus_email: sale.cus_email,
@@ -1783,7 +1687,7 @@ class QuotationSaleController {
         `
         SELECT * 
         FROM company_people
-        LEFT JOIN customers ON customers.cus_id = company_people.company_person_customer
+        LEFT JOIN customers ON customers.customer_id = company_people.company_person_customer
         LEFT JOIN businesses ON businesses.bus_id = company_people.bus_id
         `,
         {

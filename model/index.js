@@ -58,14 +58,14 @@ Expense.belongsTo(Business, { foreignKey: "bus_id" });
 
 // --- Customer, Quotation, Invoice, Billing Flow ---
 Customer.belongsTo(Business, { foreignKey: "bus_id" });
-Customer.hasMany(Quotation_sale, { foreignKey: "cus_id" });
+Customer.hasMany(Quotation_sale, { foreignKey: "customer_id" });
 Customer.hasMany(Company_person, { foreignKey: "company_person_customer" });
 
 Company_person.belongsTo(Customer, { foreignKey: "company_person_customer" });
 Company_person.belongsTo(Business, { foreignKey: "bus_id" });
 
 Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
-Quotation_sale.belongsTo(Customer, { foreignKey: "cus_id" });
+Quotation_sale.belongsTo(Customer, { foreignKey: "customer_id" });
 Quotation_sale.belongsTo(Employee, { foreignKey: "employee_id" });
 Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });
 Quotation_sale.hasOne(Invoice, { foreignKey: "sale_id" });
