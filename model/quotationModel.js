@@ -96,7 +96,7 @@ const Customer = sequelize.define(
       type: DataTypes.STRING(13),
       allowNull: false,
     },
-    cus_purchase: {
+    customer_purchase: {
       type: DataTypes.STRING(40),
       allowNull: false,
     },
