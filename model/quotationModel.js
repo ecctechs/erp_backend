@@ -13,23 +13,23 @@ const Business = sequelize.define(
       type: DataTypes.STRING(40),
       allowNull: false,
     },
-    bus_address: {
+    business_address: {
       type: DataTypes.STRING(100),
       allowNull: false,
     },
-    bus_website: {
+    business_website: {
       type: DataTypes.STRING(40),
       allowNull: false,
     },
-    bus_tax: {
+    business_tax: {
       type: DataTypes.STRING(20),
       allowNull: false,
     },
-    bus_tel: {
+    business_tel: {
       type: DataTypes.STRING(15),
       allowNull: false,
     },
-    bus_logo: {
+    business_logo: {
       type: DataTypes.STRING,
       allowNull: true,
     },

@@ -346,11 +346,11 @@ class QuotationSaleController {
         if (createbank) {
           await Business.create({
             business_name: req.body.business_name,
-            bus_address: req.body.bus_address,
-            bus_website: req.body.bus_website,
-            bus_tel: req.body.bus_tel,
-            bus_tax: req.body.bus_tax,
-            bus_logo: result.secure_url,
+            business_address: req.body.business_address,
+            business_website: req.body.business_website,
+            business_tel: req.body.business_tel,
+            business_tax: req.body.business_tax,
+            business_logo: result.secure_url,
             bank_id: createbank.bank_id,
           });
         }
@@ -358,10 +358,10 @@ class QuotationSaleController {
       } else {
         let productUpdateData = {
           business_name: req.body.business_name,
-          bus_address: req.body.bus_address,
-          bus_website: req.body.bus_website,
-          bus_tax: req.body.bus_tax,
-          bus_tel: req.body.bus_tel,
+          business_address: req.body.business_address,
+          business_website: req.body.business_website,
+          business_tax: req.body.business_tax,
+          business_tel: req.body.business_tel,
           bank_name: req.body.bank_name,
           bank_account: req.body.bank_account,
           bank_number: req.body.bank_number,
@@ -389,7 +389,7 @@ class QuotationSaleController {
           }
 
           const result = await cloudinary.uploader.upload(req.file.path);
-          productUpdateData.bus_logo = result.secure_url;
+          productUpdateData.business_logo = result.secure_url;
         }
 
         await Business.update(productUpdateData, {
@@ -1574,10 +1574,10 @@ class QuotationSaleController {
         } else {
           let productUpdateData = {
             business_name: req.body.business_name,
-            bus_address: req.body.bus_address,
-            bus_website: req.body.bus_website,
-            bus_tax: req.body.bus_tax,
-            bus_tel: req.body.bus_tel,
+            business_address: req.body.business_address,
+            business_website: req.body.business_website,
+            business_tax: req.body.business_tax,
+            business_tel: req.body.business_tel,
             bank_name: req.body.bank_name,
             bank_account: req.body.bank_account,
             bank_number: req.body.bank_number,
@@ -1585,7 +1585,7 @@ class QuotationSaleController {
 
           if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path);
-            productUpdateData.bus_logo = result.secure_url;
+            productUpdateData.business_logo = result.secure_url;
           }
 
           await Business.update(productUpdateData, {

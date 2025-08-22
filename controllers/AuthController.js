@@ -265,11 +265,11 @@ class AuthController {
       if (createbank) {
         createdBusiness = await Business.create({
           business_name: req.body.business_name,
-          bus_address: req.body.bus_address,
-          bus_website: req.body.bus_website || "",
-          bus_tel: req.body.bus_tel,
-          bus_tax: req.body.bus_tax,
-          bus_logo: result.secure_url,
+          business_address: req.body.business_address,
+          business_website: req.body.business_website || "",
+          business_tel: req.body.business_tel,
+          business_tax: req.body.business_tax,
+          business_logo: result.secure_url,
           bank_id: createbank.bank_id,
         });
         console.log("Business creation result:", createdBusiness);
