@@ -80,7 +80,7 @@ const Customer = sequelize.define(
       type: DataTypes.STRING(40),
       allowNull: false,
     },
-    cus_address: {
+    customer_address: {
       type: DataTypes.STRING(100),
       allowNull: false,
     },

@@ -95,7 +95,7 @@ class QuotationSaleController {
       }
       const insert_cate = await Customer.create({
         customer_name: req.body.customer_name,
-        cus_address: req.body.cus_address,
+        customer_address: req.body.customer_address,
         cus_tel: req.body.cus_tel,
         cus_email: req.body.cus_email,
         cus_tax: req.body.cus_tax,
@@ -217,7 +217,7 @@ class QuotationSaleController {
         await Customer.update(
           {
             customer_name: req.body.customer_name,
-            cus_address: req.body.cus_address,
+            customer_address: req.body.customer_address,
             cus_tel: req.body.cus_tel,
             cus_email: req.body.cus_email,
             cus_tax: req.body.cus_tax,
@@ -645,7 +645,7 @@ class QuotationSaleController {
           employee_name: log.employee.first_name + " " + log.employee.last_name,
           customer_id: log.customer_id,
           customer_name: log.customer.customer_name,
-          cus_address: log.customer.cus_address,
+          customer_address: log.customer.customer_address,
           cus_tel: log.customer.cus_tel,
           cus_email: log.customer.cus_email,
           cus_tax: log.customer.cus_tax,
@@ -716,7 +716,7 @@ class QuotationSaleController {
           employee_name: `${sale.first_name} ${sale.last_name}`,
           customer_id: sale.customer_id,
           customer_name: sale.customer_name,
-          cus_address: sale.cus_address,
+          customer_address: sale.customer_address,
           cus_tel: sale.cus_tel,
           cus_email: sale.cus_email,
           cus_tax: sale.cus_tax,
@@ -805,7 +805,7 @@ class QuotationSaleController {
           employee_name: `${sale.first_name} ${sale.last_name}`,
           customer_id: sale.customer_id,
           customer_name: sale.customer_name,
-          cus_address: sale.cus_address,
+          customer_address: sale.customer_address,
           cus_tel: sale.cus_tel,
           cus_email: sale.cus_email,
           cus_tax: sale.cus_tax,
@@ -1210,7 +1210,7 @@ class QuotationSaleController {
           employee_name: `${sale.first_name} ${sale.last_name}`,
           customer_id: sale.customer_id,
           customer_name: sale.customer_name,
-          cus_address: sale.cus_address,
+          customer_address: sale.customer_address,
           cus_tel: sale.cus_tel,
           cus_email: sale.cus_email,
           cus_tax: sale.cus_tax,
