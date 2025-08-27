@@ -166,7 +166,7 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-    vatType: {
+    vat_type: {
       type: DataTypes.STRING(15),
       allowNull: true,
     },

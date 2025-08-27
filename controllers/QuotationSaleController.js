@@ -457,7 +457,7 @@ class QuotationSaleController {
         remark: req.body.remark,
         remarkInfernal: req.body.remarkInfernal,
         discount_quotation: req.body.discount_quotation,
-        vatType: req.body.vatType,
+        vat_type: req.body.vat_type,
       });
 
       const products = req.body.products;
@@ -576,7 +576,7 @@ class QuotationSaleController {
           remark: req.body.remark,
           remarkInfernal: req.body.remarkInfernal,
           discount_quotation: req.body.discount_quotation,
-          vatType: req.body.vatType,
+          vat_type: req.body.vat_type,
         },
         {
           where: {
@@ -656,7 +656,7 @@ class QuotationSaleController {
           remark: log.remark,
           remarkInfernal: log.remarkInfernal,
           discount_quotation: log.discount_quotation,
-          vatType: log.vatType,
+          vat_type: log.vat_type,
           vat: log.vat,
           deleted_at: log.deleted_at,
           invoice:
@@ -729,7 +729,7 @@ class QuotationSaleController {
           invoice_status: sale.invoice_status,
           invoice_date: sale.invoice_date,
           invoice_remark: sale.invoices_remark,
-          vatType: sale.vatType,
+          vat_type: sale.vat_type,
           discount_quotation: sale.discount_quotation,
           deleted_at: sale.invoice_deleted_at,
           billing:
@@ -818,7 +818,7 @@ class QuotationSaleController {
           invoice_status: sale.invoice_status,
           invoice_date: sale.invoice_date,
           invoice_remark: sale.remark,
-          vatType: sale.vatType,
+          vat_type: sale.vat_type,
           deleted_at: sale.tax_invoice_deleted_at,
           discount_quotation: sale.discount_quotation,
           billing:
@@ -1226,7 +1226,7 @@ class QuotationSaleController {
           billing_status: sale.billing_status,
           payments: sale.payments,
           remark: sale.billings_remark,
-          vatType: sale.vatType,
+          vat_type: sale.vat_type,
           deleted_at: sale.billings_deleted_at,
           discount_quotation: sale.discount_quotation,
           billing:
