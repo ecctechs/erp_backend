@@ -170,7 +170,7 @@ const Quotation_sale = sequelize.define(
       type: DataTypes.STRING(15),
       allowNull: true,
     },
-    remarkInfernal: {
+    remark_infernal: {
       type: DataTypes.STRING(255),
       allowNull: true,
     },
