@@ -207,7 +207,7 @@ const Quotation_sale_detail = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    discounttype: {
+    discount_type: {
       type: DataTypes.STRING(40),
       allowNull: false,
     },
