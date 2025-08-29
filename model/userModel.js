@@ -36,7 +36,7 @@ const User = sequelize.define(
     access_token: {
       type: DataTypes.STRING,
     },
-    TokenCreate: {
+    token_create: {
       type: DataTypes.STRING,
     },
     bus_id: {

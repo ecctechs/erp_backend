@@ -109,7 +109,7 @@ class AuthController {
             user_email: user.user_email,
             role_id: user.role_id,
             role_name: user.role.role_name,
-            TokenCreate: user.TokenCreate,
+            token_create: user.token_create,
           });
         } else {
           // isError = true;
@@ -187,7 +187,7 @@ class AuthController {
         where: {
           bus_id: bus_id,
         },
-        order: [["TokenCreate", "ASC"]],
+        order: [["token_create", "ASC"]],
       });
 
       const hashedPassword = req.body.user_password;
@@ -200,7 +200,7 @@ class AuthController {
         user_password: hashedPassword,
         role_id: req.body.role_id,
         bus_id: bus_id,
-        TokenCreate: oldestUser ? oldestUser.TokenCreate : null,
+        token_create: oldestUser ? oldestUser.token_create : null,
       });
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
     } catch (err) {
@@ -293,7 +293,7 @@ class AuthController {
           user_password: hashedPassword, 
           role_id: 1,
           bus_id: createdBusiness.bus_id,
-          TokenCreate: thaiDateString,
+          token_create: thaiDateString,
         });
 
         await Employee.create({
