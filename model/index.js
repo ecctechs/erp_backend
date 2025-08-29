@@ -22,9 +22,9 @@ Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
 Business.hasMany(Company_person, { foreignKey: "bus_id" });
 
 // --- User & Auth Associations ---
-User.belongsTo(Role, { foreignKey: "RoleID" });
+User.belongsTo(Role, { foreignKey: "role_id" });
 User.belongsTo(Business, { foreignKey: "bus_id" });
-Role.hasMany(User, { foreignKey: "RoleID" });
+Role.hasMany(User, { foreignKey: "role_id" });
 
 // --- Employee & HR Associations ---
 Employee.belongsTo(Position, { foreignKey: "position_id" });

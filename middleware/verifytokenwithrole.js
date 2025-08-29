@@ -20,8 +20,8 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
       return next();
     }
 
-    User.belongsTo(Role, { foreignKey: "RoleID" });
-    Role.hasMany(User, { foreignKey: "RoleID" });
+    User.belongsTo(Role, { foreignKey: "role_id" });
+    Role.hasMany(User, { foreignKey: "role_id" });
 
 
     console.log(requiredRoles);
@@ -31,14 +31,14 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
         {
           model: Role,
           where: {
-            RoleName: {
+            role_name: {
               [Op.in]: requiredRoles,
             },
           },
         },
       ],
       where: {
-        userID: decoded.userID,
+        user_id: decoded.user_id,
         accessToken: token,
       },
     })
@@ -47,7 +47,7 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
           return next();
         }
 
-        const userRoles = users.map((u) => u.role.RoleName);
+        const userRoles = users.map((u) => u.role.role_name);
 
         if (!Array.isArray(userRoles)) {
           return next();
@@ -65,7 +65,7 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
 
         req.userData = { 
           ...req.userData,
-          userId: req.user.userID, 
+          userId: req.user.user_id, 
           role: req.user.userRole };
         next();
       })
@@ -147,7 +147,7 @@ const verifyTokenWithbus_id = async (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized: Invalid token" });
       }
 
-      const userIDFromToken = decoded.userID;
+      const userIDFromToken = decoded.user_id;
 
       try {
         const user = await User.findOne({
@@ -158,7 +158,7 @@ const verifyTokenWithbus_id = async (req, res, next) => {
             },
           ],
           where: {
-            userID: userIDFromToken,
+            user_id: userIDFromToken,
             accessToken: token, 
           },
         });
@@ -171,7 +171,7 @@ const verifyTokenWithbus_id = async (req, res, next) => {
 
         req.userData = {
           ...req.userData,
-          userId: user.userID,
+          userId: user.user_id,
           bus_id: user.business.bus_id, 
         };
 

@@ -414,7 +414,7 @@ class EmployeeController {
 
   static async getPayment(req, res) {
     try {
-      const { userRole, userID, userEmail } = req.userData;
+      const { userRole, user_id, userEmail } = req.userData;
       const { bus_id } = req.userData;
 
       let result = [];
@@ -452,7 +452,7 @@ class EmployeeController {
   }
   static async getEmployeeSalary(req, res) {
     try {
-      const { userRole, userID, userEmail } = req.userData;
+      const { userRole, user_id, userEmail } = req.userData;
       const { bus_id } = req.userData;
 
       let result = [];
@@ -612,7 +612,7 @@ class EmployeeController {
   static async getEmployeeQuotation(req, res) {
     try {
 
-      const { userRole, userID, userEmail } = req.userData;
+      const { userRole, user_id, userEmail } = req.userData;
 
       const { bus_id } = req.userData;
       let result = [];
@@ -1014,7 +1014,7 @@ class EmployeeController {
   }
   static async getLeave(req, res) {
     try {
-      const { userRole, userID, userEmail } = req.userData;
+      const { userRole, user_id, userEmail } = req.userData;
       const { bus_id } = req.userData;
       let data_leave;
 
@@ -1117,7 +1117,7 @@ class EmployeeController {
   }
   static async getOvertime(req, res) {
     try {
-      const { userRole, userID, userEmail } = req.userData;
+      const { userRole, user_id, userEmail } = req.userData;
       const { bus_id } = req.userData;
       let data_overtime;
 

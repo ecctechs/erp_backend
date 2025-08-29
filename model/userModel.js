@@ -4,7 +4,7 @@ const sequelize = require("../database");
 const User = sequelize.define(
   "users",
   {
-    userID: {
+    user_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -29,7 +29,7 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    RoleID: {
+    role_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -56,12 +56,12 @@ const User = sequelize.define(
 const Role = sequelize.define(
   "roles",
   {
-    RoleID: {
+    role_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    RoleName: {
+    role_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },

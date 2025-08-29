@@ -24,10 +24,10 @@ class TokenManager {
   static async update_token(req) {
     try {
       const token = req.headers.authorization.split(" ")[1];
-      const { userID } = jwt.decode(token);
+      const { user_id } = jwt.decode(token);
 
-      User.belongsTo(Role, { foreignKey: "RoleID" });
-      Role.hasMany(User, { foreignKey: "RoleID" });
+      User.belongsTo(Role, { foreignKey: "role_id" });
+      Role.hasMany(User, { foreignKey: "role_id" });
 
       User.belongsTo(Business, { foreignKey: "bus_id" });
       Business.hasMany(User, { foreignKey: "bus_id" });
@@ -37,7 +37,7 @@ class TokenManager {
           { model: Role },
           { model: Business },
         ],
-        where: { userID: userID },
+        where: { user_id: user_id },
       });
 
       if (users.length === 0) {
@@ -45,10 +45,10 @@ class TokenManager {
       }
 
       const payload = {
-        userID: users[0].userID,
+        user_id: users[0].user_id,
         bus_id: users[0].bus_id,
-        RoleID: users[0].RoleID,
-        RoleName: users[0].role.RoleName,
+        role_id: users[0].role_id,
+        role_name: users[0].role.role_name,
         userEmail: users[0].userEmail,
       };
 

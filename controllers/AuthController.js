@@ -75,10 +75,10 @@ class AuthController {
           // หากไม่มี Token เดิมในฐานข้อมูล ให้สร้างใหม่
           if (!token) {
             const payload = {
-              userID: user.userID,
+              user_id: user.user_id,
               userF_name: user.userF_name,
               userEmail: user.userEmail,
-              userRole: user.role.RoleName,
+              userRole: user.role.role_name,
             };
 
             token = TokenManager.getGenerateAccessToken(payload);
@@ -88,15 +88,15 @@ class AuthController {
               {
                 accessToken: token,
               },
-              { where: { userID: user.userID } }
+              { where: { user_id: user.user_id } }
             );
           }
 
           // บันทึกกิจกรรมของผู้ใช้
           const bodyString = JSON.stringify(req.body);
           await logUserActivity(
-            user.userID,
-            `Read/login/${user.role.RoleName}`,
+            user.user_id,
+            `Read/login/${user.role.role_name}`,
             "Login",
             bodyString
           );
@@ -104,11 +104,11 @@ class AuthController {
           // ส่งข้อมูล Token และรายละเอียดผู้ใช้กลับไป
           return res.json({
             token,
-            userID: user.userID,
+            user_id: user.user_id,
             userF_name: user.userF_name,
             userEmail: user.userEmail,
-            RoleID: user.RoleID,
-            RoleName: user.role.RoleName,
+            role_id: user.role_id,
+            role_name: user.role.role_name,
             TokenCreate: user.TokenCreate,
           });
         } else {
@@ -198,7 +198,7 @@ class AuthController {
         userPhone: req.body.userPhone,
         userEmail: req.body.userEmail,
         userPassword: hashedPassword,
-        RoleID: req.body.RoleID,
+        role_id: req.body.role_id,
         bus_id: bus_id,
         TokenCreate: oldestUser ? oldestUser.TokenCreate : null,
       });
@@ -291,7 +291,7 @@ class AuthController {
           userPhone: req.body.userPhone,
           userEmail: req.body.userEmail,
           userPassword: hashedPassword, 
-          RoleID: 1,
+          role_id: 1,
           bus_id: createdBusiness.bus_id,
           TokenCreate: thaiDateString,
         });
@@ -336,7 +336,7 @@ class AuthController {
     try {
       const editemp = await User.findOne({
         where: {
-          userID: req.params.id,
+          user_id: req.params.id,
         },
       });
       if (editemp) {
@@ -350,19 +350,19 @@ class AuthController {
                 [Op.or]: [
                   {
                     userEmail: req.body.userEmail,
-                    userID: { [Op.ne]: req.params.id },
+                    user_id: { [Op.ne]: req.params.id },
                   },
                   {
                     userF_name: req.body.userF_name,
-                    userID: { [Op.ne]: req.params.id },
+                    user_id: { [Op.ne]: req.params.id },
                   },
                   {
                     userL_name: req.body.userL_name,
-                    userID: { [Op.ne]: req.params.id },
+                    user_id: { [Op.ne]: req.params.id },
                   },
                   {
                     userPassword: req.body.userPassword,
-                    userID: { [Op.ne]: req.params.id },
+                    user_id: { [Op.ne]: req.params.id },
                   },
                 ],
               },
@@ -386,11 +386,11 @@ class AuthController {
             userPhone: req.body.userPhone,
             userEmail: req.body.userEmail,
             userPassword: hashedPassword,
-            RoleID: req.body.RoleID,
+            role_id: req.body.role_id,
           },
           {
             where: {
-              userID: req.params.id,
+              user_id: req.params.id,
             },
           }
         );
@@ -424,7 +424,7 @@ class AuthController {
   }
 
   static async GetUserByID(req, res) {
-    User.belongsTo(Role, { foreignKey: "RoleID" });
+    User.belongsTo(Role, { foreignKey: "role_id" });
     try {
       const Users = await User.findOne({
         include: [
@@ -433,7 +433,7 @@ class AuthController {
           },
         ],
         where: {
-          userID: req.params.id,
+          user_id: req.params.id,
         },
       });
 
@@ -447,7 +447,7 @@ class AuthController {
     try {
       const deletecate = await User.findOne({
         where: {
-          userID: req.params.id,
+          user_id: req.params.id,
         },
       });
       const UserGetAll = await User.findAll();
@@ -463,7 +463,7 @@ class AuthController {
         } else {
           await User.destroy({
             where: {
-              userID: req.params.id,
+              user_id: req.params.id,
             },
           });
           return ResponseManager.SuccessResponse(req, res, 200, "User Deleted");
@@ -555,7 +555,7 @@ class AuthController {
     try {
       const addcate = await Role.findOne({
         where: {
-          RoleName: req.body.RoleName,
+          role_name: req.body.role_name,
         },
       });
       if (addcate) {
@@ -567,7 +567,7 @@ class AuthController {
         );
       } else {
         const insert_cate = await Role.create({
-          RoleName: req.body.RoleName,
+          role_name: req.body.role_name,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -581,14 +581,14 @@ class AuthController {
     try {
       const editemp = await Role.findOne({
         where: {
-          RoleID: req.params.id,
+          role_id: req.params.id,
         },
       });
       if (editemp) {
         const existingUser = await Role.findOne({
           where: {
-            RoleName: req.body.RoleName,
-            RoleID: { [Op.ne]: req.params.id }, // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
+            role_name: req.body.role_name,
+            role_id: { [Op.ne]: req.params.id }, // ตรวจสอบสินค้าที่ไม่ใช่สินค้าปัจจุบัน
           },
         });
 
@@ -604,11 +604,11 @@ class AuthController {
 
         await Role.update(
           {
-            RoleName: req.body.RoleName,
+            role_name: req.body.role_name,
           },
           {
             where: {
-              RoleID: req.params.id,
+              role_id: req.params.id,
             },
           }
         );
@@ -623,13 +623,13 @@ class AuthController {
     try {
       const deletecate = await Role.findOne({
         where: {
-          RoleID: req.params.id,
+          role_id: req.params.id,
         },
       });
       if (deletecate) {
         await Role.destroy({
           where: {
-            RoleID: req.params.id,
+            role_id: req.params.id,
           },
         });
         return ResponseManager.SuccessResponse(req, res, 200, "Role Deleted");

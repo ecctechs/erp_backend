@@ -1439,7 +1439,7 @@ class QuotationSaleController {
         ],
         where: {
           bus_id: bus_id,
-          userID: userId,
+          user_id: userId,
         },
       });
 
