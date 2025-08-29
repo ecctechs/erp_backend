@@ -10,9 +10,9 @@ class TokenManager {
 
   static checkAuthentication(request) {
     try {
-      let accessToken = request.headers.authorization.split(" ")[1];
+      let access_token = request.headers.authorization.split(" ")[1];
       let jwtResponse = jwt.verify(
-        String(accessToken),
+        String(access_token),
         tokenData["secret_key"]
       );
       return jwtResponse;

@@ -33,7 +33,7 @@ const User = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    accessToken: {
+    access_token: {
       type: DataTypes.STRING,
     },
     TokenCreate: {

@@ -39,7 +39,7 @@ const verifyTokenWithRole = (requiredRoles) => (req, res, next) => {
       ],
       where: {
         user_id: decoded.user_id,
-        accessToken: token,
+        access_token: token,
       },
     })
       .then((users) => {
@@ -159,7 +159,7 @@ const verifyTokenWithbus_id = async (req, res, next) => {
           ],
           where: {
             user_id: userIDFromToken,
-            accessToken: token, 
+            access_token: token, 
           },
         });
 

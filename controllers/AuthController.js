@@ -70,7 +70,7 @@ class AuthController {
         const storedPassword = user.user_password;
 
         if (user_password === storedPassword) {
-          let token = user.accessToken;
+          let token = user.access_token;
 
           // หากไม่มี Token เดิมในฐานข้อมูล ให้สร้างใหม่
           if (!token) {
@@ -86,7 +86,7 @@ class AuthController {
             // อัปเดต Token และเวลาที่สร้างในฐานข้อมูล
             await User.update(
               {
-                accessToken: token,
+                access_token: token,
               },
               { where: { user_id: user.user_id } }
             );
