@@ -46,15 +46,15 @@ class AuthController {
         " " +
         dateObject.toLocaleTimeString("th");
 
-      const { user_email, userPassword } = req.body;
+      const { user_email, user_password } = req.body;
 
       // ตรวจสอบว่ามี email และ Password
-      if (!user_email || !userPassword) {
+      if (!user_email || !user_password) {
         return ResponseManager.ErrorResponse(
           req,
           res,
           400,
-          "user_email and userPassword are required"
+          "user_email and user_password are required"
         );
       }
 
@@ -67,9 +67,9 @@ class AuthController {
       // ตรวจสอบว่าผู้ใช้มีอยู่หรือไม่
       if (users.length > 0) {
         const user = users[0];
-        const storedPassword = user.userPassword;
+        const storedPassword = user.user_password;
 
-        if (userPassword === storedPassword) {
+        if (user_password === storedPassword) {
           let token = user.accessToken;
 
           // หากไม่มี Token เดิมในฐานข้อมูล ให้สร้างใหม่
@@ -190,14 +190,14 @@ class AuthController {
         order: [["TokenCreate", "ASC"]],
       });
 
-      const hashedPassword = req.body.userPassword;
+      const hashedPassword = req.body.user_password;
       const insert_cate = await User.create({
         user_title: "Mr.",
         user_first_name: req.body.user_first_name,
         user_last_name: req.body.user_last_name,
         user_phone: req.body.user_phone,
         user_email: req.body.user_email,
-        userPassword: hashedPassword,
+        user_password: hashedPassword,
         role_id: req.body.role_id,
         bus_id: bus_id,
         TokenCreate: oldestUser ? oldestUser.TokenCreate : null,
@@ -276,7 +276,7 @@ class AuthController {
       }
 
       if (createdBusiness) {
-        const hashedPassword = req.body.userPassword;
+        const hashedPassword = req.body.user_password;
         const timestamp = Date.now();
         const dateObject = new Date(timestamp);
         const thaiDateString =
@@ -290,7 +290,7 @@ class AuthController {
           user_last_name: req.body.user_last_name,
           user_phone: req.body.user_phone,
           user_email: req.body.user_email,
-          userPassword: hashedPassword, 
+          user_password: hashedPassword, 
           role_id: 1,
           bus_id: createdBusiness.bus_id,
           TokenCreate: thaiDateString,
@@ -361,7 +361,7 @@ class AuthController {
                     user_id: { [Op.ne]: req.params.id },
                   },
                   {
-                    userPassword: req.body.userPassword,
+                    user_password: req.body.user_password,
                     user_id: { [Op.ne]: req.params.id },
                   },
                 ],
@@ -378,14 +378,14 @@ class AuthController {
             "email,UserName,LastName,Password already exists"
           );
         }
-        const hashedPassword = req.body.userPassword;
+        const hashedPassword = req.body.user_password;
         await User.update(
           {
             user_first_name: req.body.user_first_name,
             user_last_name: req.body.user_last_name,
             user_phone: req.body.user_phone,
             user_email: req.body.user_email,
-            userPassword: hashedPassword,
+            user_password: hashedPassword,
             role_id: req.body.role_id,
           },
           {
@@ -487,7 +487,7 @@ class AuthController {
       if (editemp) {
         const editpassword = await User.findAll({
           where: {
-            userPassword: req.body.userPassword,
+            user_password: req.body.user_password,
           },
         });
 
@@ -501,7 +501,7 @@ class AuthController {
         } else {
           await User.update(
             {
-              userPassword: req.body.userPassword,
+              user_password: req.body.user_password,
             },
             {
               where: {
