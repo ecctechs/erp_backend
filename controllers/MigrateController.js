@@ -110,13 +110,13 @@ class MigrateController {
     try {
       const tableName = req.params.tableName;
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const data = await sequelize.query(
-        `SELECT * FROM ${tableName} WHERE bus_id = :bus_id`,
+        `SELECT * FROM ${tableName} WHERE business_id = :business_id`,
         {
           type: Sequelize.QueryTypes.SELECT,
-          replacements: { bus_id },
+          replacements: { business_id },
         }
       );
 
@@ -130,7 +130,7 @@ class MigrateController {
         "product_type_id",
         "category_id",
         "product_img",
-        "bus_id",
+        "business_id",
       ];
 
       // ลบคีย์ที่ไม่ต้องการออกจากข้อมูล

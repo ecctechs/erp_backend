@@ -17,12 +17,12 @@ const { create_employee_rows, create_payment_rows } = require('../helpers/collec
 class EmployeeController {
   static async getEmployee(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
    
       var employees = await Employee.findAll({
         include: [{ model: Position }, { model: Department }],
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
           first_name: {
             [Op.not]: "-",
           },
@@ -44,7 +44,7 @@ class EmployeeController {
   static async AddEmployee(req, res) {
     try {
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const esistingempNID = await Employee.findOne({
         where: {
@@ -104,7 +104,7 @@ class EmployeeController {
         bank_account_id: req.body.bank_account_id,
         position_id: req.body.position_id,
         department_id: req.body.department_id,
-        bus_id: bus_id,
+        business_id: business_id,
         employee_status: "active",
       });
       console.log(req.body);
@@ -230,12 +230,12 @@ class EmployeeController {
   static async AddDepartment(req, res) {
     try {
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const adddepart = await Department.findOne({
         where: {
           department_name: req.body.department_name,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (adddepart) {
@@ -248,7 +248,7 @@ class EmployeeController {
       } else {
         const insert_depart = await Department.create({
           department_name: req.body.department_name,
-          bus_id: bus_id,
+          business_id: business_id,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_depart);
@@ -382,10 +382,10 @@ class EmployeeController {
 
   static async getDepartment(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
       const departments = await Department.findAll({
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -399,7 +399,7 @@ class EmployeeController {
         const employee = await Employee.findAll({
           where: {
             department_id: departments[property].department_id.toString(),
-            bus_id: bus_id,
+            business_id: business_id,
           },
         });
 
@@ -415,7 +415,7 @@ class EmployeeController {
   static async getPayment(req, res) {
     try {
       const { userRole, user_id, user_email } = req.userData;
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       let result = [];
       let paymentslist = [];
@@ -423,7 +423,7 @@ class EmployeeController {
       if (userRole === "SUPERUSER" || userRole === "MANAGER") {
         paymentslist = await Salary_pay.findAll({
           include: [{ model: Employee, include: [Position, Department] }],
-          where: { bus_id: bus_id },
+          where: { business_id: business_id },
         });
 
         result = create_payment_rows(paymentslist);
@@ -439,7 +439,7 @@ class EmployeeController {
               include: [Position, Department],
             },
           ],
-          where: { bus_id: bus_id },
+          where: { business_id: business_id },
         });
 
          result = create_payment_rows(paymentslist);
@@ -453,7 +453,7 @@ class EmployeeController {
   static async getEmployeeSalary(req, res) {
     try {
       const { userRole, user_id, user_email } = req.userData;
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       let result = [];
       let employeeslist = [];
@@ -461,7 +461,7 @@ class EmployeeController {
       if (userRole === "SUPERUSER") {
         employeeslist = await Employee.findAll({
           where: {
-            bus_id: bus_id,
+            business_id: business_id,
             first_name: {
               [Op.ne]: "-",
             },
@@ -478,7 +478,7 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           where: {
             email: user_email,
-            bus_id: bus_id,
+            business_id: business_id,
             first_name: {
               [Op.ne]: "-",
             },
@@ -517,7 +517,7 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           where: {
             department_id: userdepart,
-            bus_id: bus_id,
+            business_id: business_id,
             email: {
               [Op.ne]: user_email,
             },
@@ -614,14 +614,14 @@ class EmployeeController {
 
       const { userRole, user_id, user_email } = req.userData;
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
       let result = [];
       let employeeslist = [];
 
       if (userRole === "SUPERUSER") {
         employeeslist = await Employee.findAll({
           where: {
-            bus_id: bus_id,
+            business_id: business_id,
             first_name: {
               [Op.ne]: "-",
             },
@@ -638,7 +638,7 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           where: {
             email: user_email,
-            bus_id: bus_id,
+            business_id: business_id,
             first_name: {
               [Op.ne]: "-",
             },
@@ -677,7 +677,7 @@ class EmployeeController {
         employeeslist = await Employee.findAll({
           where: {
             department_id: userdepart,
-            bus_id: bus_id,
+            business_id: business_id,
             email: {
               [Op.ne]: user_email,
             },
@@ -701,12 +701,12 @@ class EmployeeController {
   }
   static async AddPosition(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const adddepart = await Position.findOne({
         where: {
           position_name: req.body.position_name,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (adddepart) {
@@ -719,7 +719,7 @@ class EmployeeController {
       } else {
         const insert_depart = await Position.create({
           position_name: req.body.position_name,
-          bus_id: bus_id,
+          business_id: business_id,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_depart);
@@ -817,11 +817,11 @@ class EmployeeController {
 
   static async getPosition(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const Positions = await Position.findAll({
         where: {
-          bus_id: bus_id, // กรองข้อมูลที่ bus_id ตรงกับที่ผู้ใช้มี
+          business_id: business_id, // กรองข้อมูลที่ business_id ตรงกับที่ผู้ใช้มี
         },
       });
 
@@ -833,7 +833,7 @@ class EmployeeController {
 
   static async AddPayment(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       let datalist = [];
       var data_arry = {};
@@ -858,7 +858,7 @@ class EmployeeController {
             round: payment.round,
             year: payment.year,
             employee_id: payment.employee_id,
-            bus_id: bus_id,
+            business_id: business_id,
           },
         });
 
@@ -873,7 +873,7 @@ class EmployeeController {
           round: payment.round,
           month: payment.month,
           year: payment.year,
-          bus_id: bus_id,
+          business_id: business_id,
         });
       });
 
@@ -895,7 +895,7 @@ class EmployeeController {
   }
   static async AddPayment2(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       if (!req.body.payments || !Array.isArray(req.body.payments)) {
         return ResponseManager.ErrorResponse(
@@ -915,7 +915,7 @@ class EmployeeController {
             round: paymentData.round,
             year: paymentData.year,
             employee_id: paymentData.employee_id,
-            bus_id: bus_id,
+            business_id: business_id,
           },
         });
 
@@ -934,7 +934,7 @@ class EmployeeController {
               round: paymentData.round,
               month: paymentData.month,
               year: paymentData.year,
-              bus_id: bus_id,
+              business_id: business_id,
             })
           );
         }
@@ -1015,7 +1015,7 @@ class EmployeeController {
   static async getLeave(req, res) {
     try {
       const { userRole, user_id, user_email } = req.userData;
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
       let data_leave;
 
       if (userRole === "SUPERUSER") {
@@ -1023,7 +1023,7 @@ class EmployeeController {
           include: [
             {
               model: Employee,
-              where: { bus_id: bus_id },
+              where: { business_id: business_id },
             },
           ],
         });
@@ -1033,7 +1033,7 @@ class EmployeeController {
             {
               model: Employee,
               where: {
-                bus_id: bus_id,
+                business_id: business_id,
                 email: user_email,
               },
             },
@@ -1043,7 +1043,7 @@ class EmployeeController {
         const userData = await Employee.findOne({
           where: {
             email: user_email,
-            bus_id: bus_id,
+            business_id: business_id,
           },
           include: [
             {
@@ -1069,7 +1069,7 @@ class EmployeeController {
               model: Employee,
               where: {
                 department_id: userdepart,
-                bus_id: bus_id,
+                business_id: business_id,
                 email: {
                   [Op.ne]: user_email,
                 },
@@ -1118,7 +1118,7 @@ class EmployeeController {
   static async getOvertime(req, res) {
     try {
       const { userRole, user_id, user_email } = req.userData;
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
       let data_overtime;
 
       if (userRole === "SUPERUSER" || userRole === "MANAGER") {
@@ -1126,7 +1126,7 @@ class EmployeeController {
           include: [
             {
               model: Employee,
-              where: { bus_id: bus_id },
+              where: { business_id: business_id },
             },
           ],
         });
@@ -1136,7 +1136,7 @@ class EmployeeController {
             {
               model: Employee,
               where: {
-                bus_id: bus_id,
+                business_id: business_id,
                 email: user_email,
               },
             },

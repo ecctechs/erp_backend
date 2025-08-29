@@ -29,8 +29,8 @@ class TokenManager {
       User.belongsTo(Role, { foreignKey: "role_id" });
       Role.hasMany(User, { foreignKey: "role_id" });
 
-      User.belongsTo(Business, { foreignKey: "bus_id" });
-      Business.hasMany(User, { foreignKey: "bus_id" });
+      User.belongsTo(Business, { foreignKey: "business_id" });
+      Business.hasMany(User, { foreignKey: "business_id" });
 
       const users = await User.findAll({
         include: [
@@ -46,7 +46,7 @@ class TokenManager {
 
       const payload = {
         user_id: users[0].user_id,
-        bus_id: users[0].bus_id,
+        business_id: users[0].business_id,
         role_id: users[0].role_id,
         role_name: users[0].role.role_name,
         user_email: users[0].user_email,

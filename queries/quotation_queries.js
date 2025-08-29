@@ -7,12 +7,12 @@ const GET_TAX_INVOICES = `
     * FROM tax_invoices
   LEFT JOIN invoices ON invoices.invoice_id = tax_invoices.invoice_id
   LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
-  LEFT JOIN businesses ON businesses.bus_id = quotation_sales.bus_id
+  LEFT JOIN businesses ON businesses.business_id = quotation_sales.business_id
   LEFT JOIN banks ON banks.bank_id = businesses.bank_id
   LEFT JOIN customers ON quotation_sales.customer_id = customers.customer_id
   LEFT JOIN employees ON employees."employee_id"  = quotation_sales."employee_id" 
   LEFT JOIN billings ON billings.invoice_id = invoices.invoice_id 
-  WHERE quotation_sales.bus_id = :bus_id
+  WHERE quotation_sales.business_id = :business_id
   ORDER BY tax_invoices.tax_invoice_number ASC;
 `;
 
@@ -37,7 +37,7 @@ const GET_BILLINGS = `
   LEFT JOIN quotation_sales ON billings.sale_id = quotation_sales.sale_id
   LEFT JOIN customers ON quotation_sales.customer_id = customers.customer_id
   LEFT JOIN employees ON employees."employee_id"  = quotation_sales."employee_id" 
-  WHERE quotation_sales.bus_id = :bus_id
+  WHERE quotation_sales.business_id = :business_id
   ORDER BY invoices.invoice_number ASC;
 `;
 
@@ -47,12 +47,12 @@ const GET_INVOICES = `
     invoices.remark AS invoices_remark
   FROM invoices
   LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
-  LEFT JOIN businesses ON businesses.bus_id = quotation_sales.bus_id
+  LEFT JOIN businesses ON businesses.business_id = quotation_sales.business_id
   LEFT JOIN banks ON banks.bank_id = businesses.bank_id
   LEFT JOIN customers ON quotation_sales.customer_id = customers.customer_id
   LEFT JOIN employees ON employees."employee_id" = quotation_sales."employee_id" 
   LEFT JOIN billings ON billings.invoice_id = invoices.invoice_id 
-  WHERE quotation_sales.bus_id = :bus_id
+  WHERE quotation_sales.business_id = :business_id
   ORDER BY invoices.invoice_number ASC;
 `;
 

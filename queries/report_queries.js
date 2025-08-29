@@ -10,7 +10,7 @@ const GET_SALE_REPORT_BY_PRODUCT_TYPE = `
   FROM public.quotation_sale_details
   LEFT JOIN public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
   LEFT JOIN public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
-  WHERE public.products."bus_id" = :bus_id
+  WHERE public.products."business_id" = :business_id
     AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
   GROUP BY product_type;
 `;
@@ -24,7 +24,7 @@ const GET_SALE_REPORT_BY_CATEGORY = `
   LEFT JOIN public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
   LEFT JOIN public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
   LEFT JOIN public.product_categories ON public.products."category_id" = public.product_categories."category_id"
-  WHERE public.products."bus_id" = :bus_id
+  WHERE public.products."business_id" = :business_id
     AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
   GROUP BY public.product_categories."category_name";
 `;
@@ -39,7 +39,7 @@ const GET_SALE_REPORT_BY_PRODUCT_RANK = `
     FROM public.quotation_sale_details
     LEFT JOIN public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
     LEFT JOIN public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
-    WHERE public.products."bus_id" = :bus_id
+    WHERE public.products."business_id" = :business_id
       AND public.products."product_type_id" != 2
       AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
     GROUP BY public.products."product_name"
@@ -73,7 +73,7 @@ const GET_SALE_REPORT_BY_SERVICE = `
   FROM public.quotation_sale_details
   LEFT JOIN public.billings ON public.billings."sale_id" = public.quotation_sale_details."sale_id"
   LEFT JOIN public.products ON public.products."product_id" = public.quotation_sale_details."product_id"
-  WHERE public.products."bus_id" = :bus_id
+  WHERE public.products."business_id" = :business_id
     AND public.products."product_type_id" = 2
     AND public.billings."billing_date"::date BETWEEN :startDate AND :endDate
   GROUP BY public.products."product_name"

@@ -12,24 +12,24 @@ const { Product, productType, productCategory, Transaction, Expense } = require(
 
 // --- Business Associations ---
 Business.hasOne(Bank, { foreignKey: "bank_id" });
-Business.hasMany(User, { foreignKey: "bus_id" });
-Business.hasMany(Employee, { foreignKey: "bus_id" });
-Business.hasMany(Product, { foreignKey: "bus_id" });
-Business.hasMany(productCategory, { foreignKey: "bus_id" });
-Business.hasMany(Expense, { foreignKey: "bus_id" });
-Business.hasMany(Customer, { foreignKey: "bus_id" });
-Business.hasMany(Quotation_sale, { foreignKey: "bus_id" });
-Business.hasMany(Company_person, { foreignKey: "bus_id" });
+Business.hasMany(User, { foreignKey: "business_id" });
+Business.hasMany(Employee, { foreignKey: "business_id" });
+Business.hasMany(Product, { foreignKey: "business_id" });
+Business.hasMany(productCategory, { foreignKey: "business_id" });
+Business.hasMany(Expense, { foreignKey: "business_id" });
+Business.hasMany(Customer, { foreignKey: "business_id" });
+Business.hasMany(Quotation_sale, { foreignKey: "business_id" });
+Business.hasMany(Company_person, { foreignKey: "business_id" });
 
 // --- User & Auth Associations ---
 User.belongsTo(Role, { foreignKey: "role_id" });
-User.belongsTo(Business, { foreignKey: "bus_id" });
+User.belongsTo(Business, { foreignKey: "business_id" });
 Role.hasMany(User, { foreignKey: "role_id" });
 
 // --- Employee & HR Associations ---
 Employee.belongsTo(Position, { foreignKey: "position_id" });
 Employee.belongsTo(Department, { foreignKey: "department_id" });
-Employee.belongsTo(Business, { foreignKey: "bus_id" });
+Employee.belongsTo(Business, { foreignKey: "business_id" });
 Employee.hasMany(Quotation_sale, { foreignKey: "employee_id" });
 Employee.hasMany(Leaving, { foreignKey: "employee_id" });
 Employee.hasMany(Overtime, { foreignKey: "employee_id" });
@@ -38,33 +38,33 @@ Employee.hasMany(Leaving, { foreignKey: "employee_id" });
 Leaving.belongsTo(Employee, { foreignKey: "employee_id" });
 
 Department.hasMany(Employee, { foreignKey: "department_id" });
-Department.belongsTo(Business, { foreignKey: "bus_id" });
+Department.belongsTo(Business, { foreignKey: "business_id" });
 
 Position.hasMany(Employee, { foreignKey: "position_id" });
-Position.belongsTo(Business, { foreignKey: "bus_id" });
+Position.belongsTo(Business, { foreignKey: "business_id" });
 
 // --- Product & Inventory Associations ---
 Product.belongsTo(productCategory, { foreignKey: "category_id" });
 Product.belongsTo(productType, { foreignKey: "product_type_id" });
-Product.belongsTo(Business, { foreignKey: "bus_id" });
+Product.belongsTo(Business, { foreignKey: "business_id" });
 Product.hasMany(Transaction, { foreignKey: "product_id" });
 
 productCategory.hasMany(Product, { foreignKey: "category_id" });
-productCategory.belongsTo(Business, { foreignKey: "bus_id" });
+productCategory.belongsTo(Business, { foreignKey: "business_id" });
 productType.hasMany(Product, { foreignKey: "product_type_id" });
 
 Transaction.belongsTo(Product, { foreignKey: "product_id" });
-Expense.belongsTo(Business, { foreignKey: "bus_id" });
+Expense.belongsTo(Business, { foreignKey: "business_id" });
 
 // --- Customer, Quotation, Invoice, Billing Flow ---
-Customer.belongsTo(Business, { foreignKey: "bus_id" });
+Customer.belongsTo(Business, { foreignKey: "business_id" });
 Customer.hasMany(Quotation_sale, { foreignKey: "customer_id" });
 Customer.hasMany(Company_person, { foreignKey: "company_person_customer" });
 
 Company_person.belongsTo(Customer, { foreignKey: "company_person_customer" });
-Company_person.belongsTo(Business, { foreignKey: "bus_id" });
+Company_person.belongsTo(Business, { foreignKey: "business_id" });
 
-Quotation_sale.belongsTo(Business, { foreignKey: "bus_id" });
+Quotation_sale.belongsTo(Business, { foreignKey: "business_id" });
 Quotation_sale.belongsTo(Customer, { foreignKey: "customer_id" });
 Quotation_sale.belongsTo(Employee, { foreignKey: "employee_id" });
 Quotation_sale.hasMany(Quotation_sale_detail, { foreignKey: "sale_id" });

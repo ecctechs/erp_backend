@@ -130,8 +130,8 @@ const logUserActivity = (activityType, routeName) => {
 };
 
 const verifyTokenWithbus_id = async (req, res, next) => {
-  User.belongsTo(Business, { foreignKey: "bus_id" });
-  Business.hasMany(User, { foreignKey: "bus_id" });
+  User.belongsTo(Business, { foreignKey: "business_id" });
+  Business.hasMany(User, { foreignKey: "business_id" });
 
   try {
     if (!req.headers.authorization) {
@@ -154,7 +154,7 @@ const verifyTokenWithbus_id = async (req, res, next) => {
           include: [
             {
               model: Business,
-              attributes: ["bus_id", "business_name"],
+              attributes: ["business_id", "business_name"],
             },
           ],
           where: {
@@ -172,13 +172,13 @@ const verifyTokenWithbus_id = async (req, res, next) => {
         req.userData = {
           ...req.userData,
           userId: user.user_id,
-          bus_id: user.business.bus_id, 
+          business_id: user.business.business_id, 
         };
 
         next();
       } catch (dbError) {
         console.error(
-          "Error checking token and bus_id in the database:",
+          "Error checking token and business_id in the database:",
           dbError
         );
         return res.status(500).json({ message: "Internal Server Error" });

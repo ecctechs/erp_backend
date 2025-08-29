@@ -33,10 +33,10 @@ class QuotationSaleController {
 
   static async getCustomer(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const customer = await Customer.findAll({
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, customer);
@@ -47,12 +47,12 @@ class QuotationSaleController {
   
   static async addCustomer(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addCustomer = await Customer.findOne({
         where: {
           customer_name: req.body.customer_name,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addCustomer) {
@@ -67,7 +67,7 @@ class QuotationSaleController {
       const addCustomerPhone = await Customer.findOne({
         where: {
           customer_tel: req.body.customer_tel,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addCustomerPhone) {
@@ -82,7 +82,7 @@ class QuotationSaleController {
       const addCustomerTax = await Customer.findOne({
         where: {
           customer_tax: req.body.customer_tax,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addCustomerTax) {
@@ -100,7 +100,7 @@ class QuotationSaleController {
         customer_email: req.body.customer_email,
         customer_tax: req.body.customer_tax,
         customer_purchase: req.body.customer_purchase,
-        bus_id: bus_id,
+        business_id: business_id,
         customer_status: "active",
       });
 
@@ -393,7 +393,7 @@ class QuotationSaleController {
 
         await Business.update(productUpdateData, {
           where: {
-            bus_id: 1,
+            business_id: 1,
           },
         });
         await Bank.update(productUpdateData, {
@@ -410,12 +410,12 @@ class QuotationSaleController {
   
   static async addQuotationSale(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const existQuatationSale = await Quotation_sale.findOne({
         where: {
           sale_number: req.body.sale_number,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -431,7 +431,7 @@ class QuotationSaleController {
       const existCustomer = await Customer.findOne({
         where: {
           customer_id: req.body.customer_id,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -450,7 +450,7 @@ class QuotationSaleController {
         credit_date_number: req.body.credit_date_number,
         credit_expired_date: req.body.credit_expired_date,
         sale_totalprice: req.body.sale_totalprice,
-        bus_id: req.body.bus_id,
+        business_id: req.body.business_id,
         customer_id: req.body.customer_id,
         employee_id: req.body.employee_id,
         quotation_status: req.body.quotation_status,
@@ -473,7 +473,7 @@ class QuotationSaleController {
   }
   static async editQuotationSale(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
       const existQuatationSale = await Quotation_sale.findOne({
         where: {
           sale_id: req.params.id,
@@ -485,7 +485,7 @@ class QuotationSaleController {
           where: {
             sale_number: req.body.sale_number,
             sale_id: { [Op.ne]: req.params.id },
-            bus_id: bus_id,
+            business_id: business_id,
           },
         });
 
@@ -506,7 +506,7 @@ class QuotationSaleController {
         const lastInvoice = await Invoice.findOne({
           include: {
             model: Quotation_sale,
-            where: { bus_id },
+            where: { business_id },
           },
           order: [["invoice_number", "DESC"]],
         });
@@ -556,7 +556,7 @@ class QuotationSaleController {
             {
               where: {
                 sale_id: req.params.id,
-                bus_id: bus_id,
+                business_id: business_id,
               },
             }
           );
@@ -569,7 +569,7 @@ class QuotationSaleController {
           credit_date_number: req.body.credit_date_number,
           credit_expired_date: req.body.credit_expired_date,
           sale_totalprice: req.body.sale_totalprice,
-          bus_id: req.body.bus_id,
+          business_id: req.body.business_id,
           customer_id: req.body.customer_id,
           employee_id: req.body.employee_id,
           quotation_status: req.body.quotation_status,
@@ -581,7 +581,7 @@ class QuotationSaleController {
         {
           where: {
             sale_id: req.params.id,
-            bus_id: bus_id,
+            business_id: business_id,
           },
         }
       );
@@ -606,7 +606,7 @@ class QuotationSaleController {
   }
   static async getQuotation(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       let result = [];
       let quotationslist = [];
@@ -619,7 +619,7 @@ class QuotationSaleController {
           { model: Business, include: [Bank] },
           { model: Invoice },
         ],
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
         order: [["sale_number", "ASC"]], // <-- เรียงจากน้อยไปมาก
       });
       const today = new Date();
@@ -687,14 +687,14 @@ class QuotationSaleController {
     try {
       let result = [];
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       //  เรียกใช้ query สำหรับดึงข้อมูลหลัก
       const log = await sequelize.query(
         quotationQueries.GET_INVOICES,
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id },
+          replacements: { business_id },
         }
       );
 
@@ -771,14 +771,14 @@ class QuotationSaleController {
     try {
       let result = [];
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       //  ใช้ query ที่ import เข้ามา สำหรับดึงข้อมูลหลัก
       const log = await sequelize.query(
         quotationQueries.GET_TAX_INVOICES,
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id },
+          replacements: { business_id },
         }
       );
       
@@ -856,7 +856,7 @@ class QuotationSaleController {
 
   static async editTaxInvoice(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const existQuatationSale = await TaxInvoice.findOne({
         where: {
@@ -873,7 +873,7 @@ class QuotationSaleController {
           FROM billings
           LEFT JOIN invoices ON invoices.invoice_id = billings.invoice_id
           LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
-          WHERE quotation_sales.bus_id = '${bus_id}'
+          WHERE quotation_sales.business_id = '${business_id}'
           ORDER BY billings.billing_number DESC
           LIMIT 1
         `);
@@ -947,7 +947,7 @@ class QuotationSaleController {
         FROM quotation_sales
         WHERE tax_invoices.invoice_id = '${req.params.id}'
           AND quotation_sales.sale_id = tax_invoices.sale_id
-          AND quotation_sales.bus_id = '${req.userData.bus_id}'
+          AND quotation_sales.business_id = '${req.userData.business_id}'
       `);
 
       return ResponseManager.SuccessResponse(req, res, 200, "Invoice Saved");
@@ -1001,7 +1001,7 @@ class QuotationSaleController {
 
   static async editInvoice(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const existQuatationSale = await Invoice.findOne({
         where: {
@@ -1017,7 +1017,7 @@ class QuotationSaleController {
           },
           include: {
             model: Quotation_sale,
-            where: { bus_id },
+            where: { business_id },
           },
         });
 
@@ -1041,7 +1041,7 @@ class QuotationSaleController {
           FROM tax_invoices
           LEFT JOIN invoices ON invoices.invoice_id = tax_invoices.invoice_id
           LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
-          WHERE quotation_sales.bus_id = '${bus_id}'
+          WHERE quotation_sales.business_id = '${business_id}'
           ORDER BY tax_invoices.tax_invoice_number DESC
           LIMIT 1
         `);
@@ -1119,7 +1119,7 @@ class QuotationSaleController {
         FROM quotation_sales
         WHERE invoices.invoice_id = '${req.params.id}'
           AND quotation_sales.sale_id = invoices.sale_id
-          AND quotation_sales.bus_id = '${req.userData.bus_id}'
+          AND quotation_sales.business_id = '${req.userData.business_id}'
       `);
 
       return ResponseManager.SuccessResponse(req, res, 200, "Invoice Saved");
@@ -1180,13 +1180,13 @@ class QuotationSaleController {
     try {
       let result = [];
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const log = await sequelize.query(
         quotationQueries.GET_BILLINGS,
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id },
+          replacements: { business_id },
         }
       );
 
@@ -1266,7 +1266,7 @@ class QuotationSaleController {
 
   static async editBilling(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const existQuatationSale = await Billing.findOne({
         where: {
@@ -1286,7 +1286,7 @@ class QuotationSaleController {
         LEFT JOIN quotation_sales ON quotation_sales.sale_id = invoices.sale_id
         WHERE billings.billing_id = '${req.params.id}'
           AND invoices.invoice_id = billings.invoice_id
-          AND quotation_sales.bus_id = '${req.userData.bus_id}'
+          AND quotation_sales.business_id = '${req.userData.business_id}'
       `);
 
       return ResponseManager.SuccessResponse(req, res, 200, "Receipt Saved");
@@ -1401,10 +1401,10 @@ class QuotationSaleController {
   }
   static async checkLastestQuotation(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const lastestSale = await Quotation_sale.findOne({
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
         order: [["sale_number", "DESC"]],
       });
 
@@ -1424,7 +1424,7 @@ class QuotationSaleController {
   }
   static async getBusinessByID(req, res) {
     try {
-      const { bus_id, userId } = req.userData;
+      const { business_id, userId } = req.userData;
 
       const business = await User.findOne({
         include: [
@@ -1438,7 +1438,7 @@ class QuotationSaleController {
           },
         ],
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
           user_id: userId,
         },
       });
@@ -1462,7 +1462,7 @@ class QuotationSaleController {
     try {
       const editproduct = await Business.findOne({
         where: {
-          bus_id: req.params.id,
+          business_id: req.params.id,
         },
       });
 
@@ -1493,7 +1493,7 @@ class QuotationSaleController {
 
           await Business.update(productUpdateData, {
             where: {
-              bus_id: req.params.id,
+              business_id: req.params.id,
             },
           });
           await Bank.update(productUpdateData, {
@@ -1687,21 +1687,21 @@ class QuotationSaleController {
         SELECT * 
         FROM company_people
         LEFT JOIN customers ON customers.customer_id = company_people.company_person_customer
-        LEFT JOIN businesses ON businesses.bus_id = company_people.bus_id
+        LEFT JOIN businesses ON businesses.business_id = company_people.business_id
         `,
         {
           type: sequelize.QueryTypes.SELECT,
         }
       );
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       // Use 'let' if you intend to modify the array
       let customer = log;
 
-      // If you want to filter by `bus_id`, you can add filtering logic here
-      if (bus_id) {
-        customer = customer.filter((person) => person.bus_id === bus_id);
+      // If you want to filter by `business_id`, you can add filtering logic here
+      if (business_id) {
+        customer = customer.filter((person) => person.business_id === business_id);
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, customer);
@@ -1712,12 +1712,12 @@ class QuotationSaleController {
   static async addCompany(req, res) {
     try {
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addCustomer = await Company_person.findOne({
         where: {
           company_person_name: req.body.company_person_name,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addCustomer) {
@@ -1736,7 +1736,7 @@ class QuotationSaleController {
         company_person_email: req.body.company_person_email,
         company_person_customer: req.body.company_person_customer,
         company_person_status: "active",
-        bus_id: bus_id,
+        business_id: business_id,
         company_status: "active",
       });
 
@@ -1748,14 +1748,14 @@ class QuotationSaleController {
 
   static async GetSaleReportByProductType(req, res) {
     try {
-      const { bus_id } = req.userData;
-      const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
+      const { business_id } = req.userData;
+      const { startDate, endDate } = req.body; // รับ business_id, startDate, และ endDate จาก req.body
 
       const log = await sequelize.query(
         reportQueries.GET_SALE_REPORT_BY_PRODUCT_TYPE, 
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id, startDate, endDate },
+          replacements: { business_id, startDate, endDate },
         }
       );
 
@@ -1769,14 +1769,14 @@ class QuotationSaleController {
   }
   static async GetSaleReportByCategory(req, res) {
     try {
-      const { bus_id } = req.userData;
-      const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
+      const { business_id } = req.userData;
+      const { startDate, endDate } = req.body; // รับ business_id, startDate, และ endDate จาก req.body
 
       const log = await sequelize.query(
         reportQueries.GET_SALE_REPORT_BY_CATEGORY, // << แก้ไขตรงนี้
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id, startDate, endDate },
+          replacements: { business_id, startDate, endDate },
         }
       );
 
@@ -1791,14 +1791,14 @@ class QuotationSaleController {
 
   static async GetSaleReportByProdcutRank(req, res) {
     try {
-      const { bus_id } = req.userData;
-      const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
+      const { business_id } = req.userData;
+      const { startDate, endDate } = req.body; // รับ business_id, startDate, และ endDate จาก req.body
 
       const log = await sequelize.query(
         reportQueries.GET_SALE_REPORT_BY_PRODUCT_RANK, // << แก้ไขตรงนี้
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id, startDate, endDate },
+          replacements: { business_id, startDate, endDate },
         }
       );
 
@@ -1812,14 +1812,14 @@ class QuotationSaleController {
   }
   static async GetSaleReportByService(req, res) {
     try {
-      const { bus_id } = req.userData;
-      const { startDate, endDate } = req.body; // รับ bus_id, startDate, และ endDate จาก req.body
+      const { business_id } = req.userData;
+      const { startDate, endDate } = req.body; // รับ business_id, startDate, และ endDate จาก req.body
 
       const log = await sequelize.query(
         reportQueries.GET_SALE_REPORT_BY_SERVICE, // << แก้ไขตรงนี้
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { bus_id, startDate, endDate },
+          replacements: { business_id, startDate, endDate },
         }
       );
 

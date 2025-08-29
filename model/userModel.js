@@ -39,7 +39,7 @@ const User = sequelize.define(
     token_create: {
       type: DataTypes.STRING,
     },
-    bus_id: {
+    business_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

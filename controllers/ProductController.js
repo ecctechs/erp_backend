@@ -16,11 +16,11 @@ const {
 class ProductController {
   static async getProduct(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       var products = await Product.findAll({
         include: [productCategory, productType],
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
       });
       for (const product of products) {
         if (product.amount === 0 && product.product_type_id === 1) {
@@ -43,12 +43,12 @@ class ProductController {
   }
   static async getProductByProductType(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const ProductByProductType = await Product.findAll({
         where: {
           product_type_id: req.params.id,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       return ResponseManager.SuccessResponse(
@@ -64,12 +64,12 @@ class ProductController {
 
   static async AddProduct(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addproduct = await Product.findOne({
         where: {
           product_name: req.body.product_name.trim(),
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
@@ -120,7 +120,7 @@ class ProductController {
           category_id: req.body.category_id,
           product_img: result.secure_url,
           product_date: DateString,
-          bus_id: bus_id,
+          business_id: business_id,
           product_status: "Discontinued",
         });
 
@@ -215,12 +215,12 @@ class ProductController {
 
   static async AddCategory(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addcate = await productCategory.findOne({
         where: {
           category_name: req.body.category_name,
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
       if (addcate) {
@@ -233,7 +233,7 @@ class ProductController {
       } else {
         const insert_cate = await productCategory.create({
           category_name: req.body.category_name,
-          bus_id: bus_id,
+          business_id: business_id,
         });
         console.log(req.body);
         return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -301,12 +301,12 @@ class ProductController {
     try {
       const category_id = parseInt(req.params.id);
 
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const addcate = await productCategory.findOne({
         where: {
           category_name: "ไม่มีหมวดหมู่",
-          bus_id: bus_id,
+          business_id: business_id,
           category_id: category_id,
         },
       });
@@ -670,7 +670,7 @@ class ProductController {
 
   static async getTransaction(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       let result = [];
       let transaction_list = [];
@@ -679,7 +679,7 @@ class ProductController {
         include: [
           {
             model: Product,
-            where: { bus_id: bus_id },
+            where: { business_id: business_id },
           },
         ],
       });
@@ -769,11 +769,11 @@ class ProductController {
 
   static async getCategory(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const defaultCategory = await productCategory.findOne({
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
           category_name: "ไม่มีหมวดหมู่",
         },
       });
@@ -782,12 +782,12 @@ class ProductController {
       if (!defaultCategory) {
         await productCategory.create({
           category_name: "ไม่มีหมวดหมู่",
-          bus_id: bus_id,
+          business_id: business_id,
         });
       }
 
       const category_list = await productCategory.findAll({
-        where: { bus_id: bus_id },
+        where: { business_id: business_id },
       });
 
       return ResponseManager.SuccessResponse(req, res, 200, category_list);
@@ -798,10 +798,10 @@ class ProductController {
 
   static async getExpenses(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
 
       const expenses = await Expense.findAll({
-        where: { bus_id },
+        where: { business_id },
         include: [{ model: Business }],
       });
 
@@ -813,7 +813,7 @@ class ProductController {
 
   static async addExpenses(req, res) {
     try {
-      const { bus_id } = req.userData;
+      const { business_id } = req.userData;
       const {
         expense_date,
         expense_category,
@@ -826,7 +826,7 @@ class ProductController {
         expense_category: req.body.expense_category,
         expense_amount: req.body.expense_amount,
         quantity_remark: req.body.quantity_remark,
-        bus_id: bus_id,
+        business_id: business_id,
       });
 
       return ResponseManager.SuccessResponse(req, res, 201, newExpense);

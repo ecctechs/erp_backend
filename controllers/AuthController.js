@@ -136,7 +136,7 @@ class AuthController {
 
   static async RegisterUsers(req, res) {
 
-    const { bus_id } = req.userData;
+    const { business_id } = req.userData;
 
     try {
       const addemail = await User.findOne({
@@ -185,7 +185,7 @@ class AuthController {
 
       const oldestUser = await User.findOne({
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
         },
         order: [["token_create", "ASC"]],
       });
@@ -199,7 +199,7 @@ class AuthController {
         user_email: req.body.user_email,
         user_password: hashedPassword,
         role_id: req.body.role_id,
-        bus_id: bus_id,
+        business_id: business_id,
         token_create: oldestUser ? oldestUser.token_create : null,
       });
       return ResponseManager.SuccessResponse(req, res, 200, insert_cate);
@@ -292,7 +292,7 @@ class AuthController {
           user_email: req.body.user_email,
           user_password: hashedPassword, 
           role_id: 1,
-          bus_id: createdBusiness.bus_id,
+          business_id: createdBusiness.business_id,
           token_create: thaiDateString,
         });
 
@@ -312,7 +312,7 @@ class AuthController {
           bank_account_id: "",
           position_id: null,
           department_id: null,
-          bus_id: createdBusiness.bus_id,
+          business_id: createdBusiness.business_id,
           employee_status: "active",
         });
 
@@ -340,12 +340,12 @@ class AuthController {
         },
       });
       if (editemp) {
-        const { bus_id } = req.userData;
+        const { business_id } = req.userData;
 
         const existingUser = await User.findOne({
           where: {
             [Op.and]: [
-              { bus_id }, 
+              { business_id }, 
               {
                 [Op.or]: [
                   {
@@ -403,7 +403,7 @@ class AuthController {
 
   static async GetUsers(req, res) {
 
-    const { bus_id } = req.userData;
+    const { business_id } = req.userData;
 
     try {
       const Users = await User.findAll({
@@ -413,7 +413,7 @@ class AuthController {
           },
         ],
         where: {
-          bus_id: bus_id,
+          business_id: business_id,
         },
       });
 
