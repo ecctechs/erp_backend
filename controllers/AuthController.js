@@ -46,22 +46,22 @@ class AuthController {
         " " +
         dateObject.toLocaleTimeString("th");
 
-      const { userEmail, userPassword } = req.body;
+      const { user_email, userPassword } = req.body;
 
       // ตรวจสอบว่ามี email และ Password
-      if (!userEmail || !userPassword) {
+      if (!user_email || !userPassword) {
         return ResponseManager.ErrorResponse(
           req,
           res,
           400,
-          "userEmail and userPassword are required"
+          "user_email and userPassword are required"
         );
       }
 
       // ค้นหาผู้ใช้ในฐานข้อมูล
       const users = await User.findAll({
         include: [{ model: Role }],
-        where: { userEmail },
+        where: { user_email },
       });
 
       // ตรวจสอบว่าผู้ใช้มีอยู่หรือไม่
@@ -76,8 +76,8 @@ class AuthController {
           if (!token) {
             const payload = {
               user_id: user.user_id,
-              userF_name: user.userF_name,
-              userEmail: user.userEmail,
+              userFuser_first_name_name: user.user_first_name,
+              user_email: user.user_email,
               userRole: user.role.role_name,
             };
 
@@ -105,8 +105,8 @@ class AuthController {
           return res.json({
             token,
             user_id: user.user_id,
-            userF_name: user.userF_name,
-            userEmail: user.userEmail,
+            user_first_name: user.user_first_name,
+            user_email: user.user_email,
             role_id: user.role_id,
             role_name: user.role.role_name,
             TokenCreate: user.TokenCreate,
@@ -141,7 +141,7 @@ class AuthController {
     try {
       const addemail = await User.findOne({
         where: {
-          userEmail: req.body.userEmail,
+          user_email: req.body.user_email,
         },
       });
 
@@ -156,8 +156,8 @@ class AuthController {
 
       const addName = await User.findOne({
         where: {
-          userF_name: req.body.userF_name,
-          userL_name: req.body.userL_name,
+          user_first_name: req.body.user_first_name,
+          user_last_name: req.body.user_last_name,
         },
       });
       if (addName) {
@@ -171,7 +171,7 @@ class AuthController {
 
       const addPhone = await User.findOne({
         where: {
-          userPhone: req.body.userPhone,
+          user_phone: req.body.user_phone,
         },
       });
       if (addPhone) {
@@ -193,10 +193,10 @@ class AuthController {
       const hashedPassword = req.body.userPassword;
       const insert_cate = await User.create({
         user_title: "Mr.",
-        userF_name: req.body.userF_name,
-        userL_name: req.body.userL_name,
-        userPhone: req.body.userPhone,
-        userEmail: req.body.userEmail,
+        user_first_name: req.body.user_first_name,
+        user_last_name: req.body.user_last_name,
+        user_phone: req.body.user_phone,
+        user_email: req.body.user_email,
         userPassword: hashedPassword,
         role_id: req.body.role_id,
         bus_id: bus_id,
@@ -220,7 +220,7 @@ class AuthController {
       }
       const existingUser = await User.findOne({
         where: {
-          userEmail: req.body.userEmail,
+          user_email: req.body.user_email,
         },
       });
       if (existingUser) {
@@ -286,10 +286,10 @@ class AuthController {
 
         const insertUser = await User.create({
           user_title: req.body.user_title,
-          userF_name: req.body.userF_name,
-          userL_name: req.body.userL_name,
-          userPhone: req.body.userPhone,
-          userEmail: req.body.userEmail,
+          user_first_name: req.body.user_first_name,
+          user_last_name: req.body.user_last_name,
+          user_phone: req.body.user_phone,
+          user_email: req.body.user_email,
           userPassword: hashedPassword, 
           role_id: 1,
           bus_id: createdBusiness.bus_id,
@@ -298,13 +298,13 @@ class AuthController {
 
         await Employee.create({
           title: req.body.user_title,
-          first_name: req.body.userF_name,
-          last_name: req.body.userL_name,
+          first_name: req.body.user_first_name,
+          last_name: req.body.user_last_name,
           address: "",
           birth_date: "",
           national_id_number: "",
-          phone_number: req.body.userPhone,
-          email: req.body.userEmail,
+          phone_number: req.body.user_phone,
+          email: req.body.user_email,
           start_working_date: null,
           salary: 0,
           employee_type: "",
@@ -349,15 +349,15 @@ class AuthController {
               {
                 [Op.or]: [
                   {
-                    userEmail: req.body.userEmail,
+                    user_email: req.body.user_email,
                     user_id: { [Op.ne]: req.params.id },
                   },
                   {
-                    userF_name: req.body.userF_name,
+                    user_first_name: req.body.user_first_name,
                     user_id: { [Op.ne]: req.params.id },
                   },
                   {
-                    userL_name: req.body.userL_name,
+                    user_last_name: req.body.user_last_name,
                     user_id: { [Op.ne]: req.params.id },
                   },
                   {
@@ -381,10 +381,10 @@ class AuthController {
         const hashedPassword = req.body.userPassword;
         await User.update(
           {
-            userF_name: req.body.userF_name,
-            userL_name: req.body.userL_name,
-            userPhone: req.body.userPhone,
-            userEmail: req.body.userEmail,
+            user_first_name: req.body.user_first_name,
+            user_last_name: req.body.user_last_name,
+            user_phone: req.body.user_phone,
+            user_email: req.body.user_email,
             userPassword: hashedPassword,
             role_id: req.body.role_id,
           },
@@ -480,7 +480,7 @@ class AuthController {
     try {
       const editemp = await User.findAll({
         where: {
-          userEmail: req.body.userEmail,
+          user_email: req.body.user_email,
         },
       });
 
@@ -505,7 +505,7 @@ class AuthController {
             },
             {
               where: {
-                userEmail: req.body.userEmail,
+                user_email: req.body.user_email,
               },
             }
           );
@@ -527,7 +527,7 @@ class AuthController {
     try {
       const editemp = await User.findOne({
         where: {
-          userEmail: req.body.userEmail,
+          user_email: req.body.user_email,
         },
       });
 

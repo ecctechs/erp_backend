@@ -414,7 +414,7 @@ class EmployeeController {
 
   static async getPayment(req, res) {
     try {
-      const { userRole, user_id, userEmail } = req.userData;
+      const { userRole, user_id, user_email } = req.userData;
       const { bus_id } = req.userData;
 
       let result = [];
@@ -434,7 +434,7 @@ class EmployeeController {
             {
               model: Employee,
               where: {
-                email: userEmail,
+                email: user_email,
               },
               include: [Position, Department],
             },
@@ -452,7 +452,7 @@ class EmployeeController {
   }
   static async getEmployeeSalary(req, res) {
     try {
-      const { userRole, user_id, userEmail } = req.userData;
+      const { userRole, user_id, user_email } = req.userData;
       const { bus_id } = req.userData;
 
       let result = [];
@@ -477,7 +477,7 @@ class EmployeeController {
       } else if (userRole === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
-            email: userEmail,
+            email: user_email,
             bus_id: bus_id,
             first_name: {
               [Op.ne]: "-",
@@ -494,7 +494,7 @@ class EmployeeController {
       } else if (userRole === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            email: userEmail,
+            email: user_email,
           },
           include: [
             {
@@ -519,7 +519,7 @@ class EmployeeController {
             department_id: userdepart,
             bus_id: bus_id,
             email: {
-              [Op.ne]: userEmail,
+              [Op.ne]: user_email,
             },
             first_name: {
               [Op.ne]: "-",
@@ -612,7 +612,7 @@ class EmployeeController {
   static async getEmployeeQuotation(req, res) {
     try {
 
-      const { userRole, user_id, userEmail } = req.userData;
+      const { userRole, user_id, user_email } = req.userData;
 
       const { bus_id } = req.userData;
       let result = [];
@@ -637,7 +637,7 @@ class EmployeeController {
       } else if (userRole === "SALE") {
         employeeslist = await Employee.findAll({
           where: {
-            email: userEmail,
+            email: user_email,
             bus_id: bus_id,
             first_name: {
               [Op.ne]: "-",
@@ -654,7 +654,7 @@ class EmployeeController {
       } else if (userRole === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            email: userEmail,
+            email: user_email,
           },
           include: [
             {
@@ -679,7 +679,7 @@ class EmployeeController {
             department_id: userdepart,
             bus_id: bus_id,
             email: {
-              [Op.ne]: userEmail,
+              [Op.ne]: user_email,
             },
             first_name: {
               [Op.ne]: "-",
@@ -1014,7 +1014,7 @@ class EmployeeController {
   }
   static async getLeave(req, res) {
     try {
-      const { userRole, user_id, userEmail } = req.userData;
+      const { userRole, user_id, user_email } = req.userData;
       const { bus_id } = req.userData;
       let data_leave;
 
@@ -1034,7 +1034,7 @@ class EmployeeController {
               model: Employee,
               where: {
                 bus_id: bus_id,
-                email: userEmail,
+                email: user_email,
               },
             },
           ],
@@ -1042,7 +1042,7 @@ class EmployeeController {
       } else if (userRole === "MANAGER") {
         const userData = await Employee.findOne({
           where: {
-            email: userEmail,
+            email: user_email,
             bus_id: bus_id,
           },
           include: [
@@ -1071,7 +1071,7 @@ class EmployeeController {
                 department_id: userdepart,
                 bus_id: bus_id,
                 email: {
-                  [Op.ne]: userEmail,
+                  [Op.ne]: user_email,
                 },
               },
             },
@@ -1117,7 +1117,7 @@ class EmployeeController {
   }
   static async getOvertime(req, res) {
     try {
-      const { userRole, user_id, userEmail } = req.userData;
+      const { userRole, user_id, user_email } = req.userData;
       const { bus_id } = req.userData;
       let data_overtime;
 
@@ -1137,7 +1137,7 @@ class EmployeeController {
               model: Employee,
               where: {
                 bus_id: bus_id,
-                email: userEmail,
+                email: user_email,
               },
             },
           ],

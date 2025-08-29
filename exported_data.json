@@ -1,10 +1,10 @@
 [
   {
     "user_id": 2,
-    "userF_name": "test",
-    "userL_name": "tersedsr",
-    "userPhone": "0212152",
-    "userEmail": "test@gmail.com",
+    "user_first_name": "test",
+    "user_last_name": "tersedsr",
+    "user_phone": "0212152",
+    "user_email": "test@gmail.com",
     "userPassword": "123456",
     "role_id": 1
   }

@@ -9,19 +9,19 @@ const User = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    userF_name: {
+    user_first_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    userL_name: {
+    user_last_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    userPhone: {
+    user_phone: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    userEmail: {
+    user_email: {
       type: DataTypes.STRING,
       allowNull: false,
     },

@@ -49,7 +49,7 @@ class TokenManager {
         bus_id: users[0].bus_id,
         role_id: users[0].role_id,
         role_name: users[0].role.role_name,
-        userEmail: users[0].userEmail,
+        user_email: users[0].user_email,
       };
 
       return payload;
