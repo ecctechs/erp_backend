@@ -257,12 +257,7 @@ class QuotationSaleController {
             customer_id: req.params.id,
           },
         });
-        return ResponseManager.SuccessResponse(
-          req,
-          res,
-          200,
-          "Customer Deleted"
-        );
+        return ResponseManager.SuccessResponse(req,res,200,"Customer Deleted");
       } else {
         return ResponseManager.ErrorResponse(
           req,
