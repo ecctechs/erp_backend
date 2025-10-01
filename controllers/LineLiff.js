@@ -76,6 +76,15 @@ class LineLiff {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
+
+    static async test(req, res) {
+    try {
+    return ResponseManager.SuccessResponse(req, res, 200, "ssss")
+  
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
 }
 
 module.exports = LineLiff;

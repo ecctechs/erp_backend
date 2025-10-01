@@ -53,6 +53,8 @@ Route.get("/protected-route", verifyTokenWithRole("SUPERUSER"), (req, res) => {
 
 Route.post(RouteName + "/send-otp", LineLiffController.SendOTP);
 Route.post(RouteName + "/verify-otp", LineLiffController.VerifyOTP);
+Route.post(RouteName + "/test", LineLiffController.test);
+
 
 
 module.exports = Route;
