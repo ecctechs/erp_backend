@@ -305,7 +305,7 @@ class AuthController {
         where: {
           bus_id: bus_id,
         },
-        order: [['TokenCreate', 'ASC']],
+        order: [["TokenCreate", "ASC"]],
       });
 
       const hashedPassword = req.body.userPassword;
@@ -373,7 +373,7 @@ class AuthController {
       // if (!req.file) {
       //   return ResponseManager.ErrorResponse(req, res, 400, "No file uploaded");
       // }
-      
+
       let result = [];
       if (req.file) {
         const allowedMimeTypes = ["image/jpeg", "image/png"];
@@ -396,10 +396,10 @@ class AuthController {
 
         result = await cloudinary.uploader.upload(req.file.path);
       }
-        // return false;
-      
+      // return false;
+
       console.log("Cloudinary upload result:", result);
-  
+
       const createbank = await Bank.create({
         bank_name: req.body.bank_name,
         bank_account: req.body.bank_account,
@@ -489,24 +489,31 @@ class AuthController {
         },
       });
       if (editemp) {
+        const { bus_id } = req.userData;
+
         const existingUser = await User.findOne({
           where: {
-            [Op.or]: [
+            [Op.and]: [
+              { bus_id }, // ตรวจสอบ bus_id
               {
-                userEmail: req.body.userEmail,
-                userID: { [Op.ne]: req.params.id },
-              },
-              {
-                userF_name: req.body.userF_name,
-                userID: { [Op.ne]: req.params.id },
-              },
-              {
-                userL_name: req.body.userL_name,
-                userID: { [Op.ne]: req.params.id },
-              },
-              {
-                userPassword: req.body.userPassword,
-                userID: { [Op.ne]: req.params.id },
+                [Op.or]: [
+                  {
+                    userEmail: req.body.userEmail,
+                    userID: { [Op.ne]: req.params.id },
+                  },
+                  {
+                    userF_name: req.body.userF_name,
+                    userID: { [Op.ne]: req.params.id },
+                  },
+                  {
+                    userL_name: req.body.userL_name,
+                    userID: { [Op.ne]: req.params.id },
+                  },
+                  {
+                    userPassword: req.body.userPassword,
+                    userID: { [Op.ne]: req.params.id },
+                  },
+                ],
               },
             ],
           },

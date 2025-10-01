@@ -6,7 +6,7 @@ const {
   Transaction,
   Expense,
 } = require("../model/productModel");
-const { Business } = require("../model/quotationModel");
+const { Business, Billing } = require("../model/quotationModel");
 const { cloudinary } = require("../utils/cloudinary");
 const { Op } = require("sequelize");
 const moment = require("moment");
@@ -173,7 +173,7 @@ class ProductController {
 
           result = await cloudinary.uploader.upload(req.file.path);
         } else {
-          // result = [];
+          result = [];
         }
 
         const insert_product = await Product.create({
@@ -210,21 +210,21 @@ class ProductController {
           res.status(400).json({ error: "File size exceeds 5 MB limit" });
         }
 
-        const existingProduct = await Product.findOne({
-          where: {
-            productname: req.body.productname,
-            productID: { [Op.ne]: req.params.id },
-          },
-        });
+        // const existingProduct = await Product.findOne({
+        //   where: {
+        //     productname: req.body.productname,
+        //     productID: { [Op.ne]: req.params.id },
+        //   },
+        // });
 
-        if (existingProduct) {
-          return ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Product already exists"
-          );
-        }
+        // if (existingProduct) {
+        //   return ResponseManager.ErrorResponse(
+        //     req,
+        //     res,
+        //     400,
+        //     "Product already exists"
+        //   );
+        // }
 
         let productUpdateData = {
           productTypeID: req.body.productTypeID,
@@ -1112,6 +1112,62 @@ class ProductController {
       return ResponseManager.SuccessResponse(req, res, 200, {
         message: "Expense deleted successfully",
       });
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async CutStock(req, res) {
+    try {
+      const { id, quantity, transactionType } = req.body;
+
+      const product = await Product.findOne({
+        where: { productID: id },
+      });
+
+      if (!product) {
+        return ResponseManager.FailureResponse(
+          req,
+          res,
+          404,
+          "Product not found"
+        );
+      }
+
+      let newAmount;
+      let billingStatus;
+
+      if (transactionType === "Receive") {
+        newAmount = product.amount + quantity;
+        billingStatus = "";
+      } else {
+        if (product.amount < quantity) {
+          return ResponseManager.FailureResponse(
+            req,
+            res,
+            400,
+            "Insufficient stock"
+          );
+        }
+        newAmount = product.amount - quantity;
+        billingStatus = new Date().toISOString();
+      }
+
+      await Product.update(
+        { amount: newAmount },
+        {
+          where: { productID: id },
+        }
+      );
+
+      await Billing.update(
+        { deleted_at: billingStatus },
+        {
+          where: { billing_number: req.body.billing_number },
+        }
+      );
+
+      return ResponseManager.SuccessResponse(req, res, 200, "Product Updated");
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }

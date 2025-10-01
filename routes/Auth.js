@@ -2,6 +2,7 @@ const express = require("express");
 const Route = express.Router();
 const RouteName = "/auth";
 const AuthController = require("../controllers/AuthController");
+const LineLiffController = require("../controllers/LineLiff");
 const {
   verifyTokenWithRole,
   logUserActivity,
@@ -27,7 +28,11 @@ Route.post(
   AuthController.RegisterNewUsers
 );
 Route.delete(RouteName + "/DeleteUsers/:id", AuthController.DeleteUsers);
-Route.put(RouteName + "/EditUsers/:id", AuthController.EditUsers);
+Route.put(
+  RouteName + "/EditUsers/:id",
+  verifyTokenWithbus_id,
+  AuthController.EditUsers
+);
 Route.get(RouteName + "/GetRole", AuthController.GetRole);
 Route.post(RouteName + "/AddRole", AuthController.AddRole);
 Route.put(RouteName + "/EditRole/:id", AuthController.EditRole);
@@ -45,5 +50,9 @@ Route.post(RouteName + "/checkEmail", AuthController.checkEmail);
 Route.get("/protected-route", verifyTokenWithRole("SUPERUSER"), (req, res) => {
   res.json({ message: "Access granted", user: req.user });
 });
+
+Route.post(RouteName + "/send-otp", LineLiffController.SendOTP);
+Route.post(RouteName + "/verify-otp", LineLiffController.VerifyOTP);
+
 
 module.exports = Route;

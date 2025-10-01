@@ -192,15 +192,15 @@ class EmployeeController {
           },
         });
 
-        if (existingEmail) {
-          await ResponseManager.ErrorResponse(
-            req,
-            res,
-            400,
-            "Employee's email already exists"
-          );
-          return;
-        }
+        // if (existingEmail) {
+        //   await ResponseManager.ErrorResponse(
+        //     req,
+        //     res,
+        //     400,
+        //     "Employee's email already exists"
+        //   );
+        //   return;
+        // }
 
         // const existingempBankID = await Employee.findOne({
         //   where: {
@@ -606,66 +606,66 @@ class EmployeeController {
             salary: log.employee.Salary,
           });
         });
-      // } else if (RoleName === "MANAGER") {
-      //   const userData = await Employee.findOne({
-      //     where: {
-      //       Email: userEmail,
-      //     },
-      //     include: [
-      //       {
-      //         model: Department,
-      //       },
-      //     ],
-      //   });
+        // } else if (RoleName === "MANAGER") {
+        //   const userData = await Employee.findOne({
+        //     where: {
+        //       Email: userEmail,
+        //     },
+        //     include: [
+        //       {
+        //         model: Department,
+        //       },
+        //     ],
+        //   });
 
-      //   if (!userData || !userData.department) {
-      //     return await ResponseManager.ErrorResponse(
-      //       req,
-      //       res,
-      //       404,
-      //       "Manager department data not found"
-      //     );
-      //   }
+        //   if (!userData || !userData.department) {
+        //     return await ResponseManager.ErrorResponse(
+        //       req,
+        //       res,
+        //       404,
+        //       "Manager department data not found"
+        //     );
+        //   }
 
-      //   const userdepart = userData.department.departmentID;
+        //   const userdepart = userData.department.departmentID;
 
-      //   paymentslist = await Salary_pay.findAll({
-      //     include: [
-      //       {
-      //         model: Employee,
-      //         where: {
-      //           departmentID: userdepart,
-      //           Email: {
-      //             [Op.ne]: userEmail,
-      //           },
-      //         },
-      //         include: [
-      //           {
-      //             model: Position,
-      //           },
-      //           {
-      //             model: Department,
-      //             where: {
-      //               departmentID: userdepart,
-      //             },
-      //           },
-      //         ],
-      //       },
-      //     ],
-      //     where: { bus_id: bus_id },
-      //   });
+        //   paymentslist = await Salary_pay.findAll({
+        //     include: [
+        //       {
+        //         model: Employee,
+        //         where: {
+        //           departmentID: userdepart,
+        //           Email: {
+        //             [Op.ne]: userEmail,
+        //           },
+        //         },
+        //         include: [
+        //           {
+        //             model: Position,
+        //           },
+        //           {
+        //             model: Department,
+        //             where: {
+        //               departmentID: userdepart,
+        //             },
+        //           },
+        //         ],
+        //       },
+        //     ],
+        //     where: { bus_id: bus_id },
+        //   });
 
-      //   paymentslist.forEach((log) => {
-      //     result.push({
-      //       payment_id: log.payment_id,
-      //       date: log.Date,
-      //       round: log.round,
-      //       month: log.month,
-      //       year: log.year,
-      //       employeeName: log.employee.F_name + " " + log.employee.L_name,
-      //       salary: log.employee.Salary,
-      //     });
-      //   });
+        //   paymentslist.forEach((log) => {
+        //     result.push({
+        //       payment_id: log.payment_id,
+        //       date: log.Date,
+        //       round: log.round,
+        //       month: log.month,
+        //       year: log.year,
+        //       employeeName: log.employee.F_name + " " + log.employee.L_name,
+        //       salary: log.employee.Salary,
+        //     });
+        //   });
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, result);
@@ -1649,44 +1649,44 @@ class EmployeeController {
             },
           ],
         });
-      // } else if (RoleName === "MANAGER") {
-      //   const userData = await Employee.findOne({
-      //     where: {
-      //       Email: userEmail,
-      //       bus_id: bus_id,
-      //     },
-      //     include: [
-      //       {
-      //         model: Department,
-      //       },
-      //     ],
-      //   });
+        // } else if (RoleName === "MANAGER") {
+        //   const userData = await Employee.findOne({
+        //     where: {
+        //       Email: userEmail,
+        //       bus_id: bus_id,
+        //     },
+        //     include: [
+        //       {
+        //         model: Department,
+        //       },
+        //     ],
+        //   });
 
-      //   if (!userData || !userData.department) {
-      //     return await ResponseManager.ErrorResponse(
-      //       req,
-      //       res,
-      //       404,
-      //       "Manager department data not found"
-      //     );
-      //   }
+        //   if (!userData || !userData.department) {
+        //     return await ResponseManager.ErrorResponse(
+        //       req,
+        //       res,
+        //       404,
+        //       "Manager department data not found"
+        //     );
+        //   }
 
-      //   const userdepart = userData.department.departmentID;
+        //   const userdepart = userData.department.departmentID;
 
-      //   data_overtime = await Overtime.findAll({
-      //     include: [
-      //       {
-      //         model: Employee,
-      //         where: {
-      //           departmentID: userdepart,
-      //           bus_id: bus_id,
-      //           Email: {
-      //             [Op.ne]: userEmail,
-      //           },
-      //         },
-      //       },
-      //     ],
-      //   });
+        //   data_overtime = await Overtime.findAll({
+        //     include: [
+        //       {
+        //         model: Employee,
+        //         where: {
+        //           departmentID: userdepart,
+        //           bus_id: bus_id,
+        //           Email: {
+        //             [Op.ne]: userEmail,
+        //           },
+        //         },
+        //       },
+        //     ],
+        //   });
       }
 
       return ResponseManager.SuccessResponse(req, res, 200, data_overtime);

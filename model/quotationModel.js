@@ -212,7 +212,7 @@ const Quotation_sale_detail = sequelize.define(
       allowNull: false,
     },
     product_detail: {
-      type: DataTypes.STRING(40),
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     pro_unti: {
