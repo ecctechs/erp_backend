@@ -27,10 +27,12 @@ class LineLiff {
 
       // ตั้งค่า transporter (ตัวอย่างใช้ Gmail)
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true, // true สำหรับ port 465
         auth: {
-          user: "eccerp2568@gmail.com", // TODO: แก้เป็นอีเมลจริง
-          pass: "ehpy fnyq ujnt hqxo"     // TODO: ใช้ App password ของ Gmail
+          user: "eccerp2568@gmail.com",
+          pass: "ehpyfnyqujnthqxo" // App Password 16 หลัก ต่อเนื่อง ไม่มีช่องว่าง
         }
       });
 
