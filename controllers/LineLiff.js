@@ -1,7 +1,7 @@
 const ResponseManager = require("../middleware/ResponseManager");
-const { User, Role } = require("../model/userModel"); // call model
-const { Business } = require("../model/quotationModel");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const otpStore = {}; // เก็บ OTP ใน memory (production ควรใช้ DB/Redis)
 
@@ -16,40 +16,35 @@ function generateOtp(length = 6) {
 class LineLiff {
   static async SendOTP(req, res) {
     try {
-      const { email } = req.body;
+      const { email, name = "User" } = req.body;
       if (!email) {
         return ResponseManager.ErrorResponse(req, res, 400, "Email is required");
       }
 
-      // สร้าง OTP
       const otp = generateOtp(6);
-      otpStore[email] = { otp, expires: Date.now() + 3 * 60 * 1000 }; // เก็บ 3 นาที
+      otpStore[email] = { otp, expires: Date.now() + 3 * 60 * 1000 };
 
-      // ตั้งค่า transporter (ตัวอย่างใช้ Gmail)
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true, // true สำหรับ port 465
-        auth: {
-          user: "eccerp2568@gmail.com",
-          pass: "ehpyfnyqujnthqxo" // App Password 16 หลัก ต่อเนื่อง ไม่มีช่องว่าง
-        }
-      });
-
-      // ส่งอีเมล
-      await transporter.sendMail({
-        from: '"Business Verification" <your-email@gmail.com>',
+      // ส่งอีเมลผ่าน Resend
+      await resend.emails.send({
+        from: "onboarding@resend.dev", // ถ้ายังไม่ได้ verify domain ให้ใช้ของ Resend ก่อน
         to: email,
-        subject: "รหัสยืนยัน OTP",
-        text: `รหัส OTP ของคุณคือ ${otp} (หมดอายุภายใน 3 นาที)`,
-        html: `<h3>OTP: ${otp}</h3><p>รหัสนี้จะหมดอายุใน 3 นาที</p>`
+        subject: "OTP Verification",
+        html: `
+          <div style="font-family:Arial,sans-serif; padding:20px;">
+            <h2>สวัสดีคุณ ${name},</h2>
+            <p>รหัส OTP ของคุณคือ:</p>
+            <h1 style="color:#2c3e50;">${otp}</h1>
+            <p>รหัสนี้จะหมดอายุใน 3 นาที</p>
+          </div>
+        `,
       });
+
       return ResponseManager.SuccessResponse(req, res, 200, {
         message: "OTP sent successfully",
-        otp: otp, // เอาไว้ debug (จริงๆ ไม่ควรส่งกลับ client)
       });
 
     } catch (err) {
+      console.error(err);
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
@@ -59,30 +54,26 @@ class LineLiff {
       const { email, otp } = req.body;
       const record = otpStore[email];
 
-      if (!record) {
+      if (!record)
         return ResponseManager.ErrorResponse(req, res, 400, "ไม่มี OTP สำหรับอีเมลนี้");
-      }
-      if (Date.now() > record.expires) {
+      if (Date.now() > record.expires)
         return ResponseManager.ErrorResponse(req, res, 400, "OTP หมดอายุ");
-      }
-      if (record.otp !== otp) {
+      if (record.otp !== otp)
         return ResponseManager.ErrorResponse(req, res, 400, "OTP ไม่ถูกต้อง");
-      }
 
-      delete otpStore[email]; // ใช้แล้วลบ
+      delete otpStore[email]; // ลบ OTP หลังใช้แล้ว
 
-    return ResponseManager.SuccessResponse(req, res, 200, {
-      message: "ยืนยันสำเร็จ"
-    });
+      return ResponseManager.SuccessResponse(req, res, 200, {
+        message: "ยืนยันสำเร็จ",
+      });
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
-    static async test(req, res) {
+  static async test(req, res) {
     try {
-    return ResponseManager.SuccessResponse(req, res, 200, "ssss")
-  
+      return ResponseManager.SuccessResponse(req, res, 200, "test ok");
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
