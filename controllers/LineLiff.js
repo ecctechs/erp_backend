@@ -93,21 +93,8 @@ class LineLiff {
 
   static async test(req, res) {
     try {
-      const { email } = req.body; // รับอีเมลปลายทางจาก body
-      if (!email) {
-        return ResponseManager.ErrorResponse(req, res, 400, "Email is required for test");
-      }
+      return ResponseManager.SuccessResponse(req, res, 200, "5555")
 
-      await resend.emails.send({
-        from: "onboarding@resend.dev", // ใช้ได้ทันที
-        to: email,
-        subject: "Test Email from Resend",
-        html: `<p>สวัสดี 👋<br/>นี่คือการทดสอบส่งอีเมลผ่าน Resend 🚀</p>`,
-      });
-
-      return ResponseManager.SuccessResponse(req, res, 200, {
-        message: "Test email sent successfully (via Resend)",
-      });
     } catch (err) {
       console.error("Error sending test email:", err);
       return ResponseManager.CatchResponse(req, res, err.message);
