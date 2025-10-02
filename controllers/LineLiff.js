@@ -1,6 +1,6 @@
 const ResponseManager = require("../middleware/ResponseManager");
 const nodemailer = require("nodemailer");
-
+const { User } = require("../model/userModel"); // call model
 const otpStore = {}; // เก็บ OTP ใน memory (production ควรใช้ DB/Redis)
 
 const { Resend } = require("resend");
@@ -93,10 +93,22 @@ class LineLiff {
 
   static async test(req, res) {
     try {
-      return ResponseManager.SuccessResponse(req, res, 200, "5555")
-
+    
     } catch (err) {
       console.error("Error sending test email:", err);
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+    static async check_business_email(req, res) {
+    try {
+      let business_id = null;
+
+      const user_list = User.findAll();
+
+      return ResponseManager.SuccessResponse(req, res, 200, user_list);
+
+    } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
