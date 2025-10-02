@@ -1,10 +1,14 @@
 const ResponseManager = require("../middleware/ResponseManager");
+const nodemailer = require("nodemailer");
+
+const otpStore = {}; // เก็บ OTP ใน memory (production ควรใช้ DB/Redis)
+
 const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const otpStore = {}; // เก็บ OTP ใน memory (production ควรใช้ DB/Redis)
 
+// ฟังก์ชันสร้าง OTP
 function generateOtp(length = 6) {
   let otp = "";
   for (let i = 0; i < length; i++) {
@@ -13,7 +17,22 @@ function generateOtp(length = 6) {
   return otp;
 }
 
+// สร้าง transporter เชื่อมกับ SMTP ของ Chiyo
+const transporter = nodemailer.createTransport({
+  host: "mail.eccsolutions.co.th",   // แก้ให้ตรงกับของ Host Chiyo
+  port: 587,                         // ถ้าใช้ TLS เปลี่ยนเป็น 587
+  secure: false,                      // true = SSL (465), false = TLS (587)
+  auth: {
+    user: "techs@eccsolutions.co.th", // อีเมลที่สร้างใน Chiyo
+    pass: "T4ch@ECC!solutions",         // รหัสผ่านอีเมล
+  },
+  tls: {
+    rejectUnauthorized: false, // ⚠️ ข้ามการตรวจสอบ SSL (ไม่ปลอดภัย)
+  },
+});
+
 class LineLiff {
+  // ฟังก์ชันส่ง OTP
   static async SendOTP(req, res) {
     try {
       const { email, name = "User" } = req.body;
@@ -21,13 +40,14 @@ class LineLiff {
         return ResponseManager.ErrorResponse(req, res, 400, "Email is required");
       }
 
+      // สร้าง OTP
       const otp = generateOtp(6);
       otpStore[email] = { otp, expires: Date.now() + 3 * 60 * 1000 };
 
-      // ส่งอีเมลผ่าน Resend
-      await resend.emails.send({
-        from: "onboarding@resend.dev", // ถ้ายังไม่ได้ verify domain ให้ใช้ของ Resend ก่อน
-        to: email,
+      // ส่งอีเมล
+      await transporter.sendMail({
+        from: '"ECC Solutions" <no-reply@eccsolutions.co.th>', // อีเมลผู้ส่ง
+        to: email,                                             // อีเมลผู้รับ
         subject: "OTP Verification",
         html: `
           <div style="font-family:Arial,sans-serif; padding:20px;">
@@ -42,13 +62,13 @@ class LineLiff {
       return ResponseManager.SuccessResponse(req, res, 200, {
         message: "OTP sent successfully",
       });
-
     } catch (err) {
-      console.error(err);
+      console.error("Error sending email:", err);
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
 
+  // ฟังก์ชันตรวจสอบ OTP
   static async VerifyOTP(req, res) {
     try {
       const { email, otp } = req.body;
@@ -73,8 +93,23 @@ class LineLiff {
 
   static async test(req, res) {
     try {
-      return ResponseManager.SuccessResponse(req, res, 200, "test ok");
+      const { email } = req.body; // รับอีเมลปลายทางจาก body
+      if (!email) {
+        return ResponseManager.ErrorResponse(req, res, 400, "Email is required for test");
+      }
+
+      await resend.emails.send({
+        from: "onboarding@resend.dev", // ใช้ได้ทันที
+        to: email,
+        subject: "Test Email from Resend",
+        html: `<p>สวัสดี 👋<br/>นี่คือการทดสอบส่งอีเมลผ่าน Resend 🚀</p>`,
+      });
+
+      return ResponseManager.SuccessResponse(req, res, 200, {
+        message: "Test email sent successfully (via Resend)",
+      });
     } catch (err) {
+      console.error("Error sending test email:", err);
       return ResponseManager.CatchResponse(req, res, err.message);
     }
   }
