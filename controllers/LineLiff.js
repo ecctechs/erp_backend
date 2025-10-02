@@ -106,26 +106,14 @@ class LineLiff {
       if (!email) {
         return ResponseManager.ErrorResponse(req, res, 400, "Email is required");
       }
-
+      
       // หา user จาก userEmail
       const user = await User.findOne({
         where: { userEmail: email },
         attributes: ['userEmail', 'bus_id'] // เลือกเฉพาะฟิลด์ที่ต้องการ
       });
 
-      if (!user) {
-        // ไม่เจอ user
-        return ResponseManager.SuccessResponse(req, res, 200, {
-          userEmail: email,
-          business_id: null
-        });
-      }
-
-      // เจอ user ส่ง email และ business_id
-      return ResponseManager.SuccessResponse(req, res, 200, {
-        userEmail: user.userEmail,
-        business_id: user.bus_id
-      });
+      return ResponseManager.SuccessResponse(req, res, 200, user);
 
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
