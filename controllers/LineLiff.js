@@ -100,13 +100,32 @@ class LineLiff {
     }
   }
 
-    static async check_business_email(req, res) {
+  static async check_business_email(req, res) {
     try {
-      let business_id = null;
+      const { email } = req.body; // หรือ req.query.email
+      if (!email) {
+        return ResponseManager.ErrorResponse(req, res, 400, "Email is required");
+      }
 
-      const user_list = await User.findAll();
+      // หา user จาก userEmail
+      const user = await User.findOne({
+        where: { userEmail: email },
+        attributes: ['userEmail', 'bus_id'] // เลือกเฉพาะฟิลด์ที่ต้องการ
+      });
 
-      return ResponseManager.SuccessResponse(req, res, 200, user_list);
+      if (!user) {
+        // ไม่เจอ user
+        return ResponseManager.SuccessResponse(req, res, 200, {
+          userEmail: email,
+          business_id: null
+        });
+      }
+
+      // เจอ user ส่ง email และ business_id
+      return ResponseManager.SuccessResponse(req, res, 200, {
+        userEmail: user.userEmail,
+        business_id: user.bus_id
+      });
 
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
