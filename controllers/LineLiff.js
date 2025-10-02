@@ -1,6 +1,7 @@
 const ResponseManager = require("../middleware/ResponseManager");
 const nodemailer = require("nodemailer");
 const { User } = require("../model/userModel"); // call model
+const { Business} = require("../model/quotationModel");
 const otpStore = {}; // เก็บ OTP ใน memory (production ควรใช้ DB/Redis)
 
 const { Resend } = require("resend");
@@ -102,16 +103,25 @@ class LineLiff {
 
   static async check_business_email(req, res) {
     try {
+      User.belongsTo(Business, { foreignKey: 'bus_id' });
+      Business.hasMany(User, { foreignKey: 'bus_id' });
+      
       const { email } = req.body; // หรือ req.query.email
       if (!email) {
         return ResponseManager.ErrorResponse(req, res, 400, "Email is required");
       }
-      
+
       // หา user จาก userEmail
-      const user = await User.findOne({
-        where: { userEmail: email },
-        attributes: ['userEmail', 'bus_id'] // เลือกเฉพาะฟิลด์ที่ต้องการ
-      });
+        const user = await User.findOne({
+          where: { userEmail: email },
+          attributes: ['userEmail', 'bus_id'], // ฟิลด์ของ User
+          include: [
+            {
+              model: Business,
+              attributes: ['bus_name'] // ฟิลด์ที่ต้องการจาก Business
+            }
+          ]
+        });
 
       return ResponseManager.SuccessResponse(req, res, 200, user);
 
