@@ -104,7 +104,7 @@ class LineLiff {
     try {
       let business_id = null;
 
-      const user_list = User.findAll();
+      const user_list = await User.findAll();
 
       return ResponseManager.SuccessResponse(req, res, 200, user_list);
 
