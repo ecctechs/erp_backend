@@ -27,7 +27,7 @@ function generateOtp(length = 6) {
 // สร้าง transporter เชื่อมกับ SMTP ของ Chiyo
 const transporter = nodemailer.createTransport({
   host: "mail.eccsolutions.co.th",   // แก้ให้ตรงกับของ Host Chiyo
-  port: 587,                         // ถ้าใช้ TLS เปลี่ยนเป็น 587
+  port: 110,                         // ถ้าใช้ TLS เปลี่ยนเป็น 587
   secure: false,                      // true = SSL (465), false = TLS (587)
   auth: {
     user: "techs@eccsolutions.co.th", // อีเมลที่สร้างใน Chiyo
