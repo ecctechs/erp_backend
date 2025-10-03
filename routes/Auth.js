@@ -55,6 +55,9 @@ Route.post(RouteName + "/send-otp", LineLiffController.SendOTP);
 Route.post(RouteName + "/verify-otp", LineLiffController.VerifyOTP);
 Route.post(RouteName + "/test", LineLiffController.test);
 Route.post(RouteName + "/check_business_email", LineLiffController.check_business_email);
+Route.post(RouteName + "/get_product", LineLiffController.get_product);
+Route.post(RouteName + "/get_customer", LineLiffController.get_customer);
+Route.post(RouteName + "/get_company", LineLiffController.get_company);
 
 
 

@@ -1,7 +1,13 @@
 const ResponseManager = require("../middleware/ResponseManager");
 const nodemailer = require("nodemailer");
 const { User } = require("../model/userModel"); // call model
-const { Business} = require("../model/quotationModel");
+const {Product,} = require("../model/productModel");
+const {
+  Business,
+  Customer,
+  Company_person,
+} = require("../model/quotationModel");
+
 const otpStore = {}; // เก็บ OTP ใน memory (production ควรใช้ DB/Redis)
 
 const { Resend } = require("resend");
@@ -124,6 +130,51 @@ class LineLiff {
         });
 
       return ResponseManager.SuccessResponse(req, res, 200, user);
+
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async get_product(req, res) {
+    try {
+      const { bus_id } = req.body; 
+
+      var products = await Product.findAll({
+        where: { bus_id: bus_id },
+      });
+     
+      return ResponseManager.SuccessResponse(req, res, 200, products);
+
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async get_company(req, res) {
+    try {
+      const { bus_id } = req.body; 
+
+      var company = await Company_person.findAll({
+        where: { bus_id: bus_id },
+      });
+     
+      return ResponseManager.SuccessResponse(req, res, 200, company);
+
+    } catch (err) {
+      return ResponseManager.CatchResponse(req, res, err.message);
+    }
+  }
+
+  static async get_customer(req, res) {
+    try {
+      const { bus_id } = req.body; 
+     
+      var customer = await Customer.findAll({
+        where: { bus_id: bus_id },
+      });
+     
+      return ResponseManager.SuccessResponse(req, res, 200, customer);
 
     } catch (err) {
       return ResponseManager.CatchResponse(req, res, err.message);
