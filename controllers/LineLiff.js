@@ -53,7 +53,7 @@ class LineLiff {
 
       // ส่งอีเมล
       await transporter.sendMail({
-        from: '"ECC Solutions" <techs@eccsolutions.co.th>', // อีเมลผู้ส่ง
+        from: '"ECC Solutions" <no-reply@eccsolutions.co.th>', // อีเมลผู้ส่ง
         to: email,                                             // อีเมลผู้รับ
         subject: "OTP Verification",
         html: `
