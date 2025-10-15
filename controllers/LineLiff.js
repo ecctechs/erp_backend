@@ -25,27 +25,27 @@ function generateOtp(length = 6) {
 }
 
 // สร้าง transporter เชื่อมกับ SMTP ของ Chiyo
-const transporter = nodemailer.createTransport({
-  host: "mail.eccsolutions.co.th",   // แก้ให้ตรงกับของ Host Chiyo
-  port: 587,                         // ถ้าใช้ TLS เปลี่ยนเป็น 587
-  secure: false,                      // true = SSL (465), false = TLS (587)
-  auth: {
-    user: "techs@eccsolutions.co.th", // อีเมลที่สร้างใน Chiyo
-    pass: "T4ch@ECC!solutions",         // รหัสผ่านอีเมล
-  },
-  tls: {
-    rejectUnauthorized: false, // ⚠️ ข้ามการตรวจสอบ SSL (ไม่ปลอดภัย)
-  },
-});
 // const transporter = nodemailer.createTransport({
-//   host: 'tama-chan.com',
-//   port: 465,
-//   secure: true, 
+//   host: "mail.eccsolutions.co.th",   // แก้ให้ตรงกับของ Host Chiyo
+//   port: 587,                         // ถ้าใช้ TLS เปลี่ยนเป็น 587
+//   secure: false,                      // true = SSL (465), false = TLS (587)
 //   auth: {
-//     user: 'no-reply@tama-chan.com', // your email address
-//     pass: 'Tama-010'   // your email password or app-specific password
-//   }
+//     user: "techs@eccsolutions.co.th", // อีเมลที่สร้างใน Chiyo
+//     pass: "T4ch@ECC!solutions",         // รหัสผ่านอีเมล
+//   },
+//   tls: {
+//     rejectUnauthorized: false, // ⚠️ ข้ามการตรวจสอบ SSL (ไม่ปลอดภัย)
+//   },
 // });
+const transporter = nodemailer.createTransport({
+  host: 'tama-chan.com',
+  port: 465,
+  secure: true, 
+  auth: {
+    user: 'no-reply@tama-chan.com', // your email address
+    pass: 'Tama-010'   // your email password or app-specific password
+  }
+});
 
 class LineLiff {
   // ฟังก์ชันส่ง OTP
@@ -62,7 +62,7 @@ class LineLiff {
 
       // ส่งอีเมล
       await transporter.sendMail({
-        from: '"ECC Solutions" <techs@eccsolutions.co.th>',
+        from: '"ECC Solutions" <no-reply@tama-chan.com>',
         to: email,                                             // อีเมลผู้รับ
         subject: "OTP Verification",
         html: `
